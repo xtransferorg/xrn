@@ -1,0 +1,118 @@
+diff --git a/node_modules/react-native-svg/src/css/LocalSvg.tsx b/node_modules/react-native-svg/src/css/LocalSvg.tsx
+index ab96d11..be3fe7e 100644
+--- a/node_modules/react-native-svg/src/css/LocalSvg.tsx
++++ b/node_modules/react-native-svg/src/css/LocalSvg.tsx
+@@ -1,7 +1,7 @@
+ import * as React from 'react';
+ import { useState, useEffect, Component } from 'react';
+ import type { ImageSourcePropType } from 'react-native';
+-import { Platform, Image } from 'react-native';
++import { Platform, Image ,NativeModules} from 'react-native';
+ 
+ import { fetchText } from 'react-native-svg';
+ import { SvgCss, SvgWithCss } from './css';
+@@ -13,8 +13,8 @@ export function getUriFromSource(source: ImageSourcePropType) {
+ }
+ 
+ export function loadLocalRawResourceDefault(source: ImageSourcePropType) {
+-  const uri = getUriFromSource(source);
+-  return fetchText(uri);
++  const resolvedAssetSource = Image.resolveAssetSource(source);
++  return fetchText(resolvedAssetSource.uri, resolvedAssetSource.jsbundleUrl);
+ }
+ 
+ export function isUriAnAndroidResourceIdentifier(uri?: string) {
+@@ -23,10 +23,19 @@ export function isUriAnAndroidResourceIdentifier(uri?: string) {
+ 
+ export async function loadAndroidRawResource(uri: string) {
+   try {
++    const scriptUrl = NativeModules.SourceCode.scriptURL
++
++    if(!scriptUrl.startsWith('assets://')) {
++      const content =  await NativeModules.RNPAssetsLoad.getCodePushRawResource(scriptUrl, uri + '.svg')
++
++      if(content) {
++        return content;
++      }
++    }
+     const RNSVGRenderableModule: any =
+-      // neeeded for new arch
+-      // eslint-disable-next-line @typescript-eslint/no-var-requires
+-      require('../fabric/NativeSvgRenderableModule').default;
++    // neeeded for new arch
++    // eslint-disable-next-line @typescript-eslint/no-var-requires
++    require('../fabric/NativeSvgRenderableModule').default;
+     return await RNSVGRenderableModule.getRawResource(uri);
+   } catch (e) {
+     console.error(
+@@ -39,6 +48,7 @@ export async function loadAndroidRawResource(uri: string) {
+ 
+ export function loadLocalRawResourceAndroid(source: ImageSourcePropType) {
+   const uri = getUriFromSource(source);
++
+   if (isUriAnAndroidResourceIdentifier(uri)) {
+     return loadAndroidRawResource(uri);
+   } else {
+@@ -61,8 +71,18 @@ export function LocalSvg(props: LocalProps) {
+   const { asset, ...rest } = props;
+   const [xml, setXml] = useState<string | null>(null);
+   useEffect(() => {
+-    loadLocalRawResource(asset).then(setXml);
+-  }, [asset]);
++    loadLocalRawResource(asset).then((svgStr) => {
++      const _str = (svgStr || '').replace(/fill=\"([^\"\']*)\"/g, (_, originFillColor) => {
++        // @ts-ignore
++        const fillColor = rest.fillColor === 'none' ?  (originFillColor || '#333333') : rest.fillColor;
++        return `fill="${fillColor}"`;
++      }).replace(/stroke=\"([^\"\']*)\"/g, (_, originColor) => {
++        const color = rest.color === 'none' ? (originColor || '#333333') : rest.color ;
++        return `stroke="${color}"`;
++      });
++      setXml(_str)
++    });
++  }, [asset, rest]);
+   return <SvgCss xml={xml} {...rest} />;
+ }
+ 
+diff --git a/node_modules/react-native-svg/src/xml.tsx b/node_modules/react-native-svg/src/xml.tsx
+index 9e2352a..7bcae2c 100644
+--- a/node_modules/react-native-svg/src/xml.tsx
++++ b/node_modules/react-native-svg/src/xml.tsx
+@@ -25,6 +25,11 @@ import ClipPath from './elements/ClipPath';
+ import Pattern from './elements/Pattern';
+ import Mask from './elements/Mask';
+ import Marker from './elements/Marker';
++import {Platform} from 'react-native'
++import RNFS from 'react-native-fs';
++
++// @ts-ignore
++const isHarmony = Platform.OS === 'harmony';
+ 
+ export const tags: { [tag: string]: ComponentType } = {
+   svg: Svg,
+@@ -122,7 +127,24 @@ export function SvgXml(props: XmlProps) {
+   }
+ }
+ 
+-export async function fetchText(uri: string) {
++export async function fetchText(uri: string, jsbundleUrl: string = '') {
++  if (isHarmony) {
++    if (uri.startsWith('asset://')) {
++      const path = uri.replace('asset://', '');
++      let res;
++      if (await RNFS.existsAssets(path)) {
++        res = await RNFS.readFileAssets(path, 'utf8');
++      } else {
++        const absolutePath = jsbundleUrl.replace('file://', '') + path;
++        res = await RNFS.readFile(absolutePath, 'utf8');
++      }
++      return res;
++    }
++    if(uri.startsWith('resource://RAWFILE/')) {
++      const res = await RNFS.readFileAssets(uri.replace('resource://RAWFILE/', ''), 'utf8');
++      return res;
++    }
++  }
+   const response = await fetch(uri);
+   if (response.ok || (response.status === 0 && uri.startsWith('file://'))) {
+     return await response.text();

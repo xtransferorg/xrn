@@ -1,0 +1,29 @@
+[
+  {
+    "name": "XrnBundle",
+    "title": "Bundle 管理",
+    "showName": "Bundle 管理",
+    "group": "资源管理",
+    "description": "提供 Bundle 资源加载和版本管理功能",
+    "packageName": "@xrnjs/bundle",
+    "sdkPath": "resource-management/xrn-bundle"
+  },
+  {
+    "name": "XrnNavigation",
+    "title": "导航",
+    "showName": "导航",
+    "group": "路由与导航",
+    "description": "提供应用内导航管理，支持多种路由方式",
+    "packageName": "@xrnjs/navigation",
+    "sdkPath": "routing-navigation/xrn-navigation"
+  },
+  {
+    "name": "XrnAppUpdate",
+    "title": "更新",
+    "showName": "更新",
+    "group": "资源管理",
+    "description": "提供应用内更新管理，支持多种更新方式",
+    "packageName": "@xrnjs/app-update",
+    "sdkPath": "resource-management/xrn-app-update"
+  }
+]

@@ -1,0 +1,17 @@
+release_android
+release_ios
+
+yalc.lock
+
+# yalc
+# !.yalc
+# !.yalc/**/build
+# !.yalc/**/build/*
+
+# Yarn
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions

@@ -1,0 +1,6 @@
+{
+  "name": "xrngo-bare",
+  "displayName": "xrngo-bare",
+  "skipCheckXtRnCoreVersion": true,
+  "port": 18082
+}

@@ -1,0 +1,9 @@
+{
+  "module": {
+    "name": "xrn_bundle",
+    "type": "har",
+    "deviceTypes": [
+      "default"
+    ]
+  }
+}

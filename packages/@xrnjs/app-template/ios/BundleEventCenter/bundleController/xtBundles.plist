@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<array>
+	<dict>
+		<key>port</key>
+		<string>6061</string>
+		<key>jsBundleName</key>
+		<string>sub-bundle</string>
+		<key>codePushKey</key>
+		<string>3pnCxHlgP89xjIo9K1GoyHkU0HAZ4ksvOXqog</string>
+	</dict>
+</array>
+</plist>

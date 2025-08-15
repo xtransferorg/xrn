@@ -1,0 +1,9 @@
+.cache
+.next
+.swc
+.vale
+
+out
+node_modules
+pages/versions/latest
+public

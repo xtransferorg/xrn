@@ -1,0 +1,289 @@
+diff --git a/node_modules/react-native/Libraries/Blob/FileReader.js b/node_modules/react-native/Libraries/Blob/FileReader.js
+index c0b7fea..51185fc 100644
+--- a/node_modules/react-native/Libraries/Blob/FileReader.js
++++ b/node_modules/react-native/Libraries/Blob/FileReader.js
+@@ -10,7 +10,7 @@
+ 
+ const Blob = require('./Blob');
+ const EventTarget = require('event-target-shim');
+-
++import Platform from '../Utilities/Platform';
+ import NativeFileReaderModule from './NativeFileReaderModule';
+ 
+ type ReadyState =
+@@ -112,6 +112,11 @@ class FileReader extends (EventTarget(...READER_EVENTS): any) {
+         "Failed to execute 'readAsText' on 'FileReader': parameter 1 is not of type 'Blob'",
+       );
+     }
++    if (!blob.data && Platform.OS === 'android') {
++      throw new TypeError(
++        "Failed to execute 'readAsText' on 'FileReader': 'Blob.data' is null " + blob,
++      );
++    }
+ 
+     NativeFileReaderModule.readAsText(blob.data, encoding).then(
+       (text: string) => {
+diff --git a/node_modules/react-native/Libraries/Components/Touchable/TouchableOpacity.js b/node_modules/react-native/Libraries/Components/Touchable/TouchableOpacity.js
+index 67e18c0..5e7df59 100644
+--- a/node_modules/react-native/Libraries/Components/Touchable/TouchableOpacity.js
++++ b/node_modules/react-native/Libraries/Components/Touchable/TouchableOpacity.js
+@@ -263,9 +263,7 @@ class TouchableOpacity extends React.Component<Props, State> {
+     this.state.pressability.configure(this._createPressabilityConfig());
+     if (
+       this.props.disabled !== prevProps.disabled ||
+-      (flattenStyle(prevProps.style)?.opacity !==
+-        flattenStyle(this.props.style)?.opacity) !==
+-        undefined
++      (flattenStyle(prevProps.style)?.opacity !== flattenStyle(this.props.style)?.opacity)
+     ) {
+       this._opacityInactive(250);
+     }
+diff --git a/node_modules/react-native/Libraries/ReactNative/AppRegistry.js b/node_modules/react-native/Libraries/ReactNative/AppRegistry.js
+index 6607db3..c90cbb7 100644
+--- a/node_modules/react-native/Libraries/ReactNative/AppRegistry.js
++++ b/node_modules/react-native/Libraries/ReactNative/AppRegistry.js
+@@ -201,6 +201,13 @@ const AppRegistry = {
+         () => msg,
+       );
+     }
++
++    if (!runnables[appKey] || !runnables[appKey].run) {
++      if (appParameters) {
++        appParameters.appKey = appKey;
++      }
++      appKey = "xt-app-404"
++    }
+     invariant(
+       runnables[appKey] && runnables[appKey].run,
+       `"${appKey}" has not been registered. This can happen if:\n` +
+diff --git a/node_modules/react-native/React/Base/RCTReloadCommand.m b/node_modules/react-native/React/Base/RCTReloadCommand.m
+index 4d8dd0b..adf198d 100644
+--- a/node_modules/react-native/React/Base/RCTReloadCommand.m
++++ b/node_modules/react-native/React/Base/RCTReloadCommand.m
+@@ -11,6 +11,55 @@
+ #import "RCTKeyCommands.h"
+ #import "RCTUtils.h"
+ 
++#if DEBUG
++#import "RCTBridge.h"
++#import "RCTRootView.h"
++
++@interface UIViewController (XTTopVC)
++
+++ (UIViewController *)getCurrentVC;
++
++@end
++
++@implementation UIViewController (XTTopVC)
++
++//获取当前屏幕显示的viewcontroller
+++ (UIViewController *)getCurrentVC
++{
++  ///下文中有分析
++ // UIViewController *rootViewController = [UIApplication sharedApplication].keyWindow.rootViewController;
++  // 这里不获取keyWindow，因为keyWindow会发生变化，比如Alert 或者 键盘之类的，会导致keyWindow发生变化。所以这里我们只获取appdelegate.window
++  UIViewController *rootViewController = UIApplication.sharedApplication.delegate.window.rootViewController;
++  UIViewController *currentVC = [self getCurrentVCFrom:rootViewController];
++  return currentVC;
++}
++
+++ (UIViewController *)getCurrentVCFrom:(UIViewController *)rootVC
++{
++  UIViewController *currentVC;
++  if ([rootVC presentedViewController]) {
++    // 视图是被presented出来的
++    rootVC = [rootVC presentedViewController];
++  }
++  
++  if ([rootVC isKindOfClass:[UITabBarController class]]) {
++    // 根视图为UITabBarController
++    currentVC = [self getCurrentVCFrom:[(UITabBarController *)rootVC selectedViewController]];
++  } else if ([rootVC isKindOfClass:[UINavigationController class]]){
++    // 根视图为UINavigationController
++    currentVC = [self getCurrentVCFrom:[(UINavigationController *)rootVC visibleViewController]];
++  } else {
++    // 根视图为非导航类
++    currentVC = rootVC;
++  }
++  
++  return currentVC;
++}
++
++@end
++
++#endif
++
+ static NSHashTable<id<RCTReloadListener>> *listeners;
+ static NSLock *listenersLock;
+ static NSURL *bundleURL;
+@@ -46,6 +95,17 @@ void RCTRegisterReloadCommandListener(id<RCTReloadListener> listener)
+ void RCTTriggerReloadCommandListeners(NSString *reason)
+ {
+   [listenersLock lock];
++#if DEBUG
++    UIViewController *currentVC = [UIViewController getCurrentVC];
++    if ([currentVC.view isKindOfClass:[RCTRootView class]]) {
++      RCTRootView *rootView = (RCTRootView *)currentVC.view;
++      NSURL *currentBundleURL = rootView.bridge.bundleURL;
++      if (currentBundleURL != nil) {
++        // 重设bundleURL
++        RCTReloadCommandSetBundleURL(currentBundleURL);
++      }
++    }
++#endif
+   [[NSNotificationCenter defaultCenter] postNotificationName:RCTTriggerReloadCommandNotification
+                                                       object:nil
+                                                     userInfo:@{
+@@ -54,7 +114,16 @@ void RCTTriggerReloadCommandListeners(NSString *reason)
+                                                     }];
+ 
+   for (id<RCTReloadListener> l in [listeners allObjects]) {
++#if DEBUG
++      RCTBridge *bridge = (RCTBridge *)l;
++      NSString *currentBundleName = bundleURL.absoluteString.lastPathComponent;
++      NSString *bridgeBundleName = bridge.bundleURL.absoluteString.lastPathComponent;
++      if ([currentBundleName isEqualToString:bridgeBundleName]) {
++        [l didReceiveReloadCommand];
++      }
++#else
+     [l didReceiveReloadCommand];
++#endif
+   }
+   [listenersLock unlock];
+ }
+diff --git a/node_modules/react-native/index.js b/node_modules/react-native/index.js
+index d59ba34..d481f01 100644
+--- a/node_modules/react-native/index.js
++++ b/node_modules/react-native/index.js
+@@ -435,33 +435,38 @@ module.exports = {
+   },
+   // Deprecated Prop Types
+   get ColorPropType(): $FlowFixMe {
+-    invariant(
+-      false,
+-      'ColorPropType has been removed from React Native. Migrate to ' +
+-        "ColorPropType exported from 'deprecated-react-native-prop-types'.",
+-    );
++    // invariant(
++    //   false,
++    //   'ColorPropType has been removed from React Native. Migrate to ' +
++    //     "ColorPropType exported from 'deprecated-react-native-prop-types'.",
++    // );
++    return require('deprecated-react-native-prop-types').ColorPropType;
+   },
+   get EdgeInsetsPropType(): $FlowFixMe {
+-    invariant(
+-      false,
+-      'EdgeInsetsPropType has been removed from React Native. Migrate to ' +
+-        "EdgeInsetsPropType exported from 'deprecated-react-native-prop-types'.",
+-    );
++    // invariant(
++    //   false,
++    //   'EdgeInsetsPropType has been removed from React Native. Migrate to ' +
++    //     "EdgeInsetsPropType exported from 'deprecated-react-native-prop-types'.",
++    // );
++    return require('deprecated-react-native-prop-types').EdgeInsetsPropType;
+   },
+   get PointPropType(): $FlowFixMe {
+-    invariant(
+-      false,
+-      'PointPropType has been removed from React Native. Migrate to ' +
+-        "PointPropType exported from 'deprecated-react-native-prop-types'.",
+-    );
++    // invariant(
++    //   false,
++    //   'PointPropType has been removed from React Native. Migrate to ' +
++    //     "PointPropType exported from 'deprecated-react-native-prop-types'.",
++    // );
++    return require('deprecated-react-native-prop-types').PointPropType;
+   },
+   get ViewPropTypes(): $FlowFixMe {
+-    invariant(
+-      false,
+-      'ViewPropTypes has been removed from React Native. Migrate to ' +
+-        "ViewPropTypes exported from 'deprecated-react-native-prop-types'.",
+-    );
++    // invariant(
++    //   false,
++    //   'ViewPropTypes has been removed from React Native. Migrate to ' +
++    //     "ViewPropTypes exported from 'deprecated-react-native-prop-types'.",
++    // );
++    return require('deprecated-react-native-prop-types').ViewPropTypes;
+   },
++
+ };
+ 
+ if (__DEV__) {
+@@ -694,33 +699,33 @@ if (__DEV__) {
+    * attempting to access PickerIOS. */
+   /* $FlowFixMe[invalid-export] This is intentional: Flow will error when
+    * attempting to access PickerIOS. */
+-  Object.defineProperty(module.exports, 'PickerIOS', {
+-    configurable: true,
+-    get() {
+-      invariant(
+-        false,
+-        'PickerIOS has been removed from React Native. ' +
+-          "It can now be installed and imported from '@react-native-picker/picker' instead of 'react-native'. " +
+-          'See https://github.com/react-native-picker/picker',
+-      );
+-    },
+-  });
++  // Object.defineProperty(module.exports, 'PickerIOS', {
++  //   configurable: true,
++  //   get() {
++  //     invariant(
++  //       false,
++  //       'PickerIOS has been removed from React Native. ' +
++  //         "It can now be installed and imported from '@react-native-picker/picker' instead of 'react-native'. " +
++  //         'See https://github.com/react-native-picker/picker',
++  //     );
++  //   },
++  // });
+ 
+   /* $FlowFixMe[prop-missing] This is intentional: Flow will error when
+    * attempting to access Picker. */
+   /* $FlowFixMe[invalid-export] This is intentional: Flow will error when
+    * attempting to access Picker. */
+-  Object.defineProperty(module.exports, 'Picker', {
+-    configurable: true,
+-    get() {
+-      invariant(
+-        false,
+-        'Picker has been removed from React Native. ' +
+-          "It can now be installed and imported from '@react-native-picker/picker' instead of 'react-native'. " +
+-          'See https://github.com/react-native-picker/picker',
+-      );
+-    },
+-  });
++  // Object.defineProperty(module.exports, 'Picker', {
++  //   configurable: true,
++  //   get() {
++  //     invariant(
++  //       false,
++  //       'Picker has been removed from React Native. ' +
++  //         "It can now be installed and imported from '@react-native-picker/picker' instead of 'react-native'. " +
++  //         'See https://github.com/react-native-picker/picker',
++  //     );
++  //   },
++  // });
+   /* $FlowFixMe[prop-missing] This is intentional: Flow will error when
+    * attempting to access DatePickerAndroid. */
+   /* $FlowFixMe[invalid-export] This is intentional: Flow will error when
+@@ -737,3 +742,16 @@ if (__DEV__) {
+     },
+   });
+ }
++  Object.defineProperty(module.exports, 'PickerIOS', {
++    configurable: true,
++    get() {
++      return require('@react-native-picker/picker').PickerIOS;
++    },
++  });
++
++  Object.defineProperty(module.exports, 'Picker', {
++    configurable: true,
++    get() {
++      return require('@react-native-picker/picker').Picker;
++    },
++  });

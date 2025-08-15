@@ -1,0 +1,29 @@
+diff --git a/node_modules/@react-native-community/cli-config/build/findDependencies.js b/node_modules/@react-native-community/cli-config/build/findDependencies.js
+index e70e2d7..b8fb8fa 100644
+--- a/node_modules/@react-native-community/cli-config/build/findDependencies.js
++++ b/node_modules/@react-native-community/cli-config/build/findDependencies.js
+@@ -32,15 +32,20 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
+  */
+ function findDependencies(root) {
+   let pjson;
++  let coreJson;
+ 
+   try {
+     pjson = JSON.parse(_fs().default.readFileSync(_path().default.join(root, 'package.json'), 'utf8'));
+   } catch (e) {
+     return [];
+   }
+-
+-  const deps = [...Object.keys(pjson.dependencies || {}), ...Object.keys(pjson.devDependencies || {})];
+-  return deps;
++  try {
++     coreJson = JSON.parse(_fs().default.readFileSync(_path().default.join(root, 'node_modules', '@xrnjs/core', 'package.json'), 'utf8'));
++  } catch (e) {
++    coreJson = {}
++  }
++  const deps = [...Object.keys(pjson.dependencies || {}), ...Object.keys(pjson.devDependencies || {}), ...Object.keys(coreJson.dependencies || {})];
++  return Array.from(new Set(deps));
+ }
+ 
+ //# sourceMappingURL=findDependencies.js.map
+\ No newline at end of file

@@ -1,0 +1,72 @@
+---
+title: Native 目录结构
+sidebar_title: Native 目录结构
+---
+
+import { FileTree } from '~/ui/components/FileTree';
+
+## App 模板（Native 工程）目录结构
+
+<FileTree
+  files={[
+    ['android', <code>Android 原生工程目录</code>],
+    ['ios', <code>iOS 原生工程目录</code>],
+    ['harmony', <code>鸿蒙工程目录</code>],
+    ['main-bundle', <code>主 bundle 目录</code>],
+    ['sub-bundle', <code>子 bundle 目录</code>],
+    ['xrn.config.json', <code>XRN 配置文件</code>],
+    ['package.json', <code>项目描述文件</code>],
+    ['react-native.config.js', <code>RN 配置文件</code>],
+  ]}
+/>
+
+## 主要目录说明
+
+- `android/`：Android 原生工程目录
+- `ios/`：iOS 原生工程目录
+- `harmony/`：鸿蒙工程目录
+- `main-bundle/`：主 bundle 目录，存放主业务 JS 代码。详情请参见 [Bundle 目录结构](/guides/getting-started/bundle-folder)
+- `sub-bundle/`：子 bundle 目录，存放子业务 JS 代码。详情请参见 [Bundle 目录结构](/guides/getting-started/bundle-folder)
+- `xrn.config.json`：XRN 配置文件
+- `package.json`：项目描述文件
+- `react-native.config.js`：RN 配置文件
+
+## 主要配置文件说明
+
+- `package.json`：项目依赖、脚本等
+- `xrn.config.json`：XRN 工程配置
+- `react-native.config.js`：React Native 相关配置
+
+## xrn.config.json 配置说明
+
+`xrn.config.json` 是 XRN 工程的核心配置文件，主要字段说明如下：
+
+- `appName`：应用名称。
+- `unpacking`：是否使用拆包模式，布尔值。
+- `appVersion`：应用版本号。
+- `bundleConfig`：多 bundle 配置。
+  - `project.name`：工程名称。
+  - `defaultOptions.bundleType`：默认 bundle 类型（如 sub）。
+  - `bundles`：bundle 列表，每个 bundle 配置如下：
+    - `name`：bundle 名称。
+    - `bundlePackageRelativePath`：bundle 目录相对路径。
+    - `bundleType`：bundle 类型（如 main/sub）。
+    - `checkNativeDep`：是否检查原生依赖。
+    - `codePushKey`：CodePush 更新 key。
+    - `port`：开发服务器端口。
+- `androidUpdateAppKey`：Android 更新 key，按 debug/release、china/default 渠道区分。
+- `harmonyUpdateAppKey`：鸿蒙更新 key，按 debug/release 区分。
+- `iosUpdateAppKey`：iOS 更新 key，按 debug/release 区分。
+
+## package.json 脚本说明
+
+`package.json` 中常用脚本功能如下：
+
+- `codegen`：生成 Harmony 相关的 C++ 代码。
+- `build:harmony`：构建 Harmony 平台的调试包（hap 格式）。
+- `build:ios`：构建 iOS 平台的调试包（ipa 格式）。
+- `build:ios-sim`：构建 iOS 模拟器的发布包（app 格式）。
+- `build:android`：构建 Android 平台的调试包（apk 格式）。
+- `postinstall`：依赖安装后自动执行的脚本（如 xrn-native-postinstall）。
+
+> 具体 bundle 目录结构和 bundle 相关开发说明，请参考 [Bundle 目录结构](/guides/getting-started/bundle-folder)

@@ -1,0 +1,18 @@
+import * as React from 'react';
+import {Button} from 'react-native';
+
+import {Page, Section} from '../components/Page';
+
+export default function <%= name %>Screen() {
+  return (
+    <Page>
+      <Section title="Default">
+        <Button title="<%= name %>" onPress={() => {}} />
+      </Section>
+    </Page>
+  );
+}
+
+<%= name %>Screen.navigationOptions = {
+  title: '<%= title || name %>',
+}; 

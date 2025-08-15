@@ -1,0 +1,9 @@
+{
+  "module": {
+    "name": "xrn_native_storage",
+    "type": "har",
+    "deviceTypes": [
+      "default"
+    ]
+  }
+}

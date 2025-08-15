@@ -1,0 +1,20 @@
+// 不要修改这个文件，这个文件是由 Screen 类自动生成的
+import {ScreenConfig} from '../types/ScreenConfig';
+import {optionalRequire} from './routeBuilder';
+
+export const Screens: ScreenConfig[] = [<% screens.forEach(function(screen, index) { %>
+  {
+    getComponent() {
+      return optionalRequire(() => require('../screens/<%= screen.xrnMeta.name %>Screen'));
+    },
+    name: '<%= screen.xrnMeta.name %>',
+    options: {
+      title: '<%= screen.xrnMeta.title || screen.xrnMeta.name %>',
+    },
+    showName: '<%= screen.xrnMeta.showName || screen.xrnMeta.name %>',
+    description: '<%= screen.xrnMeta.description || "" %>',
+    group: '<%= screen.xrnMeta.group || "" %>',
+    packageName: '<%= screen.xrnMeta.packageName || "" %>',
+    sdkPath: '<%= screen.xrnMeta.sdkPath ? screen.xrnMeta.sdkPath : '' %>',
+  },
+<% }); %>];

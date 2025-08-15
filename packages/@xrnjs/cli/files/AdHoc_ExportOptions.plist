@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>destination</key>
+	<string>export</string>
+	<key>iCloudContainerEnvironment</key>
+	<string>Production</string>
+	<key>manifest</key>
+	<dict>
+		<key>appURL</key>
+		<string>ipa包的https链接</string>
+		<key>displayImageURL</key>
+		<string>57x57的png的https链接</string>
+		<key>fullSizeImageURL</key>
+		<string>512x512的png的https链接</string>
+	</dict>
+	<key>method</key>
+	<string>ad-hoc</string>
+	<key>signingStyle</key>
+	<string>automatic</string>
+	<key>stripSwiftSymbols</key>
+	<true/>
+	<key>teamID</key>
+	<string>227UGFU7Z8</string>
+	<key>uploadBitcode</key>
+	<false/>
+	<key>uploadSymbols</key>
+	<false/>
+</dict>
+</plist>

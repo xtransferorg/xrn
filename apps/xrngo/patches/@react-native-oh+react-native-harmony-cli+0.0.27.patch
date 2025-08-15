@@ -1,0 +1,13 @@
+diff --git a/node_modules/@react-native-oh/react-native-harmony-cli/dist/core/ProjectDependenciesManager.js b/node_modules/@react-native-oh/react-native-harmony-cli/dist/core/ProjectDependenciesManager.js
+index 6170c19..565dbf1 100644
+--- a/node_modules/@react-native-oh/react-native-harmony-cli/dist/core/ProjectDependenciesManager.js
++++ b/node_modules/@react-native-oh/react-native-harmony-cli/dist/core/ProjectDependenciesManager.js
+@@ -47,7 +47,7 @@ class ProjectDependenciesManager {
+             }
+             for (let dirOrFileName of node_fs_1.default.readdirSync(directoryPath.getValue())) {
+                 const potentialDependencyRootPath = directoryPath.copyWithNewSegment(dirOrFileName);
+-                if (node_fs_1.default.lstatSync(potentialDependencyRootPath.getValue()).isDirectory()) {
++                if (node_fs_1.default.statSync(potentialDependencyRootPath.getValue()).isDirectory()) {
+                     if (dirOrFileName.startsWith('.')) {
+                         continue;
+                     }

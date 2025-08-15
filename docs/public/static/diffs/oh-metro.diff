@@ -1,0 +1,19 @@
+--- metro.config-old.js	2025-03-12 17:53:12
++++ metro.config.js	2025-03-12 16:14:36
+@@ -1,4 +1,7 @@
+ const {mergeConfig, getDefaultConfig} = require('@react-native/metro-config');
++const {
++  createHarmonyMetroConfig,
++} = require('@react-native-oh/react-native-harmony/metro.config');
+ 
+ const {
+   resolver: { sourceExts, assetExts },
+@@ -24,5 +27,8 @@
+ 
+ module.exports = mergeConfig(
+   getDefaultConfig(__dirname),
++  createHarmonyMetroConfig({
++    reactNativeHarmonyPackageName: '@react-native-oh/react-native-harmony',
++  }),
+   config,
+ );

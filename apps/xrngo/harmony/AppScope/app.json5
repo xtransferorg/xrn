@@ -1,0 +1,10 @@
+{
+  app: {
+    bundleName: 'com.xtapp.xrngo',
+    vendor: 'XTransfer',
+    versionCode: 202508120,
+    versionName: '1.0.0',
+    icon: '$media:app_icon',
+    label: '$string:app_name',
+  },
+}

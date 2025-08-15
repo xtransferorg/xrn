@@ -1,0 +1,23 @@
+{
+  "project": {
+    "name": "XRNTemplate"
+  },
+  "defaultOptions": {
+    "bundleType": "sub"
+  },
+  "bundles": [
+    {
+      "bundleName": "main-bundle",
+      "bundlePackageRelativePath": "./main-bundle",
+      "bundleType": "main",
+      "codePushKey": "0NzkdHaOp6RhCDWjD1G3KogLieV54ksvOXqog",
+      "port": 8081
+    },
+    {
+      "bundleName": "sub-bundle",
+      "bundlePackageRelativePath": "./sub-bundle",
+      "codePushKey": "KpWDtkf7lssWGGhFVlubzRq9gAg74ksvOXqog",
+      "port": 6061
+    }
+  ]
+}

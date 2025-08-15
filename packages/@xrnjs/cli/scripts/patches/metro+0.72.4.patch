@@ -1,0 +1,142 @@
+diff --git a/node_modules/metro/src/HmrServer.js b/node_modules/metro/src/HmrServer.js
+index 0aa8e71..118a554 100644
+--- a/node_modules/metro/src/HmrServer.js
++++ b/node_modules/metro/src/HmrServer.js
+@@ -279,6 +279,15 @@ class HmrServer {
+     try {
+       var _this$_config$server$2;
+ 
++      if (this._config.onDynamicHmrConfig) {
++        const config = await this._config.onDynamicHmrConfig(this._config, { platform: group.clientUrl.query.platform });
++        Object.assign(this._config, config);
++        if (!config.isInitialed) {
++          // 已经初始化过了，不需要再初始化，否则会导致 ID 重置，HMR 失效
++          this._createModuleId = this._config.serializer.createModuleIdFactory();
++        }
++      }
++      
+       const revPromise = this._bundler.getRevision(group.revisionId);
+ 
+       if (!revPromise) {
+@@ -290,6 +299,7 @@ class HmrServer {
+         };
+       }
+ 
++      
+       const { revision, delta } = await this._bundler.updateGraph(
+         await revPromise,
+         false
+diff --git a/node_modules/metro/src/Server.js b/node_modules/metro/src/Server.js
+index 9297846..3b91d4b 100644
+--- a/node_modules/metro/src/Server.js
++++ b/node_modules/metro/src/Server.js
+@@ -687,6 +687,12 @@ class Server {
+     }) => {
+       var _this$_config$server$3;
+ 
++      if (this._config.onDynamicConfig) {
++        const config = await this._config.onDynamicConfig(this._config, { platform: transformOptions.platform });
++        Object.assign(this._config, config);
++        this._createModuleId = this._config.serializer.createModuleIdFactory();
++      }
++
+       const revPromise = this._bundler.getRevisionByGraphId(graphId);
+ 
+       const { delta, revision } = await (revPromise != null
+@@ -1037,6 +1043,10 @@ class Server {
+           file !== null && file !== void 0 ? file : ""
+         );
+ 
++        if (/xt-app-common\.[bundle|jsbundle]/.test(file)) {
++          continue;
++        }
++
+         if (collapse || lineNumber == null || urls.has(fileAbsolute)) {
+           continue;
+         }
+diff --git a/node_modules/metro/src/lib/TerminalReporter.js b/node_modules/metro/src/lib/TerminalReporter.js
+index 261bc4f..780f016 100644
+--- a/node_modules/metro/src/lib/TerminalReporter.js
++++ b/node_modules/metro/src/lib/TerminalReporter.js
+@@ -145,20 +145,25 @@ class TerminalReporter {
+   _logInitializing(port, hasReducedPerformance) {
+     const logo = [
+       "",
+-      "                        ▒▒▓▓▓▓▒▒",
+-      "                     ▒▓▓▓▒▒░░▒▒▓▓▓▒",
+-      "                  ▒▓▓▓▓░░░▒▒▒▒░░░▓▓▓▓▒",
+-      "                 ▓▓▒▒▒▓▓▓▓▓▓▓▓▓▓▓▓▒▒▒▓▓",
+-      "                 ▓▓░░░░░▒▓▓▓▓▓▓▒░░░░░▓▓",
+-      "                 ▓▓░░▓▓▒░░░▒▒░░░▒▓▒░░▓▓",
+-      "                 ▓▓░░▓▓▓▓▓▒▒▒▒▓▓▓▓▒░░▓▓",
+-      "                 ▓▓░░▓▓▓▓▓▓▓▓▓▓▓▓▓▒░░▓▓",
+-      "                 ▓▓▒░░▒▒▓▓▓▓▓▓▓▓▒░░░▒▓▓",
+-      "                  ▒▓▓▓▒░░░▒▓▓▒░░░▒▓▓▓▒",
+-      "                     ▒▓▓▓▒░░░░▒▓▓▓▒",
+-      "                        ▒▒▓▓▓▓▒▒",
+-      "",
+-      "",
++      `                                                            
++XXXXXXX       XXXXXXX     RRRRRRRRRRRRRRRRR        NNNNNNNN        NNNNNNNN
++X:::::X       X:::::X     R::::::::::::::::R       N:::::::N       N::::::N
++X:::::X       X:::::X     R::::::RRRRRR:::::R      N::::::::N      N::::::N
++X::::::X     X::::::X     RR:::::R     R:::::R     N:::::::::N     N::::::N
++XXX:::::X   X:::::XXX       R::::R     R:::::R     N::::::::::N    N::::::N
++   X:::::X X:::::X          R::::R     R:::::R     N:::::::::::N   N::::::N
++    X:::::X:::::X           R::::RRRRRR:::::R      N:::::::N::::N  N::::::N
++     X:::::::::X            R:::::::::::::RR       N::::::N N::::N N::::::N
++     X:::::::::X            R::::RRRRRR:::::R      N::::::N  N::::N:::::::N
++    X:::::X:::::X           R::::R     R:::::R     N::::::N   N:::::::::::N
++   X:::::X X:::::X          R::::R     R:::::R     N::::::N    N::::::::::N
++XXX:::::X   X:::::XXX       R::::R     R:::::R     N::::::N     N:::::::::N
++X::::::X     X::::::X     RR:::::R     R:::::R     N::::::N      N::::::::N
++X:::::X       X:::::X     R::::::R     R:::::R     N::::::N       N:::::::N
++X:::::X       X:::::X     R::::::R     R:::::R     N::::::N        N::::::N
++XXXXXXX       XXXXXXX     RRRRRRRR     RRRRRRR     NNNNNNNN         NNNNNNN
++                        `,
++          "",
+     ];
+     const color = hasReducedPerformance ? chalk.red : chalk.blue;
+     this.terminal.log(color(logo.join("\n")));
+diff --git a/node_modules/metro/src/lib/createWebsocketServer.js b/node_modules/metro/src/lib/createWebsocketServer.js
+index 92ecd29..c34dd64 100644
+--- a/node_modules/metro/src/lib/createWebsocketServer.js
++++ b/node_modules/metro/src/lib/createWebsocketServer.js
+@@ -1,5 +1,5 @@
+ "use strict";
+-
++var boxen = _interopRequireDefault(require('boxen'));
+ var _ws = _interopRequireDefault(require("ws"));
+ 
+ function _interopRequireDefault(obj) {
+@@ -51,6 +51,8 @@ module.exports = function createWebsocketServer({ websocketServer }) {
+       websocketServer.onClientError && websocketServer.onClientError(client, e);
+     });
+     ws.on("close", () => {
++      console.log(' ')
++      console.log(boxen.default('APP 已断开，请重新启动 APP', {title: 'app socket', titleAlignment: 'center', padding: 2, borderColor: 'red', borderStyle: 'round', fullscreen: (width, height) => [width, height - 1],}));
+       websocketServer.onClientDisconnect &&
+         websocketServer.onClientDisconnect(client);
+       connected = false;
+diff --git a/node_modules/metro/src/lib/getPrependedScripts.js b/node_modules/metro/src/lib/getPrependedScripts.js
+index bc9e9cf..9ec5e24 100644
+--- a/node_modules/metro/src/lib/getPrependedScripts.js
++++ b/node_modules/metro/src/lib/getPrependedScripts.js
+@@ -39,7 +39,7 @@ async function getPrependedScripts(
+     .concat(config.serializer.polyfillModuleNames);
+   const transformOptions = { ...options, type: "script" };
+   const dependencies = await deltaBundler.getDependencies(
+-    [defaults.moduleSystem, ...polyfillModuleNames],
++    [...polyfillModuleNames],
+     {
+       resolve: await transformHelpers.getResolveDependencyFn(
+         bundler,
+@@ -47,7 +47,7 @@ async function getPrependedScripts(
+         resolverOptions
+       ),
+       transform: await transformHelpers.getTransformFn(
+-        [defaults.moduleSystem, ...polyfillModuleNames],
++        [...polyfillModuleNames],
+         bundler,
+         deltaBundler,
+         config,

@@ -1,0 +1,38 @@
+import { ContentSpotlight } from '~/ui/components/ContentSpotlight';
+import { Terminal } from '~/ui/components/Snippet';
+import { Step } from '~/ui/components/Step';
+
+<Step label="1">
+
+### 安装 Xcode
+
+打开 Mac App Store，搜索 [Xcode](https://apps.apple.com/us/app/xcode/id497799835)，点击 **安装**（如果已经安装，则点击 **更新**）。
+
+</Step>
+
+<Step label="2">
+
+### 安装 Xcode 命令行工具
+
+打开 Xcode，从 Xcode 菜单中选择 **设置...**（或按 <kbd>cmd ⌘</kbd> + <kbd>,</kbd>）。进入 **位置**，在 **命令行工具** 下拉菜单中选择最新版本来安装工具。
+
+<ContentSpotlight
+  alt="Xcode 偏好设置"
+  src="/xrn/static/images/ios-simulator/xcode-command-line.png"
+  className="max-w-[580px]"
+/>
+
+</Step>
+
+<Step label="3">
+
+### 安装 Watchman
+
+[Watchman](https://facebook.github.io/watchman/docs/install#macos) 是一个用于监视文件系统变化的工具。安装它将提高性能。你可以使用以下命令安装：
+
+<Terminal
+  cmd={['$ brew update', '$ brew install watchman']}
+  cmdCopy="brew update && brew install watchman"
+/>
+
+</Step>

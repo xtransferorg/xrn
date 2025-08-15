@@ -1,0 +1,56 @@
+{
+  "name": "@xrnjs/modules-core",
+  "version": "0.0.2",
+  "description": "xrn-modules-core",
+  "main": "./build/index.js",
+  "types": "./build/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf build",
+    "prepare": "yarn clean && yarn build",
+    "watch": "nodemon --ignore build/ --watch ./src -C -e js,jsx,ts,tsx,css,less --debug -x 'yalc publish --push'"
+  },
+  "files": [
+    "src",
+    "build",
+    "android",
+    "ios",
+    "cpp",
+    "types.d.ts",
+    "*.podspec",
+    "!ios/build",
+    "!android/build",
+    "!android/gradle",
+    "!android/gradlew",
+    "!android/gradlew.bat",
+    "!android/local.properties",
+    "!**/__tests__",
+    "!**/__fixtures__",
+    "!**/__mocks__",
+    "!**/.*"
+  ],
+  "keywords": [
+    "react-native",
+    "xrn",
+    "xrn-modules-core",
+    "XRNCore",
+    "xrnjs"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": "https://github.com/xtransferorg/xrn",
+  "bugs": {
+    "url": "https://github.com/xtransferorg/xrn/issues"
+  },
+  "author": "XRN",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/xtransferorg/xrn#readme",
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.1.3"
+  }
+}

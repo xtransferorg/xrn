@@ -1,0 +1,24 @@
+diff --git a/node_modules/react-native-config/android/src/main/java/com/lugg/RNCConfig/RNCConfigModule.java b/node_modules/react-native-config/android/src/main/java/com/lugg/RNCConfig/RNCConfigModule.java
+index 55b853b..c20cfc5 100644
+--- a/node_modules/react-native-config/android/src/main/java/com/lugg/RNCConfig/RNCConfigModule.java
++++ b/node_modules/react-native-config/android/src/main/java/com/lugg/RNCConfig/RNCConfigModule.java
+@@ -1,6 +1,7 @@
+ package com.lugg.RNCConfig;
+ 
+ import android.content.Context;
++import android.content.SharedPreferences;
+ import android.content.res.Resources;
+ import android.util.Log;
+ import com.facebook.react.bridge.ReactApplicationContext;
+@@ -43,6 +44,11 @@ public class RNCConfigModule extends ReactContextBaseJavaModule {
+                     Log.d("ReactNative", "ReactConfig: Could not access BuildConfig field " + f.getName());
+                 }
+             }
++            SharedPreferences sp = context.getSharedPreferences("spUtils", 0);
++            String localEnvHost = sp.getString("DEV_ENV_NAME", null);
++            if(localEnvHost != null) {
++                constants.put("ENV_NAME", localEnvHost);
++            }
+         } catch (ClassNotFoundException e) {
+             Log.d("ReactNative", "ReactConfig: Could not find BuildConfig class");
+         }

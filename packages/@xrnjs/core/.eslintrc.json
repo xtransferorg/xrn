@@ -1,0 +1,22 @@
+{
+  "root": true,
+  "extends": [
+    "@react-native"
+  ],
+  "rules": {
+    "prettier/prettier": [
+      "off",
+      {
+        "quoteProps": "consistent",
+        "singleQuote": true,
+        "tabWidth": 2,
+        "trailingComma": "es5",
+        "useTabs": false
+      }
+    ],
+    "semi": 0,
+    "curly": 0,
+    "no-trailing-spaces": 0,
+    "comma-dangle": 0
+  }
+}

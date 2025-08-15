@@ -1,0 +1,45 @@
+---
+title: 应用内更新
+platforms: ['android', 'ios', 'harmony']
+---
+
+import APISection from '~/components/plugins/APISection';
+import { SnackInline, Terminal } from '~/ui/components/Snippet';
+
+## 安装
+
+
+<Terminal cmd={['$ yarn add @xrnjs/app-update']} />
+
+
+## 使用
+
+<SnackInline label="Basic usage">
+
+```tsx
+import React from 'react'
+import { AppUpdateChecker } from '@xrnjs/app-update'
+import * as Sentry from '@sentry/react-native'
+
+const UpdateVersionModal = () => {
+
+	return (
+		<AppUpdateChecker
+			onVisibleChange={v => {
+				pushAllEvent(NATIVE_EVENT_KEY.UPDATE_VERSION, { visible: v })
+				if (!v) {
+					hide()
+				}
+			}}
+			noUpdate={hide}
+		/>
+	)
+}
+
+
+```
+</SnackInline>
+
+## API
+
+<APISection packageName="@xrnjs/app-update" /> 

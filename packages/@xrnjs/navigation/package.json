@@ -1,0 +1,93 @@
+{
+  "name": "@xrnjs/navigation",
+  "version": "0.0.3",
+  "description": "提供应用内导航管理，支持多种路由方式",
+  "main": "./build/index.js",
+  "types": "./build/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf build",
+    "prepare": "yarn clean && yarn build",
+    "watch": "nodemon --ignore build/ --watch ./src -C -e js,jsx,ts,tsx,css,less --debug -x 'yalc publish --push'"
+  },
+  "files": [
+    "patches",
+    "assets",
+    "src",
+    "build",
+    "android",
+    "ios",
+    "harmony/*.har",
+    "harmony/xrn_navigation",
+    "!harmony/xrn_navigation/oh_modules",
+    "!harmony/xrn_navigation/build",
+    "!harmony/xrn_navigation/.hvigor",
+    "cpp",
+    "*.podspec",
+    "!ios/build",
+    "!android/build",
+    "!android/gradle",
+    "!android/gradlew",
+    "!android/gradlew.bat",
+    "!android/local.properties",
+    "!**/__tests__",
+    "!**/__fixtures__",
+    "!**/__mocks__",
+    "!**/.*"
+  ],
+  "keywords": [
+    "react-native",
+    "xrn",
+    "xrn-navigation",
+    "XRNNavigation",
+    "xrnjs"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": "https://github.com/xtransferorg/xrn",
+  "bugs": {
+    "url": "https://github.com/xtransferorg/xrn/issues"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "homepage": "https://xtransferorg.github.io/xrn/versions/latest/sdk/routing-navigation/xrn-navigation",
+  "dependencies": {
+    "@react-navigation/bottom-tabs": "6.6.1",
+    "@react-navigation/native": "6.1.18",
+    "@react-navigation/stack": "6.4.1",
+    "lodash": "4.17.21",
+    "react-native-gesture-handler": "2.14.1",
+    "react-native-reanimated": "3.6.0",
+    "react-native-safe-area-context": "4.7.4",
+    "react-native-screens": "3.33.0",
+    "react-native-tab-view": "3.5.2",
+    "url-parse": "1.5.10",
+    "warn-once": "0.1.1"
+  },
+  "devDependencies": {
+    "@types/url-parse": "1.4.11",
+    "@xrnjs/multi-bundle": "0.0.3",
+    "typescript": "^5.1.3"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*"
+  },
+  "harmony": {
+    "codegenConfig": {
+      "specPaths": [
+        "./src"
+      ]
+    }
+  },
+  "xrnMeta": {
+    "name": "XrnNavigation",
+    "title": "导航",
+    "showName": "导航",
+    "group": "路由与导航",
+    "description": "提供应用内导航管理，支持多种路由方式",
+    "packageName": "xrn-navigation",
+    "sdkPath": "routing-navigation/xrn-navigation"
+  }
+}

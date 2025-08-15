@@ -1,0 +1,173 @@
+---
+title: 调试面板
+sidebar_title: 调试面板
+hideTOC: false
+---
+
+import { ContentSpotlight } from '~/ui/components/ContentSpotlight';
+import { Tabs, Tab } from '~/ui/components/Tabs';
+import { Terminal, DiffBlock } from '~/ui/components/Snippet';
+import { BoxLink } from '~/ui/components/BoxLink';
+
+## 简介
+
+APP调试面板主要用于在开发&测试阶段，为业务开发和测试提供便捷的调试测试能力，意在提升开发&测试效率
+
+目前APP调试面板统一使用JS开发，磨平了之前iOS和Android两端在交互和功能上的差异性，对使用者来说更加友好
+
+调试面板支持两种模式：
+
+- Debug模式（Debug包）：用于开发阶段调试
+- Release模式（Release包）：用于测试阶段回归功能
+
+## 调试入口
+
+在APP中点击全局悬浮球，即可唤起调试面板界面，此悬浮球存在于APP顶层window视图，在任何页面都可见
+
+<div className="grid grid-cols-2 gap-4">
+  <ContentSpotlight
+    alt="image.png"
+    src="/xrn/static/images/debug-panel/ball.png"
+    className="w-1/3"
+  />
+</div>
+
+## 调试面板
+
+<div className="grid grid-cols-2 gap-4">
+  <ContentSpotlight
+    alt="image.png"
+    src="https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/8K4nyRYaNy3eqLbj/img/d385c7e7-94d0-4bd1-bebf-c44881082e0c.png"
+    className="w-1/3"
+  />
+</div>
+
+## 功能点
+
+### 设备信息
+
+设备信息页面展示了当前设备的常用基础信息，支持复制单条信息，也支持一键复制所有设备信息
+
+<div className="grid grid-cols-2 gap-4">
+  <ContentSpotlight
+    alt="image.png"
+    src="https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/8K4nyRYaNy3eqLbj/img/fe68669e-4154-40ef-a370-69c714e4ddc2.png"
+    className="w-1/3"
+  />
+</div>
+
+##### 字段说明
+
+- **`手机品牌`**: 苹果 / xiaomi。
+- **`手机系统`**: iOS / Android。
+- **`系统版本`**: 设备操作系统版本（如 iOS 14.4）。
+- **`型号标识符`**: iPhone15,5。
+- **`设备名称`**: 设备型号（如 iPhone 11 Pro）。
+- **`设备唯一标识符`**: 97177EAF-318B-47C4-851C-9D4C2EE14288。
+- **`当前网络状态`**: wifi： 已连接。
+- **`网络运营商`**: 中国移动。
+- **`手机制造商`**: Apple。
+- **`总内存`**: 5.52 GB。
+- **`已使用内存大小`**: 0.83 GB。
+- **`总磁盘大小`**: 119.08 GB。
+- **`可用磁盘大小`**: 94.14 GB。
+- **`电池电量`**: 0.95。
+
+### App信息
+
+App信息页面展示了Xtransfer App常用的基础信息，支持复制单条信息，也支持一键复制所有App信息
+
+<div className="grid grid-cols-2 gap-4">
+  <ContentSpotlight
+    alt="image.png"
+    src="https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/8K4nyRYaNy3eqLbj/img/eda40800-beb3-4ab6-8e63-43762cc05e53.png"
+    className="w-1/3"
+  />
+</div>
+
+##### 字段说明
+
+- **`App名称`**: Debug包：XTDev， Release包： XTransfer。
+- **`APP 版本号`**: 3.3.1。
+- **`构建版本号`**: 20241024134508。
+- **`APP包名`**: cn.xtransfer.http://www.xtappapp.dev。
+- **`BaseURL`**: https://sitxt30.xtrfr.cn。
+- **`DeviceToken`**: dfdf8efc8696f8d1327950bbbe08fb131abf6ec47692a9886bca4c517232840a。
+- **`UserAgent`**: Mozilla/5.0 (iPhone; CPU iPhone OS 17_2_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 XTransfer(XTransfer/3.3.1)。
+- **`安装时间`**: 2024/10/23 16:53:17。
+
+### Bundle 信息
+
+Bundle 信息页面展示了APP中每一个业务bundle 接受到codePush对应的信息数据
+
+<div className="grid grid-cols-2 gap-4">
+  <ContentSpotlight
+    alt="image.png"
+    src="https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/8K4nyRYaNy3eqLbj/img/4241ff5c-db07-4c02-a6a6-fe89836fb0a9.png"
+    className="w-1/3"
+  />
+</div>
+
+##### 字段说明
+
+- **`Label`**: bundle对应的codePush版本号。
+- **`描述信息`**: 发送codePush时，更新的文案信息。
+- **`强制更新`**: 是 / 否。
+- **`developmentKey(CodePush应用Token)`**: 8a3LIJNNAXfUxKWnWcstDfN5FR0n4ksvOXqog。
+
+### 扫码绑IP
+
+一键扫描二维码，用来快速绑定Debug bundle 对应的IP地址，具体操作如下：
+
+<Terminal cmd={['$ npx xrn start [options] [args...]']} />
+<div className="grid grid-cols-2 gap-4">
+  <ContentSpotlight
+    alt="image.png"
+    src="/xrn/static/images/debug-panel/scan-debug.png"
+    className="w-1/3"
+  />
+</div>
+
+<div className="grid grid-cols-2 gap-4">
+  <ContentSpotlight
+    alt="image.png"
+    src="/xrn/static/images/debug-panel/scan-qrcode.png"
+    className="w-1/3"
+  />
+</div>
+
+### 清除缓存
+
+清除缓存数据这个功能，能够清理掉APP在使用过程中产生的缓存数据，避免在使用过程中因为缓存数据导致的异常
+
+### 系统设置页
+
+系统设置页按钮的功能是直接唤起手机系统页面，，便捷设置APP的系统相关功能
+
+### 设置环境
+
+设置环境页面支持自定义修改当前BaseUrl的环境，直接输入环境数字，点击保存并重启APP即可。切换成功后，APP内部也会同时从codePush服务请求对应环境的developmentKey，接受codepush。大大降低native APP的打包频率
+
+<div className="grid grid-cols-2 gap-4">
+  <ContentSpotlight
+    alt="image.png"
+    src="https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/8K4nyRYaNy3eqLbj/img/5e0d6fb3-8f60-43ad-b6d6-51851096331f.png"
+    className="w-1/3"
+  />
+</div>
+
+### 动态调试bundle
+
+动态调试bundle页面，支持用户手动输入IP地址，或者一键扫码绑定IP地址，需要调试哪一个bundle，直接勾选对应的开关，点击保存并重启APP按钮后，重启APP即可启动bundle服务，不需要重新构建native包，大大降低native APP的打包频率
+
+<div className="grid grid-cols-2 gap-4">
+  <ContentSpotlight
+    alt="image.png"
+    src="https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/8K4nyRYaNy3eqLbj/img/6a55b5f4-89ad-4e13-9d43-ca5dbfc3bc54.png"
+    className="w-1/3"
+  />
+</div>
+
+### Reload bundle
+
+ReloadBundle 按钮功能沿用react native DevMenu 中的Reload bundle 能力，点击Reload bundle 会重新加载当前bundle

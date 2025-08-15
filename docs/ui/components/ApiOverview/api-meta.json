@@ -1,0 +1,133 @@
+[
+  {
+    "name": "XrnAppUtils",
+    "title": "应用工具集",
+    "showName": "应用工具集",
+    "group": "工具函数",
+    "description": "提供常用的应用级工具函数，提升开发效率",
+    "packageName": "xrn-app-utils",
+    "sdkPath": "tools/xrn-app-utils"
+  },
+  {
+    "name": "XrnBundle",
+    "title": "Bundle 管理",
+    "showName": "Bundle 管理",
+    "group": "资源管理",
+    "description": "提供 Bundle 资源加载和版本管理功能",
+    "packageName": "xrn-bundle",
+    "sdkPath": "resource-management/xrn-bundle"
+  },
+  {
+    "name": "XrnGeetest",
+    "title": "极验滑块验证",
+    "showName": "极验滑块验证",
+    "group": "安全与认证",
+    "description": "提供极验滑块验证功能，提升应用安全性",
+    "packageName": "xrn-geetest",
+    "sdkPath": "security-auth/xrn-geetest",
+    "exportFromCore": false
+  },
+  {
+    "name": "XrnLoading",
+    "title": "加载动画",
+    "showName": "加载动画",
+    "group": "界面组件",
+    "description": "提供标准化的加载动画，提升用户体验",
+    "packageName": "xrn-loading",
+    "sdkPath": "interface-ui/xrn-loading"
+  },
+  {
+    "name": "XrnLocalAuthentication",
+    "title": "本地身份认证",
+    "showName": "本地身份认证",
+    "group": "安全与认证",
+    "description": "提供指纹、人脸等本地身份认证功能",
+    "packageName": "xrn-local-authentication",
+    "sdkPath": "security-auth/xrn-local-authentication",
+    "exportFromCore": false
+  },
+  {
+    "name": "XrnMath",
+    "title": "数学工具",
+    "showName": "数学工具",
+    "group": "工具函数",
+    "description": "提供数学计算相关工具函数",
+    "packageName": "xrn-math",
+    "sdkPath": "tools/xrn-math"
+  },
+  {
+    "name": "XrnMonitor",
+    "title": "监控工具",
+    "showName": "监控工具",
+    "group": "监控与性能",
+    "description": "用于监控应用运行状态，采集日志和性能数据",
+    "packageName": "xrn-monitor",
+    "sdkPath": "monitoring-performance/xrn-monitor",
+    "entryPoint": "index.ts"
+  },
+  {
+    "name": "XrnMultiBundle",
+    "title": "多 Bundle 管理",
+    "showName": "多 Bundle 管理",
+    "group": "资源管理",
+    "description": "支持多 Bundle 加载与管理，优化应用资源使用",
+    "packageName": "xrn-multi-bundle",
+    "exportFromCore": false
+  },
+  {
+    "name": "XrnNativeStorage",
+    "title": "本地存储",
+    "showName": "本地存储",
+    "group": "数据存储",
+    "description": "提供本地数据存储方案，支持持久化存储",
+    "packageName": "xrn-native-storage",
+    "sdkPath": "storage/xrn-native-storage"
+  },
+  {
+    "name": "XrnNavigation",
+    "title": "导航",
+    "showName": "导航",
+    "group": "路由与导航",
+    "description": "提供应用内导航管理，支持多种路由方式",
+    "packageName": "xrn-navigation",
+    "sdkPath": "routing-navigation/xrn-navigation"
+  },
+  {
+    "name": "XrnPerformance",
+    "title": "性能分析",
+    "showName": "性能分析",
+    "group": "监控与性能",
+    "description": "提供应用性能分析和优化方案，提升运行效率",
+    "packageName": "xrn-performance",
+    "sdkPath": "monitoring-performance/xrn-performance"
+  },
+  {
+    "name": "XrnPush",
+    "title": "推送服务",
+    "showName": "推送服务",
+    "group": "通知与推送",
+    "description": "提供推送通知功能，支持多种推送方式",
+    "packageName": "xrn-push",
+    "sdkPath": "notification-push/xrn-push",
+    "exportFromCore": false
+  },
+  {
+    "name": "XrnTest",
+    "title": "测试模块",
+    "showName": "测试模块",
+    "group": "测试",
+    "description": "测试模块",
+    "packageName": "xrn-test",
+    "sdkPath": "xrn-test",
+    "exportFromCore": false
+  },
+  {
+    "name": "XrnUserAgent",
+    "title": "用户代理信息",
+    "showName": "用户代理信息",
+    "group": "网络通信",
+    "description": "获取用户代理信息，包括设备、系统等参数",
+    "packageName": "xrn-user-agent",
+    "sdkPath": "network/xrn-user-agent"
+  }
+]

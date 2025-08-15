@@ -1,0 +1,7 @@
+{
+  "src": [
+    "pages/Index",
+    "demo/XrnMultiBundlePage",
+    "demo/XrnBundlePage"
+  ]
+}

@@ -1,0 +1,65 @@
+diff --git a/node_modules/react-native-svg/src/css/LocalSvg.tsx b/node_modules/react-native-svg/src/css/LocalSvg.tsx
+index ab96d11..57cec92 100644
+--- a/node_modules/react-native-svg/src/css/LocalSvg.tsx
++++ b/node_modules/react-native-svg/src/css/LocalSvg.tsx
+@@ -1,7 +1,7 @@
+ import * as React from 'react';
+ import { useState, useEffect, Component } from 'react';
+ import type { ImageSourcePropType } from 'react-native';
+-import { Platform, Image } from 'react-native';
++import { Platform, Image ,NativeModules} from 'react-native';
+ 
+ import { fetchText } from 'react-native-svg';
+ import { SvgCss, SvgWithCss } from './css';
+@@ -23,10 +23,19 @@ export function isUriAnAndroidResourceIdentifier(uri?: string) {
+ 
+ export async function loadAndroidRawResource(uri: string) {
+   try {
++    const scriptUrl = NativeModules.SourceCode.scriptURL
++
++    if(!scriptUrl.startsWith('assets://')) {
++      const content =  await NativeModules.RNPAssetsLoad.getCodePushRawResource(scriptUrl, uri + '.svg')
++
++      if(content) {
++        return content;
++      }
++    }
+     const RNSVGRenderableModule: any =
+-      // neeeded for new arch
+-      // eslint-disable-next-line @typescript-eslint/no-var-requires
+-      require('../fabric/NativeSvgRenderableModule').default;
++    // neeeded for new arch
++    // eslint-disable-next-line @typescript-eslint/no-var-requires
++    require('../fabric/NativeSvgRenderableModule').default;
+     return await RNSVGRenderableModule.getRawResource(uri);
+   } catch (e) {
+     console.error(
+@@ -39,6 +48,7 @@ export async function loadAndroidRawResource(uri: string) {
+ 
+ export function loadLocalRawResourceAndroid(source: ImageSourcePropType) {
+   const uri = getUriFromSource(source);
++
+   if (isUriAnAndroidResourceIdentifier(uri)) {
+     return loadAndroidRawResource(uri);
+   } else {
+@@ -61,8 +71,18 @@ export function LocalSvg(props: LocalProps) {
+   const { asset, ...rest } = props;
+   const [xml, setXml] = useState<string | null>(null);
+   useEffect(() => {
+-    loadLocalRawResource(asset).then(setXml);
+-  }, [asset]);
++    loadLocalRawResource(asset).then((svgStr) => {
++      const _str = (svgStr || '').replace(/fill=\"([^\"\']*)\"/g, (_, originFillColor) => {
++        // @ts-ignore
++        const fillColor = rest.fillColor === 'none' ?  (originFillColor || '#333333') : rest.fillColor;
++        return `fill="${fillColor}"`;
++      }).replace(/stroke=\"([^\"\']*)\"/g, (_, originColor) => {
++        const color = rest.color === 'none' ? (originColor || '#333333') : rest.color ;
++        return `stroke="${color}"`;
++      });
++      setXml(_str)
++    });
++  }, [asset, rest]);
+   return <SvgCss xml={xml} {...rest} />;
+ }
+ 

@@ -1,0 +1,15 @@
+{
+  "name": "sub-bundle",
+  "displayName": "sub-bundle",
+  "skipCheckXtRnCoreVersion": true,
+  "port": 6061,
+  "harmony": {
+    "packageName": "com.xrn.template.hw"
+  },
+  "android": {
+    "packageName": "com.xrn.template"
+  },
+  "ios": {
+    "bundleIdentifier": "com.xdeal.ai"
+  }
+}

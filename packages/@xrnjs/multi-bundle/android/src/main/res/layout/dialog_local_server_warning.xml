@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@drawable/bg_local_server">
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentTop="true"
+        android:gravity="center"
+        android:textSize="18dp"
+        android:textColor="#333333"
+        android:text="本地服务异常" />
+
+    <View
+        android:id="@+id/vDivider"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="#99999922"/>
+
+    <TextView
+        android:id="@+id/tvDesc"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="10dp"
+        android:textSize="16dp"
+        android:textColor="#333333"
+        tools:text="  当前bundle已开启动态调试，但本地服务异常，可能是以下原因：" />
+
+    <TextView
+        android:id="@+id/tvReason1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="12dp"
+        android:textSize="16dp"
+        android:textColor="#333333"
+        android:text="1：本地服务未开启"/>
+
+    <TextView
+        android:id="@+id/tvReason2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="5dp"
+        android:textSize="16dp"
+        android:textColor="#333333"
+        android:text="2：本地服务端口未映射（仅Android用数据线连接电脑时）"/>
+
+    <TextView
+        android:id="@+id/tvReason3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="5dp"
+        android:textSize="16dp"
+        android:textColor="#333333"
+        android:text="3：当前绑定 IP 是 ${localServerIP}，检查绑定IP是否为电脑IP，检查手机和电脑是否在同一个网络，检查手机是否设置了代理；"/>
+
+    <LinearLayout
+        android:id="@+id/layoutActionForReason3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="3dp"
+        android:layout_marginHorizontal="30dp"
+        android:gravity="center_vertical"
+        android:padding="2dp">
+
+        <Button
+            android:id="@+id/tvClearIP"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_local_server_action"
+            android:gravity="center"
+            android:textColor="@color/white"
+            android:textSize="15dp"
+            android:text="清除IP"/>
+
+        <Button
+            android:id="@+id/tvScanIP"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:layout_marginStart="10dp"
+            android:background="@drawable/bg_local_server_action"
+            android:gravity="center"
+            android:textColor="@color/white"
+            android:textSize="15dp"
+            android:text="扫码重绑IP"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvReason4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginTop="5dp"
+        android:textSize="16dp"
+        android:textColor="#333333"
+        android:text="4：JS 执行报错，在终端检查是否有JS Error"/>
+
+    <View
+        android:id="@+id/vDivider2"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_marginTop="10dp"
+        android:background="#99999922"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/tvCancel"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textSize="16dp"
+            android:text="取消"/>
+
+        <View
+            android:layout_width="0.5dp"
+            android:layout_height="match_parent"
+            android:background="#99999933"/>
+
+        <TextView
+            android:id="@+id/tvExit"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textSize="16dp"
+            android:text="退出App"/>
+    </LinearLayout>
+
+</LinearLayout>

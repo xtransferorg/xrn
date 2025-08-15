@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -eo pipefail
+
+script_dir="$(dirname "$0")"
+
+export EXPO_NONINTERACTIVE=1
+# 参考 https://github.com/expo/npm-proofread/blob/main/proofread.js 
+"$script_dir/npx" proofread

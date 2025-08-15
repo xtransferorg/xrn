@@ -1,0 +1,51 @@
+{
+  "name": "xrn-module-scripts",
+  "private": true,
+  "version": "0.0.1",
+  "description": "A private package for various tasks for Expo module packages like compiling and testing",
+  "main": "index.js",
+  "bin": {
+    "xrn-module": "bin/xrn-module.js"
+  },
+  "scripts": {
+    "lint": "xrn-module eslint ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xrn/xrn.git",
+    "directory": "packages/xrn-module-scripts"
+  },
+  "keywords": [
+    "babel-preset",
+    "jest-preset",
+    "xrn"
+  ],
+  "author": "Expo",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/xrn/xrn/issues"
+  },
+  "homepage": "https://github.com/xrn/xrn/tree/main/packages/xrn-module-scripts#readme",
+  "dependencies": {
+    "@babel/cli": "^7.23.4",
+    "@babel/plugin-transform-export-namespace-from": "^7.23.4",
+    "@babel/preset-env": "^7.23.8",
+    "@babel/preset-typescript": "^7.23.3",
+    "@expo/npm-proofread": "^1.0.1",
+    "@testing-library/react-hooks": "^7.0.1",
+    "@tsconfig/node18": "^18.2.2",
+    "@types/jest": "^29.2.1",
+    "babel-plugin-dynamic-import-node": "^2.3.3",
+    "babel-preset-expo": "~11.0.0",
+    "bumpp": "^9.6.1",
+    "commander": "^12.1.0",
+    "eslint-config-universe": "^13.0.0",
+    "find-yarn-workspace-root": "^2.0.0",
+    "glob": "^10.4.2",
+    "jest-expo": "~51.0.0-unreleased",
+    "jest-snapshot-prettier": "npm:prettier@^2",
+    "jest-watch-typeahead": "2.2.1",
+    "ts-jest": "~29.0.4",
+    "typescript": "^5.1.3"
+  }
+}

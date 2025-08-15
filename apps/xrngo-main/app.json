@@ -1,0 +1,15 @@
+{
+  "name": "xrngo-main",
+  "displayName": "xrngo-main",
+  "skipCheckXtRnCoreVersion": true,
+  "harmony": {
+    "packageName": "com.xrngo"
+  },
+  "android": {
+    "packageName": "com.xrngo"
+  },
+  "ios": {
+    "bundleIdentifier": "com.xdeal.ai"
+  },
+  "port": 8081
+}

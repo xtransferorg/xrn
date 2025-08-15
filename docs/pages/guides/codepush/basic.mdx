@@ -1,0 +1,108 @@
+---
+title: 快速开始
+sidebar_title: 快速开始
+hideTOC: false
+---
+
+仓库地址：https://github.com/xtransferorg/code-push
+
+## 简介
+
+`code-push` 是一套支持 React Native、Cordova 等移动端热更新的完整解决方案，包含服务端、命令行工具、SDK 及核心管理库，并集成了高效的二进制差分算法（hdiffpatch），支持多种云存储和本地部署，适合企业自建热更新平台。
+
+![项目架构图](/xrn/static/images/code-push/code-push-arch.jpg)
+
+### 各模块说明
+
+- **code-push-cli**  
+  提供命令行工具，支持账号注册、登录、应用/部署管理、热更新包发布、协作管理等。适用于开发者日常操作和自动化脚本。
+
+- **code-push-server**  
+  热更新服务端，兼容微软官方协议，支持多种存储（本地、七牛、OSS、S3、腾讯云等），可通过 Docker 一键部署。负责包的存储、分发、权限与协作管理。
+
+- **code-push-sdk**  
+  客户端集成 SDK，支持 React Native、Cordova 等主流框架，负责与服务端通信、拉取和应用热更新包。
+
+- **code-push-core**  
+  Node.js 管理 SDK，适合在 CI/CD 流程中自动化管理 CodePush 账号、应用、部署、发布等。
+
+- **hdiffpatch-ios / hdiffpatch-android**  
+  高效的二进制差分/合成算法，提升热更新包体积压缩率，适合大规模生产环境。
+
+## 快速开始
+
+### 1. 安装依赖
+
+```bash
+pnpm install
+```
+
+### 2. 构建项目
+
+```bash
+pnpm run build
+```
+
+### 3. 启动服务端
+
+#### 本地开发
+
+```bash
+pnpm run start:server
+```
+
+#### Docker 一键部署
+
+在 `packages/code-push-server` 目录下：
+
+```bash
+docker-compose up -d
+```
+
+- 默认会启动 code-push-server、MySQL、Redis 服务
+- 可通过环境变量自定义存储、数据库、缓存等配置
+
+#### 主要环境变量
+
+- `STORAGE_TYPE`：local/qiniu/s3/oss/tencentcloud
+- `MYSQL_HOST`、`MYSQL_DATABASE`、`MYSQL_PASSWORD` 等
+- `REDIS_HOST`、`REDIS_PORT`
+- `OSS_ACCESS_KEY_ID`、`OSS_SECRET_ACCESS_KEY` 等（如用 OSS）
+
+详见 [code-push-server/README.md](./packages/code-push-server/README.md)
+
+### 4. 使用 CLI 工具
+
+全局安装 CLI：
+
+```bash
+npm install -g @xrn/code-push-cli
+```
+
+常用命令：
+
+- 注册/登录：`code-push register` / `code-push login`
+- 创建应用：`code-push app add <appName> <os> <platform>`
+- 发布热更新：`code-push release-react <appName> <platform> -d <Deployment>`
+- 管理协作：`code-push collaborator add <appName> <email>`
+
+更多命令详见 [code-push-cli/README.md](./packages/code-push-cli/README.md)
+
+### 5. 客户端集成
+
+- React Native 集成：`npm install --save @xrn/react-native-code-push`
+- Cordova 集成：详见各自平台文档
+
+配置服务端地址，参考 SDK 文档和示例。
+
+### 6. 进阶用法
+
+- CI/CD 自动化：使用 `@xrn/code-push-core` SDK 进行脚本化管理
+- 大包优化：集成 hdiffpatch 算法，提升差分效率
+
+## 常见问题
+
+- 支持多种云存储和本地存储
+- 支持多环境（Staging/Production）和协作开发
+- 兼容微软官方协议，方便迁移
+- 详细问题与解决方案见各子模块 README

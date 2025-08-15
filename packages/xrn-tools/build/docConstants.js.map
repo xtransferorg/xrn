@@ -1,0 +1,1 @@
+{"version":3,"file":"docConstants.js","sourceRoot":"","sources":["../src/docConstants.ts"],"names":[],"mappings":"","sourcesContent":["export interface NavSDK {\n  name: string;\n  directory: string;\n  expanded?: boolean;\n}\n\nexport interface DocNavigation {\n  sdk: NavSDK[];\n}\n"]}

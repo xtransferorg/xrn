@@ -1,0 +1,42 @@
+---
+title: 多Bundle基础接入
+sidebar_title: 基础接入
+---
+
+import { FileTree } from '~/ui/components/FileTree';
+
+多Bundle功能允许您将应用拆分为多个独立的Bundle，每个Bundle可以独立开发、测试和部署。这提供了更好的模块化、更快的构建速度和更灵活的部署策略。
+
+## 概述
+
+多Bundle架构的主要优势：
+
+- **模块化开发**：不同团队可以独立开发不同的Bundle
+- **增量更新**：可以只更新特定的Bundle，而不是整个应用
+- **性能优化**：减少初始加载时间，按需加载功能模块
+- **更好的测试**：可以独立测试每个Bundle
+
+## 目录结构
+
+一个典型的多Bundle项目结构如下：
+
+<FileTree
+  files={[
+    ['android/', <code>Android原生代码目录</code>],
+    ['harmony/', <code>Harmony原生代码目录</code>],
+    ['ios/', <code>iOS原生代码目录</code>],
+    ['main-bundle/App.tsx', <code>主Bundle入口文件</code>],
+    ['main-bundle/app.json', <code>主Bundle配置文件</code>],
+    ['main-bundle/index.ts', <code>主Bundle入口点</code>],
+    ['main-bundle/package.json', <code>主Bundle依赖配置</code>],
+    ['main-bundle/xrn.config.ts', <code>主Bundle XRN配置</code>],
+    ['sub-bundle/...', <code>子Bundle目录</code>],
+    ['package.json', <code>项目根目录依赖配置</code>],
+    ['xrn.config.json', <code>XRN全局配置</code>],
+    ['react-native.config.js', <code>React Native配置</code>],
+  ]}
+/>
+
+## 快速开始
+
+文档建设中
