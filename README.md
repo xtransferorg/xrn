@@ -4,6 +4,8 @@
 [![React Native](https://img.shields.io/badge/React%20Native-Compatible-brightgreen)](https://reactnative.dev/)
 [![Node.js](https://img.shields.io/badge/Node.js-%3E=18-brightgreen)](https://nodejs.org/)
 
+[English](./README_EN.md) | 中文
+
 XRN 是一个面向跨平台应用开发的 **React Native 一体化解决方案**，旨在为开发者提供统一的 **应用开发、构建、发布、依赖管理** 能力，并支持灵活的业务模块化扩展。
 
 ## ✨ 功能特性
@@ -37,7 +39,7 @@ XRN 是一个面向跨平台应用开发的 **React Native 一体化解决方案
 
 ## 🛠️ 文档
 
-详细文档请参见 [docs](./docs) 目录。
+详细文档请参见 [xrn](https://xtransferorg.github.io/xrn/) 
 
 ## 📄 License
 
