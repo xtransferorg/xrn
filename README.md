@@ -37,7 +37,7 @@ XRN 是一个面向跨平台应用开发的 **React Native 一体化解决方案
 
 ## 🛠️ 文档
 
-详细文档请参见 [docs](./docs) 目录。
+详细文档请参见 [xrn](https://xtransferorg.github.io/xrn/) 
 
 ## 📄 License
 
