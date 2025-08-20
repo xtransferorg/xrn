@@ -1,0 +1,9 @@
+{
+  "module": {
+    "name": "xrn_loading",
+    "type": "har",
+    "deviceTypes": [
+      "default"
+    ]
+  }
+}

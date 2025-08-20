@@ -1,0 +1,13 @@
+diff --git a/node_modules/@react-native-oh/react-native-harmony-cli/src/assetResolver.ts b/node_modules/@react-native-oh/react-native-harmony-cli/src/assetResolver.ts
+index a1cfb47..9b0b3ae 100644
+--- a/node_modules/@react-native-oh/react-native-harmony-cli/src/assetResolver.ts
++++ b/node_modules/@react-native-oh/react-native-harmony-cli/src/assetResolver.ts
+@@ -9,7 +9,7 @@ export function getAssetDestRelativePath(asset: Asset): string {
+ 
+ function getResourceIdentifier(asset: Asset): string {
+   const folderPath = getBasePath(asset);
+-  return `${folderPath}/${asset.name}`.slice('assets/'.length);
++  return `${folderPath}/${asset.name}`;
+ }
+ 
+ function getBasePath(asset: Asset): string {

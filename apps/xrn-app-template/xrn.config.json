@@ -1,0 +1,48 @@
+{
+  "appName": "XRNTemplate",
+  "unpacking": false,
+  "appVersion": "0.0.1",
+  "bundleConfig": {
+    "project": {
+      "name": "XRNTemplate"
+    },
+    "defaultOptions": {
+      "bundleType": "sub"
+    },
+    "bundles": [
+      {
+        "name": "main-bundle",
+        "bundlePackageRelativePath": "./main-bundle",
+        "bundleType": "main",
+        "codePushKey": "0NzkdHaOp6RhCDWjD1G3KogLieV54ksvOXqog",
+        "checkNativeDep": false,
+        "port": 8081
+      },
+      {
+        "name": "sub-bundle",
+        "bundlePackageRelativePath": "./sub-bundle",
+        "codePushKey": "KpWDtkf7lssWGGhFVlubzRq9gAg74ksvOXqog",
+        "checkNativeDep": false,
+        "port": 6061
+      }
+    ]
+  },
+  "androidUpdateAppKey": {
+    "debug": {
+      "china": "android-debug-china-key",
+      "default": "android-debug-default-key"
+    },
+    "release": {
+      "china": "android-release-china-key",
+      "default": "android-release-default-key"
+    }
+  },
+  "harmonyUpdateAppKey": {
+    "debug": "harmony-debug-key",
+    "release": "harmony-release-key"
+  },
+  "iosUpdateAppKey": {
+    "debug": "5b9ca124-6b4f-40c9-be51-5ad67f1b4a31",
+    "release": "2d0ba534-a197-11ef-ab67-bd6ef06736d5"
+  }
+}

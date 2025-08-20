@@ -1,0 +1,14 @@
+{
+  "name": "xrn-bundle-template",
+  "displayName": "xrn-bundle-template",
+  "port": 18888,
+  "harmony": {
+    "packageName": "com.xrn.template.hw"
+  },
+  "android": {
+    "packageName": "com.xrn.template"
+  },
+  "ios": {
+    "bundleIdentifier": "com.xrn.template"
+  }
+}

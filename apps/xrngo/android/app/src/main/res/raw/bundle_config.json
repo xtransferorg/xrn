@@ -1,0 +1,44 @@
+{
+  "defaultOptions": {
+    "bundleType": "sub"
+  },
+  "bundles": [
+    {
+      "bundleName": "xrngo-main",
+      "bundlePackageRelativePath": "../xrngo-main",
+      "bundleType": "main",
+      "checkNativeDep": false,
+      "port": 8081
+    },
+    {
+      "bundleName": "xrngo-bare",
+      "bundlePackageRelativePath": "../xrngo-bare",
+      "checkNativeDep": false,
+      "port": 18082
+    },
+    {
+      "bundleName": "xrngo-multi-bundle-1",
+      "bundlePackageRelativePath": "../xrngo-multi-bundle-1",
+      "checkNativeDep": false,
+      "port": 7071
+    },
+    {
+      "bundleName": "xrngo-multi-bundle-2",
+      "bundlePackageRelativePath": "../xrngo-multi-bundle-2",
+      "checkNativeDep": false,
+      "port": 7072
+    },
+    {
+      "bundleName": "xrngo-multi-bundle-3",
+      "bundlePackageRelativePath": "../xrngo-multi-bundle-3",
+      "checkNativeDep": false,
+      "port": 7073
+    },
+    {
+      "bundleName": "xt-package-xrn",
+      "port": 8101,
+      "checkNativeDep": false,
+      "bundlePackageRelativePath": "example"
+    }
+  ]
+}

@@ -1,0 +1,95 @@
+{
+  app: {
+    signingConfigs: [
+      {
+        "name": "XRNTemplate",
+        "type": "HarmonyOS",
+        "material": {
+          "storePassword": "0000001B60EA8A56544C81C4696650EC81C30FF0FE28D4CA2A1FAE4EC1FFEE50FEADCEE6444AC2EA923863",
+          "certpath": "./XRNTemplate-dev.cer",
+          "keyAlias": "XRN",
+          "keyPassword": "0000001B1003E0BE4AB2DE4EFE6557C78C3030B98622E793E91F480127378B6B7B89615E94DAF087422B87",
+          "profile": "./XRNTemplate-devDebug.p7b",
+          "signAlg": "SHA256withECDSA",
+          "storeFile": "./XRNTemplate.p12"
+        }
+      }
+    ],
+    products: [
+      {
+        name: 'default',
+        signingConfig: 'XRNTemplate',
+        compatibleSdkVersion: '5.0.1(13)',
+        runtimeOS: 'HarmonyOS',
+        buildOption: {
+          strictMode: {
+            caseSensitiveCheck: true,
+            useNormalizedOHMUrl: true,
+          },
+        },
+      },
+    ],
+    buildModeSet: [
+      {
+        name: 'debug',
+      },
+      {
+        name: 'release',
+      },
+    ],
+  },
+  modules: [
+    {
+      name: 'entry',
+      srcPath: './entry',
+      targets: [
+        {
+          name: 'default',
+          applyToProducts: [
+            'default',
+          ],
+        },
+      ],
+    },
+    {
+      name: 'config',
+      srcPath: '../node_modules/@react-native-oh-tpl/react-native-config/harmony/config',
+    },
+    {
+      name: 'device_info',
+      srcPath: '../node_modules/@react-native-oh-tpl/react-native-device-info/harmony/device_info',
+    },
+    {
+      name: 'xrn_loading',
+      srcPath: '../node_modules/@xrnjs/loading/harmony/xrn_loading',
+    },
+    {
+      name: 'xrn_native_storage',
+      srcPath: '../node_modules/@xrnjs/native-storage/harmony/xrn_native_storage',
+    },
+    {
+      name: 'xrn_multi_bundle',
+      srcPath: '../node_modules/@xrnjs/multi-bundle/harmony/xrn_multi_bundle',
+    },
+    {
+      name: 'xrn_bundle',
+      srcPath: '../node_modules/@xrnjs/bundle/harmony/xrn_bundle',
+    },
+    {
+      name: 'xrn_app_utils',
+      srcPath: '../node_modules/@xrnjs/app-utils/harmony/xrn_app_utils',
+    },
+    {
+      name: 'xrn_navigation',
+      srcPath: '../node_modules/@xrnjs/navigation/harmony/xrn_navigation',
+    },
+    {
+      name: 'xrn_debug_tools',
+      srcPath: '../node_modules/@xrnjs/debug-tools/harmony/xrn_debug_tools',
+    },
+    {
+      name: 'codePush',
+      srcPath: '../node_modules/@xrnjs/react-native-code-push/harmony/codePush',
+    }
+  ],
+}

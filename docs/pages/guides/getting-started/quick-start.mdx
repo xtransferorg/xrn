@@ -1,0 +1,91 @@
+---
+title: 快速开始
+sidebar_title: 快速开始
+hideTOC: false
+---
+
+import { BoxLink } from '~/ui/components/BoxLink';
+import { SnackInline, Terminal } from '~/ui/components/Snippet';
+import { Step } from '~/ui/components/Step';
+import { ContentSpotlight } from '~/ui/components/ContentSpotlight';
+import { A } from '~/ui/components/Text';
+
+你需要先 <A href="/guides/getting-started/basic-configuration">配置你的环境</A>，配置完成后，继续以下步骤创建应用并开始开发。
+
+<Step label="1">
+  创建应用
+  <Terminal cmd={['$ npx @xrnjs/create']} />
+</Step>
+
+<Step label="2">
+  构建一个 Android 应用
+  <Terminal cmd={['$ yarn build:android']} />
+</Step>
+
+<Step label="3">
+**运行你的应用**
+
+进入 main-bundle 目录，并启动主 bundle：
+
+<Terminal cmd={['$ cd main-bundle']} />
+<Terminal cmd={['$ yarn start']} />
+
+根据提示，<strong>在命令行中输入 `a`</strong> 以在 Android 设备上运行你的应用。
+
+</Step>
+
+<Step label="4">
+**扫码调试项目**
+
+根据提示，在命令行中输入 `p` 打印二维码，使用调试面板的扫码功能调试项目。
+
+<div className="grid grid-cols-2 gap-4">
+
+<ContentSpotlight
+  alt="image.png"
+  src="/xrn/static/images/debug-panel/debug-qr.png"
+/>
+
+<ContentSpotlight
+  alt="image.png"
+  src="/xrn/static/images/debug-panel/scan-box.png"
+/>
+</div>
+
+</Step>
+
+## 下一步
+
+### 其他设备环境配置
+
+如果你需要再安卓模拟器、iOS 真机或 iOS 模拟器、鸿蒙真机或模拟器中调试，请查看以下环境配置文档：
+
+<BoxLink
+  title="安卓模拟器和 iOS 等环境配置"
+  description="学习如何设置开发环境以开始 App 开发"
+  href="/guides/getting-started/basic-configuration"
+/>
+
+### 调试面板用法
+
+<BoxLink
+  title="调试面板"
+  description="学习如何使用调试面板"
+  href="/guides/debugging/debug-panel/debug-panel/"
+/>
+
+### 一键启动更多用法
+
+<BoxLink
+  title="xrn-start"
+  description="查看 xrn-start 使用方法"
+  href="/guides/cli-tools/app-startup-script/"
+/>
+
+### 创建新项目
+
+<BoxLink
+  title="创建新项目"
+  description="使用 create-xrn 创建新项目"
+  href="/guides/cli-tools/create-xrn-script/"
+/>

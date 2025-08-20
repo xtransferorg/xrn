@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+set -eo pipefail
+
+script_dir="$(dirname "$0")"
+
+export EXPO_NONINTERACTIVE=1
+
+echo "Configuring module"
+"$script_dir/xrn-module-clean"
+"$script_dir/xrn-module-configure" # 主要用于同步模板文件，确保某些文件在目标目录中存在，并根据特定条件进行同步。
+"$script_dir/xrn-module-build"
+
+extra_module_build_types=("plugin" "cli" "utils" "scripts")
+for i in "${extra_module_build_types[@]}"
+do
+  if [[ -d "$i" ]]; then
+    echo "Configuring $i"
+    "$script_dir/xrn-module-clean" "$i"
+    "$script_dir/xrn-module-build" "$i"
+  fi
+done

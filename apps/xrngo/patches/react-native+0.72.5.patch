@@ -1,0 +1,622 @@
+diff --git a/node_modules/react-native/React/Base/RCTReloadCommand.m b/node_modules/react-native/React/Base/RCTReloadCommand.m
+index 4d8dd0b..adf198d 100644
+--- a/node_modules/react-native/React/Base/RCTReloadCommand.m
++++ b/node_modules/react-native/React/Base/RCTReloadCommand.m
+@@ -11,6 +11,55 @@
+ #import "RCTKeyCommands.h"
+ #import "RCTUtils.h"
+ 
++#if DEBUG
++#import "RCTBridge.h"
++#import "RCTRootView.h"
++
++@interface UIViewController (XTTopVC)
++
+++ (UIViewController *)getCurrentVC;
++
++@end
++
++@implementation UIViewController (XTTopVC)
++
++//获取当前屏幕显示的viewcontroller
+++ (UIViewController *)getCurrentVC
++{
++  ///下文中有分析
++ // UIViewController *rootViewController = [UIApplication sharedApplication].keyWindow.rootViewController;
++  // 这里不获取keyWindow，因为keyWindow会发生变化，比如Alert 或者 键盘之类的，会导致keyWindow发生变化。所以这里我们只获取appdelegate.window
++  UIViewController *rootViewController = UIApplication.sharedApplication.delegate.window.rootViewController;
++  UIViewController *currentVC = [self getCurrentVCFrom:rootViewController];
++  return currentVC;
++}
++
+++ (UIViewController *)getCurrentVCFrom:(UIViewController *)rootVC
++{
++  UIViewController *currentVC;
++  if ([rootVC presentedViewController]) {
++    // 视图是被presented出来的
++    rootVC = [rootVC presentedViewController];
++  }
++  
++  if ([rootVC isKindOfClass:[UITabBarController class]]) {
++    // 根视图为UITabBarController
++    currentVC = [self getCurrentVCFrom:[(UITabBarController *)rootVC selectedViewController]];
++  } else if ([rootVC isKindOfClass:[UINavigationController class]]){
++    // 根视图为UINavigationController
++    currentVC = [self getCurrentVCFrom:[(UINavigationController *)rootVC visibleViewController]];
++  } else {
++    // 根视图为非导航类
++    currentVC = rootVC;
++  }
++  
++  return currentVC;
++}
++
++@end
++
++#endif
++
+ static NSHashTable<id<RCTReloadListener>> *listeners;
+ static NSLock *listenersLock;
+ static NSURL *bundleURL;
+@@ -46,6 +95,17 @@ void RCTRegisterReloadCommandListener(id<RCTReloadListener> listener)
+ void RCTTriggerReloadCommandListeners(NSString *reason)
+ {
+   [listenersLock lock];
++#if DEBUG
++    UIViewController *currentVC = [UIViewController getCurrentVC];
++    if ([currentVC.view isKindOfClass:[RCTRootView class]]) {
++      RCTRootView *rootView = (RCTRootView *)currentVC.view;
++      NSURL *currentBundleURL = rootView.bridge.bundleURL;
++      if (currentBundleURL != nil) {
++        // 重设bundleURL
++        RCTReloadCommandSetBundleURL(currentBundleURL);
++      }
++    }
++#endif
+   [[NSNotificationCenter defaultCenter] postNotificationName:RCTTriggerReloadCommandNotification
+                                                       object:nil
+                                                     userInfo:@{
+@@ -54,7 +114,16 @@ void RCTTriggerReloadCommandListeners(NSString *reason)
+                                                     }];
+ 
+   for (id<RCTReloadListener> l in [listeners allObjects]) {
++#if DEBUG
++      RCTBridge *bridge = (RCTBridge *)l;
++      NSString *currentBundleName = bundleURL.absoluteString.lastPathComponent;
++      NSString *bridgeBundleName = bridge.bundleURL.absoluteString.lastPathComponent;
++      if ([currentBundleName isEqualToString:bridgeBundleName]) {
++        [l didReceiveReloadCommand];
++      }
++#else
+     [l didReceiveReloadCommand];
++#endif
+   }
+   [listenersLock unlock];
+ }
+diff --git a/node_modules/react-native/React/Base/RCTBridge.h b/node_modules/react-native/React/Base/RCTBridge.h
+index 9df17eb..9ab9c72 100644
+--- a/node_modules/react-native/React/Base/RCTBridge.h
++++ b/node_modules/react-native/React/Base/RCTBridge.h
+@@ -163,6 +163,11 @@ RCT_EXTERN void RCTSetTurboModuleCleanupMode(RCTTurboModuleCleanupMode mode);
+  */
+ @property (nonatomic, strong, readonly) NSURL *bundleURL;
+ 
++/**
++ * XT Biz Bundle URL.
++ */
++@property (nonatomic, strong) NSURL *bizBundleURL;
++
+ /**
+  * The class of the executor currently being used. Changes to this value will
+  * take effect after the bridge is reloaded.
+@@ -184,6 +189,11 @@ RCT_EXTERN void RCTSetTurboModuleCleanupMode(RCTTurboModuleCleanupMode mode);
+  */
+ @property (nonatomic, readonly, getter=isLoading) BOOL loading;
+ 
++/**
++ * Use this to check if the bridge is currently loading common bundle.
++ */
++@property (nonatomic, readonly, getter=isLoadingCommon) BOOL loadingCommon;
++
+ /**
+  * Use this to check if the bridge has been invalidated.
+  */
+diff --git a/node_modules/react-native/React/Base/RCTBridge.m b/node_modules/react-native/React/Base/RCTBridge.m
+index 702e338..7316731 100644
+--- a/node_modules/react-native/React/Base/RCTBridge.m
++++ b/node_modules/react-native/React/Base/RCTBridge.m
+@@ -340,6 +340,10 @@ - (BOOL)isLoading
+   return self.batchedBridge.loading;
+ }
+ 
++- (BOOL)isLoadingCommon {
++    return self.batchedBridge.loadingCommon;
++}
++
+ - (BOOL)isValid
+ {
+   return self.batchedBridge.valid;
+diff --git a/node_modules/react-native/React/CxxBridge/RCTCxxBridge.mm b/node_modules/react-native/React/CxxBridge/RCTCxxBridge.mm
+index 0e14093..1ba0813 100644
+--- a/node_modules/react-native/React/CxxBridge/RCTCxxBridge.mm
++++ b/node_modules/react-native/React/CxxBridge/RCTCxxBridge.mm
+@@ -231,6 +231,7 @@ @implementation RCTCxxBridge {
+ 
+ @synthesize bridgeDescription = _bridgeDescription;
+ @synthesize loading = _loading;
++@synthesize loadingCommon = _loadingCommon;
+ @synthesize performanceLogger = _performanceLogger;
+ @synthesize valid = _valid;
+ 
+@@ -283,6 +284,7 @@ - (instancetype)initWithParentBridge:(RCTBridge *)bridge
+      */
+     _valid = YES;
+     _loading = YES;
++    _loadingCommon = YES;
+     _moduleRegistryCreated = NO;
+     _pendingCalls = [NSMutableArray new];
+     _displayLink = [RCTDisplayLink new];
+@@ -1086,7 +1088,7 @@ - (void)executeSourceCode:(NSData *)sourceCode withSourceURL:(NSURL *)url sync:(
+   }
+ 
+   // Use the original request URL here - HMRClient uses this to derive the /hot URL and entry point.
+-  [self.devSettings setupHMRClientWithBundleURL:self.bundleURL];
++  [self.devSettings setupHMRClientWithBundleURL:url];
+ }
+ 
+ #if RCT_DEV_MENU | RCT_PACKAGER_LOADING_FUNCTIONALITY
+@@ -1108,13 +1110,13 @@ - (void)loadAndExecuteSplitBundleURL:(NSURL *)bundleURL
+           onError(error);
+           return;
+         }
+-
+-        [self enqueueApplicationScript:source.data
+-                                   url:source.url
+-                            onComplete:^{
+-                              [self.devSettings setupHMRClientWithAdditionalBundleURL:source.url];
+-                              onComplete();
+-                            }];
++        [self executeSourceCode:source.data withSourceURL:source.url sync:NO];
++        // [self enqueueApplicationScript:source.data
++        //                            url:source.url
++        //                     onComplete:^{
++        //                       [self.devSettings setupHMRClientWithAdditionalBundleURL:source.url];
++        //                       onComplete();
++        //                     }];
+       }];
+ }
+ #else
+@@ -1162,6 +1164,7 @@ - (void)handleError:(NSError *)error
+   RCTRedBox *redBox = [self redBox];
+ 
+   _loading = NO;
++  _loadingCommon = NO;
+   _valid = NO;
+   _moduleRegistryCreated = NO;
+ 
+@@ -1226,6 +1229,16 @@ - (void)setBundleURL:(NSURL *)bundleURL
+   _parentBridge.bundleURL = bundleURL;
+ }
+ 
++- (NSURL *)bizBundleURL
++{
++  return _parentBridge.bizBundleURL;
++}
++
++- (void)setBizBundleURL:(NSURL *)bizBundleURL
++{
++  _parentBridge.bizBundleURL = bizBundleURL;
++}
++
+ - (id<RCTBridgeDelegate>)delegate
+ {
+   return _parentBridge.delegate;
+@@ -1252,6 +1265,7 @@ - (void)invalidate
+   RCTLogInfo(@"Invalidating %@ (parent: %@, executor: %@)", self, _parentBridge, [self executorClass]);
+ 
+   _loading = NO;
++  _loadingCommon = NO;
+   _valid = NO;
+   _didInvalidate = YES;
+   _moduleRegistryCreated = NO;
+@@ -1382,16 +1396,25 @@ - (void)logStartupFinish
+ - (void)_flushPendingCalls
+ {
+   RCT_PROFILE_BEGIN_EVENT(0, @"Processing pendingCalls", @{@"count" : [@(_pendingCalls.count) stringValue]});
+-  // Phase B: _flushPendingCalls happens.  Each block in _pendingCalls is
+-  // executed, adding work to the queue, and _pendingCount is decremented.
+-  // loading is set to NO.
+-  NSArray<RCTPendingCall> *pendingCalls = _pendingCalls;
+-  _pendingCalls = nil;
+-  for (RCTPendingCall call in pendingCalls) {
+-    call();
+-    _pendingCount--;
++  BOOL supportCommon = [self.parentBridge.delegate supportCommonBundle];
++  if (!supportCommon || (supportCommon && !_loadingCommon)) {
++    // Phase B: _flushPendingCalls happens.  Each block in _pendingCalls is
++    // executed, adding work to the queue, and _pendingCount is decremented.
++    // loading is set to NO.
++    NSArray<RCTPendingCall> *pendingCalls = _pendingCalls;
++    _pendingCalls = nil;
++    for (RCTPendingCall call in pendingCalls) {
++      call();
++      _pendingCount--;
++    }
++  }
++  if (!supportCommon) {
++    _loading = NO;
++    _loadingCommon = NO;
++  } else {
++    _loading = _loadingCommon;
++    _loadingCommon = NO;
+   }
+-  _loading = NO;
+   RCT_PROFILE_END_EVENT(RCTProfileTagAlways, @"");
+ }
+ 
+diff --git a/node_modules/react-native/React/Base/RCTBundleManager.m b/node_modules/react-native/React/Base/RCTBundleManager.m
+index 8ea361f..4103d2a 100644
+--- a/node_modules/react-native/React/Base/RCTBundleManager.m
++++ b/node_modules/react-native/React/Base/RCTBundleManager.m
+@@ -47,7 +47,7 @@ - (void)setBundleURL:(NSURL *)bundleURL
+ - (NSURL *)bundleURL
+ {
+   if (_bridge) {
+-    return _bridge.bundleURL;
++    return _bridge.bizBundleURL;
+   }
+ 
+   RCTAssert(
+diff --git a/node_modules/react-native/Libraries/LinkingIOS/RCTLinkingManager.mm b/node_modules/react-native/Libraries/LinkingIOS/RCTLinkingManager.mm
+index cfa9078..8a63c67 100644
+--- a/node_modules/react-native/Libraries/LinkingIOS/RCTLinkingManager.mm
++++ b/node_modules/react-native/Libraries/LinkingIOS/RCTLinkingManager.mm
+@@ -162,6 +162,14 @@ - (void)handleOpenURLNotification:(NSNotification *)notification
+   NSURL *initialURL = nil;
+   if (self.bridge.launchOptions[UIApplicationLaunchOptionsURLKey]) {
+     initialURL = self.bridge.launchOptions[UIApplicationLaunchOptionsURLKey];
++  } else if (self.bridge.launchOptions[UIApplicationLaunchOptionsRemoteNotificationKey]) {
++      NSString *pushJsonStr = @"";
++      NSDictionary *remotePushInfo = self.bridge.launchOptions[UIApplicationLaunchOptionsRemoteNotificationKey];
++      if ([remotePushInfo allKeys]) {
++          pushJsonStr = remotePushInfo[@"route"] ?: @"";
++      }
++      resolve(RCTNullIfNil(pushJsonStr));
++      return;
+   } else {
+     NSDictionary *userActivityDictionary =
+         self.bridge.launchOptions[UIApplicationLaunchOptionsUserActivityDictionaryKey];
+@@ -169,7 +177,13 @@ - (void)handleOpenURLNotification:(NSNotification *)notification
+       initialURL = ((NSUserActivity *)userActivityDictionary[@"UIApplicationLaunchOptionsUserActivityKey"]).webpageURL;
+     }
+   }
+-  resolve(RCTNullIfNil(initialURL.absoluteString));
++    NSString *linkStr = initialURL ? initialURL.absoluteString : @"";
++      if ([linkStr containsString:@"wx30036d8bd2684191://"]) {
++          linkStr = [[NSUserDefaults standardUserDefaults] objectForKey:@"wx_link_extinfo"];
++          [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"wx_link_extinfo"];
++          [[NSUserDefaults standardUserDefaults] synchronize];
++      }
++    resolve(RCTNullIfNil(linkStr));
+ }
+ 
+ RCT_EXPORT_METHOD(openSettings : (RCTPromiseResolveBlock)resolve reject : (__unused RCTPromiseRejectBlock)reject)
+diff --git a/node_modules/react-native/React/Views/RCTModalHostViewManager.m b/node_modules/react-native/React/Views/RCTModalHostViewManager.m
+index 4b9f9ad..26b4a7b 100644
+--- a/node_modules/react-native/React/Views/RCTModalHostViewManager.m
++++ b/node_modules/react-native/React/Views/RCTModalHostViewManager.m
+@@ -79,31 +79,66 @@ - (void)presentModalHostView:(RCTModalHostView *)modalHostView
+     if (self->_presentationBlock) {
+       self->_presentationBlock([modalHostView reactViewController], viewController, animated, completionBlock);
+     } else {
+-      [[modalHostView reactViewController] presentViewController:viewController
+-                                                        animated:animated
+-                                                      completion:completionBlock];
++      UIViewController* presentingViewController;
++      if (modalHostView.presentationStyle == UIModalPresentationPageSheet || modalHostView.presentationStyle == UIModalPresentationFormSheet) {
++        UIViewController *lastPresentedViewController = RCTKeyWindow().rootViewController;
++        UIViewController *presentedViewController = nil;
++        while (lastPresentedViewController != nil) {
++          presentedViewController = lastPresentedViewController;
++          lastPresentedViewController = lastPresentedViewController.presentedViewController;
++        }
++        presentingViewController = presentedViewController;
++      } else {
++        modalHostView.modalWindow = [[UIWindow alloc] initWithFrame:UIScreen.mainScreen.bounds];
++        modalHostView.modalWindow.windowLevel = UIWindowLevelAlert;
++        UIViewController *newViewController = [[UIViewController alloc] init];
++        modalHostView.modalWindow.rootViewController = newViewController;
++        [modalHostView.modalWindow makeKeyAndVisible];
++        presentingViewController = newViewController;
++      }
++      [presentingViewController presentViewController:viewController animated:animated completion:completionBlock];
+     }
+   });
+ }
+ 
+-- (void)dismissModalHostView:(RCTModalHostView *)modalHostView
++- (void)dismissModalHostViewWithCompletion:(RCTModalHostView *)modalHostView
+           withViewController:(RCTModalHostViewController *)viewController
+-                    animated:(BOOL)animated
++                    animated:(BOOL)animated completion:(void (^)(void))completion
+ {
+   dispatch_block_t completionBlock = ^{
+     if (modalHostView.identifier) {
+       [[self.bridge moduleForClass:[RCTModalManager class]] modalDismissed:modalHostView.identifier];
+     }
++    if (completion) {
++      completion();
++    }
++    modalHostView.modalWindow = nil;
+   };
+   dispatch_async(dispatch_get_main_queue(), ^{
+     if (self->_dismissalBlock) {
+       self->_dismissalBlock([modalHostView reactViewController], viewController, animated, completionBlock);
+     } else {
+-      [viewController.presentingViewController dismissViewControllerAnimated:animated completion:completionBlock];
++      if (viewController.presentedViewController != nil && [viewController.presentedViewController isKindOfClass:[RCTModalHostViewController class]]) {
++        RCTModalHostViewController* presentedModalViewController = (RCTModalHostViewController *)viewController.presentedViewController;
++        dispatch_block_t childModalCompletionBlock = ^{
++          [viewController.presentingViewController dismissViewControllerAnimated:animated completion:completionBlock];
++        };
++
++        [presentedModalViewController.modalHostView dismissModalViewControllerWithCompletion: childModalCompletionBlock];
++      } else {
++        [viewController.presentingViewController dismissViewControllerAnimated:animated completion:completionBlock];
++      }
+     }
+   });
+ }
+ 
++- (void)dismissModalHostView:(RCTModalHostView *)modalHostView
++          withViewController:(RCTModalHostViewController *)viewController
++                    animated:(BOOL)animated
++{
++  [self dismissModalHostViewWithCompletion:modalHostView withViewController:viewController animated:animated completion:nil];
++}
++
+ - (RCTShadowView *)shadowView
+ {
+   return [RCTModalHostShadowView new];
+diff --git a/node_modules/react-native/React/Views/RCTModalHostViewController.h b/node_modules/react-native/React/Views/RCTModalHostViewController.h
+index b12b0f7..ec340e8 100644
+--- a/node_modules/react-native/React/Views/RCTModalHostViewController.h
++++ b/node_modules/react-native/React/Views/RCTModalHostViewController.h
+@@ -6,11 +6,14 @@
+  */
+ 
+ #import <UIKit/UIKit.h>
++#import "RCTModalHostView.h"
+ 
+ @interface RCTModalHostViewController : UIViewController
+ 
+ @property (nonatomic, copy) void (^boundsDidChangeBlock)(CGRect newBounds);
+ 
++@property RCTModalHostView* modalHostView;
++
+ @property (nonatomic, assign) UIInterfaceOrientationMask supportedInterfaceOrientations;
+ 
+ @end
+diff --git a/node_modules/react-native/React/Views/RCTModalHostView.m b/node_modules/react-native/React/Views/RCTModalHostView.m
+index 65428a0..201613b 100644
+--- a/node_modules/react-native/React/Views/RCTModalHostView.m
++++ b/node_modules/react-native/React/Views/RCTModalHostView.m
+@@ -40,6 +40,7 @@ - (instancetype)initWithBridge:(RCTBridge *)bridge
+     _modalViewController.view = containerView;
+     _touchHandler = [[RCTTouchHandler alloc] initWithBridge:bridge];
+     _isPresented = NO;
++    _modalViewController.modalHostView = self;
+ 
+     __weak typeof(self) weakSelf = self;
+     _modalViewController.boundsDidChangeBlock = ^(CGRect newBounds) {
+@@ -115,9 +116,14 @@ - (void)didUpdateReactSubviews
+ }
+ 
+ - (void)dismissModalViewController
++{
++  [self dismissModalViewControllerWithCompletion: nil];
++}
++
++- (void)dismissModalViewControllerWithCompletion:(void (^)(void))completion
+ {
+   if (_isPresented) {
+-    [_delegate dismissModalHostView:self withViewController:_modalViewController animated:[self hasAnimationType]];
++    [_delegate dismissModalHostViewWithCompletion:self withViewController:_modalViewController animated:[self hasAnimationType] completion: completion];
+     _isPresented = NO;
+   }
+ }
+@@ -182,9 +188,9 @@ - (void)ensurePresentedOnlyIfNeeded
+     if (self.presentationStyle != UIModalPresentationNone) {
+       _modalViewController.modalPresentationStyle = self.presentationStyle;
+     }
+-    if (@available(iOS 13.0, *)) {
+-      _modalViewController.presentationController.delegate = self;
+-    }
++
++    _modalViewController.presentationController.delegate = self;
++    
+     [_delegate presentModalHostView:self withViewController:_modalViewController animated:[self hasAnimationType]];
+     _isPresented = YES;
+   }
+diff --git a/node_modules/react-native/Libraries/Components/Touchable/TouchableOpacity.js b/node_modules/react-native/Libraries/Components/Touchable/TouchableOpacity.js
+index 02dc8ab..dc222ab 100644
+--- a/node_modules/react-native/Libraries/Components/Touchable/TouchableOpacity.js
++++ b/node_modules/react-native/Libraries/Components/Touchable/TouchableOpacity.js
+@@ -302,10 +302,7 @@ class TouchableOpacity extends React.Component<Props, State> {
+     this.state.pressability.configure(this._createPressabilityConfig());
+     if (
+       this.props.disabled !== prevProps.disabled ||
+-      // $FlowFixMe[underconstrained-implicit-instantiation]
+-      flattenStyle(prevProps.style)?.opacity !==
+-        // $FlowFixMe[underconstrained-implicit-instantiation]
+-        flattenStyle(this.props.style)?.opacity
++      (flattenStyle(prevProps.style)?.opacity !== flattenStyle(this.props.style)?.opacity)
+     ) {
+       this._opacityInactive(250);
+     }
+diff --git a/node_modules/react-native/index.js b/node_modules/react-native/index.js
+index 7149c64..74eb6c6 100644
+--- a/node_modules/react-native/index.js
++++ b/node_modules/react-native/index.js
+@@ -651,33 +651,33 @@ if (__DEV__) {
+    * attempting to access PickerIOS. */
+   /* $FlowFixMe[invalid-export] This is intentional: Flow will error when
+    * attempting to access PickerIOS. */
+-  Object.defineProperty(module.exports, 'PickerIOS', {
+-    configurable: true,
+-    get() {
+-      invariant(
+-        false,
+-        'PickerIOS has been removed from React Native. ' +
+-          "It can now be installed and imported from '@react-native-picker/picker' instead of 'react-native'. " +
+-          'See https://github.com/react-native-picker/picker',
+-      );
+-    },
+-  });
++  // Object.defineProperty(module.exports, 'PickerIOS', {
++  //   configurable: true,
++  //   get() {
++  //     invariant(
++  //       false,
++  //       'PickerIOS has been removed from React Native. ' +
++  //         "It can now be installed and imported from '@react-native-picker/picker' instead of 'react-native'. " +
++  //         'See https://github.com/react-native-picker/picker',
++  //     );
++  //   },
++  // });
+ 
+   /* $FlowFixMe[prop-missing] This is intentional: Flow will error when
+    * attempting to access Picker. */
+   /* $FlowFixMe[invalid-export] This is intentional: Flow will error when
+    * attempting to access Picker. */
+-  Object.defineProperty(module.exports, 'Picker', {
+-    configurable: true,
+-    get() {
+-      invariant(
+-        false,
+-        'Picker has been removed from React Native. ' +
+-          "It can now be installed and imported from '@react-native-picker/picker' instead of 'react-native'. " +
+-          'See https://github.com/react-native-picker/picker',
+-      );
+-    },
+-  });
++  // Object.defineProperty(module.exports, 'Picker', {
++  //   configurable: true,
++  //   get() {
++  //     invariant(
++  //       false,
++  //       'Picker has been removed from React Native. ' +
++  //         "It can now be installed and imported from '@react-native-picker/picker' instead of 'react-native'. " +
++  //         'See https://github.com/react-native-picker/picker',
++  //     );
++  //   },
++  // });
+   /* $FlowFixMe[prop-missing] This is intentional: Flow will error when
+    * attempting to access DatePickerAndroid. */
+   /* $FlowFixMe[invalid-export] This is intentional: Flow will error when
+@@ -693,6 +693,7 @@ if (__DEV__) {
+       );
+     },
+   });
++  
+   /* $FlowFixMe[prop-missing] This is intentional: Flow will error when
+    * attempting to access MaskedViewIOS. */
+   /* $FlowFixMe[invalid-export] This is intentional: Flow will error when
+@@ -785,3 +786,17 @@ if (__DEV__) {
+     },
+   });
+ }
++
++Object.defineProperty(module.exports, 'PickerIOS', {
++  configurable: true,
++  get() {
++    return require('@react-native-picker/picker').PickerIOS;
++  },
++});
++
++Object.defineProperty(module.exports, 'Picker', {
++  configurable: true,
++  get() {
++    return require('@react-native-picker/picker').Picker;
++  },
++});
+diff --git a/node_modules/react-native/React/Views/RCTModalHostView.h b/node_modules/react-native/React/Views/RCTModalHostView.h
+index 2fcdcae..a752c04 100644
+--- a/node_modules/react-native/React/Views/RCTModalHostView.h
++++ b/node_modules/react-native/React/Views/RCTModalHostView.h
+@@ -36,11 +36,13 @@
+ 
+ @property (nonatomic, copy) NSArray<NSString *> *supportedOrientations;
+ @property (nonatomic, copy) RCTDirectEventBlock onOrientationChange;
++@property (nonatomic, strong) UIWindow *modalWindow;
+ 
+ // Fabric only
+ @property (nonatomic, copy) RCTDirectEventBlock onDismiss;
+ 
+ - (instancetype)initWithBridge:(RCTBridge *)bridge NS_DESIGNATED_INITIALIZER;
++- (void)dismissModalViewControllerWithCompletion:(void (^)(void))completion;
+ 
+ @end
+ 
+@@ -52,5 +54,7 @@
+ - (void)dismissModalHostView:(RCTModalHostView *)modalHostView
+           withViewController:(RCTModalHostViewController *)viewController
+                     animated:(BOOL)animated;
+-
++- (void)dismissModalHostViewWithCompletion:(RCTModalHostView *)modalHostView
++          withViewController:(RCTModalHostViewController *)viewController
++                    animated:(BOOL)animated completion: (void (^)(void))completion;
+ @end
+diff --git a/node_modules/react-native/ReactCommon/jsc/JSCRuntime.cpp b/node_modules/react-native/ReactCommon/jsc/JSCRuntime.cpp
+index 523b1be..2c587f5 100644
+--- a/node_modules/react-native/ReactCommon/jsc/JSCRuntime.cpp
++++ b/node_modules/react-native/ReactCommon/jsc/JSCRuntime.cpp
+@@ -419,12 +419,14 @@ JSCRuntime::~JSCRuntime() {
+   // has started.
+   ctxInvalid_ = true;
+   JSGlobalContextRelease(ctx_);
+-#ifndef NDEBUG
+-  assert(
+-      objectCounter_ == 0 && "JSCRuntime destroyed with a dangling API object");
+-  assert(
+-      stringCounter_ == 0 && "JSCRuntime destroyed with a dangling API string");
+-#endif
++    // fix issue that app crashes on reload in development mode with JSC engine.
++    // details: https://github.com/software-mansion/react-native-reanimated/issues/4783
++//#ifndef NDEBUG
++//  assert(
++//      objectCounter_ == 0 && "JSCRuntime destroyed with a dangling API object");
++//  assert(
++//      stringCounter_ == 0 && "JSCRuntime destroyed with a dangling API string");
++//#endif
+ }
+ 
+ std::shared_ptr<const jsi::PreparedJavaScript> JSCRuntime::prepareJavaScript(
+diff --git a/node_modules/react-native/React/Base/RCTBridgeDelegate.h b/node_modules/react-native/React/Base/RCTBridgeDelegate.h
+index 0e08196..c5e4900 100644
+--- a/node_modules/react-native/React/Base/RCTBridgeDelegate.h
++++ b/node_modules/react-native/React/Base/RCTBridgeDelegate.h
+@@ -76,4 +76,10 @@
+  */
+ - (NSDictionary<NSString *, Class> *)extraLazyModuleClassesForBridge:(RCTBridge *)bridge;
+ 
++/**
++ * YES: In the beginning load common bundle, then load biz bundle.
++ * NO: just load a entire bundle
++ */
++- (BOOL)supportCommonBundle;
++
+ @end
+diff --git a/node_modules/react-native/third-party-podspecs/boost.podspec b/node_modules/react-native/third-party-podspecs/boost.podspec
+index 3d9331c..bbbb738 100644
+--- a/node_modules/react-native/third-party-podspecs/boost.podspec
++++ b/node_modules/react-native/third-party-podspecs/boost.podspec
+@@ -10,7 +10,7 @@ Pod::Spec.new do |spec|
+   spec.homepage = 'http://www.boost.org'
+   spec.summary = 'Boost provides free peer-reviewed portable C++ source libraries.'
+   spec.authors = 'Rene Rivera'
+-  spec.source = { :http => 'https://boostorg.jfrog.io/artifactory/main/release/1.76.0/source/boost_1_76_0.tar.bz2',
++  spec.source = { :http => 'https://archives.boost.io/release/1.76.0/source/boost_1_76_0.tar.bz2',
+                   :sha256 => 'f0397ba6e982c4450f27bf32a2a83292aba035b827a5623a14636ea583318c41' }
+ 
+   # Pinning to the same version as React.podspec.

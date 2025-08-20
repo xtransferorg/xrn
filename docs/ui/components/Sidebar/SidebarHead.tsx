@@ -1,0 +1,90 @@
+import { css } from '@emotion/react';
+import { theme, DocsLogo, LinkBase } from '@expo/styleguide';
+import { spacing } from '@expo/styleguide-base';
+import { BookOpen02DuotoneIcon } from '@expo/styleguide-icons/duotone/BookOpen02DuotoneIcon';
+import { GraduationHat02DuotoneIcon } from '@expo/styleguide-icons/duotone/GraduationHat02DuotoneIcon';
+import { Home02DuotoneIcon } from '@expo/styleguide-icons/duotone/Home02DuotoneIcon';
+import { Stars02DuotoneIcon } from '@expo/styleguide-icons/duotone/Stars02DuotoneIcon';
+import { ArrowLeftIcon } from '@expo/styleguide-icons/outline/ArrowLeftIcon';
+
+import { ApiVersionSelect } from './ApiVersionSelect';
+
+import { shouldShowFeaturePreviewLink } from '~/constants/FeatureFlags.cjs';
+import { Search } from '~/ui/components/Search';
+import { SidebarSingleEntry } from '~/ui/components/Sidebar/SidebarSingleEntry';
+import navigation from '~/public/static/constants/navigation.json';
+
+type SidebarHeadProps = {
+  sidebarActiveGroup: string;
+};
+
+export const SidebarHead = ({ sidebarActiveGroup }: SidebarHeadProps) => {
+  if (sidebarActiveGroup === 'archive') {
+    return (
+      <div css={sidebarHeadContainerStyle} className="!p-1.5">
+        <LinkBase
+          href="/"
+          className="flex gap-3 items-center p-2.5 rounded-md text-secondary hocus:bg-element">
+          <ArrowLeftIcon className="text-icon-secondary" />
+          返回
+        </LinkBase>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div css={sidebarHeadContainerStyle}>
+        {/* <Search /> */}
+        <SidebarSingleEntry
+          href="/"
+          title="主页"
+          Icon={Home02DuotoneIcon}
+          isActive={sidebarActiveGroup === 'home'}
+        />
+        <SidebarSingleEntry
+          href="/guides/overview/"
+          title="教程"
+          Icon={BookOpen02DuotoneIcon}
+          isActive={sidebarActiveGroup === 'general'}
+        />
+        <SidebarSingleEntry
+          href="/versions/latest"
+          title="API"
+          Icon={DocsLogo}
+          isActive={sidebarActiveGroup === 'reference'}
+        />
+        {/* <SidebarSingleEntry
+          href="/resources/app-resources"
+          title="资源中心"
+          Icon={GraduationHat02DuotoneIcon}
+          isActive={sidebarActiveGroup === 'resources'}
+        /> */}
+        {/* <SidebarSingleEntry
+          href="/tutorial/overview/"
+          title="Learn"
+          Icon={GraduationHat02DuotoneIcon}
+          isActive={sidebarActiveGroup === 'learn'}
+        /> */}
+        {/* {shouldShowFeaturePreviewLink() && (
+          <SidebarSingleEntry
+            href="/feature-preview"
+            title="Feature Preview"
+            Icon={Stars02DuotoneIcon}
+            isActive={sidebarActiveGroup === 'featurePreview' || sidebarActiveGroup === 'preview'}
+          />
+        )} */}
+      </div>
+      <ApiVersionSelect />
+    </>
+  );
+};
+
+const sidebarHeadContainerStyle = css({
+  display: 'flex',
+  flexDirection: 'column',
+  padding: spacing[4],
+  borderBottom: `1px solid ${theme.border.default}`,
+  background: theme.background.default,
+  gap: spacing[0.5],
+});

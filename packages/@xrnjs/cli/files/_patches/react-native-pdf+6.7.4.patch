@@ -1,0 +1,15 @@
+diff --git a/node_modules/react-native-pdf/index.js b/node_modules/react-native-pdf/index.js
+index c7c58d8..0b6d939 100644
+--- a/node_modules/react-native-pdf/index.js
++++ b/node_modules/react-native-pdf/index.js
+@@ -146,8 +146,8 @@ export default class Pdf extends Component {
+     componentWillUnmount() {
+         this._mounted = false;
+         if (this.lastRNBFTask) {
+-            this.lastRNBFTask.cancel(err => {
+-            });
++            // this.lastRNBFTask.cancel(err => {
++            // });
+             this.lastRNBFTask = null;
+         }
+ 

@@ -1,0 +1,14 @@
+{
+  "name": "main-bundle",
+  "displayName": "main-bundle",
+  "port": 8081,
+  "harmony": {
+    "packageName": "com.xrn.template.hw"
+  },
+  "android": {
+    "packageName": "com.xrn.template"
+  },
+  "ios": {
+    "bundleIdentifier": "com.xrn.template"
+  }
+}

@@ -1,0 +1,68 @@
+{
+  module: {
+    name: "entry",
+    type: "entry",
+    description: "$string:module_desc",
+    srcEntry: "./ets/MainAbilityStage.ets",
+    mainElement: "EntryAbility",
+    deviceTypes: ["phone", "tablet", "2in1"],
+    querySchemes: ["alipays", "amapuri", "zhihu"],
+    deliveryWithInstall: true,
+    installationFree: false,
+    pages: "$profile:main_pages",
+    abilities: [
+      {
+        name: "EntryAbility",
+        srcEntry: "./ets/entryability/EntryAbility.ets",
+        description: "$string:EntryAbility_desc",
+        icon: "$media:layered_image",
+        label: "$string:EntryAbility_label",
+        startWindowIcon: "$media:startIcon",
+        startWindowBackground: "$color:start_window_background",
+        exported: true,
+        skills: [
+          { entities: ["entity.system.home"], actions: ["action.system.home"] },
+        ],
+      },
+    ],
+    extensionAbilities: [
+      {
+        name: "EntryBackupAbility",
+        srcEntry: "./ets/entrybackupability/EntryBackupAbility.ets",
+        type: "backup",
+        exported: false,
+        metadata: [
+          { name: "ohos.extension.backup", resource: "$profile:backup_config" },
+        ],
+      },
+    ],
+    requestPermissions: [
+      {
+        name: "ohos.permission.APP_TRACKING_CONSENT",
+        reason: "$string:reason", // 如果IDE提示错误，需自行在entry/src/main/resources/base/element/string.json，中添加对应信息
+        usedScene: {},
+      },
+      { name: "ohos.permission.INTERNET" },
+      { name: "ohos.permission.GET_NETWORK_INFO" },
+      {
+        name: "ohos.permission.CAMERA",
+        reason: "$string:camera_reason",
+        usedScene: { abilities: ["EntryAbility"], when: "inuse" },
+      },
+      {
+        name: "ohos.permission.MICROPHONE",
+        reason: "$string:microphone_reason",
+        usedScene: { abilities: ["EntryAbility"], when: "inuse" },
+      },
+      {
+        name: "ohos.permission.APPROXIMATELY_LOCATION",
+        reason: "$string:location_reason",
+        usedScene: { abilities: ["EntryAbility"], when: "inuse" },
+      },
+      {
+        "name": "ohos.permission.ACCESS_BIOMETRIC",
+        "reason": "$string:biometric_reason",
+      },
+    ],
+  },
+}

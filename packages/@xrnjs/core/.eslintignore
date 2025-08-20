@@ -1,0 +1,10 @@
+node_modules/**/*.js
+.eslintrc.json
+package.json
+tsconfig.json
+CHANGELOG.md
+.eslintrc
+.eslintrc.js
+dist/**.js
+bin/*
+

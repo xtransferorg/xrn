@@ -1,0 +1,293 @@
+---
+title: 调试面板
+sidebar_title: 调试面板
+hideTOC: false
+---
+
+import { ContentSpotlight } from '~/ui/components/ContentSpotlight';
+import { Tabs, Tab } from '~/ui/components/Tabs';
+import { Terminal, DiffBlock } from '~/ui/components/Snippet';
+import { BoxLink } from '~/ui/components/BoxLink';
+
+## 简介
+
+APP调试面板主要用于在开发&测试阶段，为业务开发和测试提供便捷的调试测试能力，意在提升开发&测试效率
+
+目前APP调试面板统一使用JS开发页面，磨平了之前iOS和Android两端在交互和功能上的差异性，对使用者来说更加友好
+
+调试面板支持两种模式：
+
+- Debug模式（Debug包）：用于开发阶段调试
+- Release模式（Release包）：用于测试阶段回归功能
+
+## 调试入口
+
+在APP中点击绿色全局悬浮球，即可唤起调试面板界面，此悬浮球存在于APP顶层window层，在任何页面都可见
+
+<div className="grid grid-cols-2 gap-4">
+  <ContentSpotlight
+    alt="image.png"
+    src="/xrn/static/images/debug-panel/debug-ball.png"
+    className="w-1/3"
+  />
+</div>
+
+## 调试面板
+
+<div className="grid grid-cols-2 gap-4">
+  <ContentSpotlight
+    alt="image.png"
+    src="/xrn/static/images/debug-panel/detools-center.png"
+    className="w-1/3"
+  />
+</div>
+
+## 功能点如下
+
+#### 设备信息
+
+设备信息页面展示了当前设备的常用基础信息，支持复制单条信息，也支持一键复制所有设备信息
+
+<div className="grid grid-cols-2 gap-4">
+  <ContentSpotlight
+    alt="image.png"
+    src="/xrn/static/images/debug-panel/device-info.png"
+    className="w-1/3"
+  />
+</div>
+
+##### 字段说明
+
+- **`手机品牌`**: 苹果 / xiaomi。
+- **`手机系统`**: iOS / Android。
+- **`系统版本`**: 设备操作系统版本（如 iOS 14.4）。
+- **`型号标识符`**: iPhone15,5。
+- **`设备名称`**: 设备型号（如 iPhone 11 Pro）。
+- **`设备唯一标识符`**: 97177EAF-318B-47C4-851C-9D4C2EE14288。
+- **`当前网络状态`**: wifi： 已连接。
+- **`网络运营商`**: 中国移动。
+- **`手机制造商`**: Apple。
+- **`总内存`**: 5.52 GB。
+- **`已使用内存大小`**: 0.83 GB。
+- **`总磁盘大小`**: 119.08 GB。
+- **`可用磁盘大小`**: 94.14 GB。
+- **`电池电量`**: 0.95。
+
+#### App信息
+
+App信息页面展示了 App常用的基础信息，支持复制单条信息，也支持一键复制所有App信息
+
+<div className="grid grid-cols-2 gap-4">
+  <ContentSpotlight
+    alt="image.png"
+    src="/xrn/static/images/debug-panel/app-info.png"
+    className="w-1/3"
+  />
+</div>
+
+##### 字段说明
+
+- **`App名称`**: 当前APP的名称。
+- **`APP 版本号`**: 当前APP的版本号。
+- **`构建版本号`**: 当前APP的构建版本号。
+- **`UserAgent`**: 当前APP的UserAgent。
+- **`安装时间`**: 当前APP的安装时间。
+
+#### Bundle 信息
+
+Bundle 信息页面展示了APP中每一个业务bundle接受到codePush对应的元数据信息
+
+<div className="grid grid-cols-2 gap-4">
+  <ContentSpotlight
+    alt="image.png"
+    src="/xrn/static/images/debug-panel/bundle-info.png"
+    className="w-1/3"
+  />
+</div>
+
+##### 字段说明
+
+- **`Label`**: bundle对应的codePush版本号。
+- **`描述信息`**: 发送codePush时，更新的文案信息。
+- **`强制更新`**: 是 / 否。
+
+#### 路由信息
+
+路由信息页展示了当前App的页面路由栈信息，便于测试开发同学知道当前页面属于哪个bundle，哪个module，哪个page，并且支持复制落地页Url到任意门，一键跳转到指定页面
+
+<div className="grid grid-cols-2 gap-4">
+  <ContentSpotlight
+    alt="image.png"
+    src="/xrn/static/images/debug-panel/route-info.png"
+    className="w-1/3"
+  />
+</div>
+
+##### 字段说明
+
+- **`bundleName`**: 当前页面所在的bundle
+- **`moduleName`**: 当前页面所在的module
+- **`pageName`**: 当前页面对应的routeName
+- **`落地页Url`**: 当前页面对应的 urlScheme
+
+#### 扫码调试
+
+一键扫描二维码，用来快速绑定调试bundle对应的IP地址，不在需要手动输入ip和端口，具体操作如下：
+
+<Terminal cmd={['$ npx xrn start [options] [args...]']} />
+
+<div className="grid grid-cols-2 gap-4">
+  <ContentSpotlight
+    alt="image.png"
+    src="/xrn/static/images/debug-panel/debug-qr.png"
+    className="w-1/3"
+  />
+</div>
+
+<div className="grid grid-cols-2 gap-4">
+  <ContentSpotlight
+    alt="image.png"
+    src="/xrn/static/images/debug-panel/scan-qr.png"
+    className="w-1/3"
+  />
+</div>
+
+#### 清除缓存
+
+清除缓存数据，能够清理掉APP在使用过程中产生的缓存数据，不在需要进入设置页进行清理，避免在使用过程中因为缓存数据导致的异常
+
+<div className="grid grid-cols-2 gap-4">
+  <ContentSpotlight
+    alt="image.png"
+    src="/xrn/static/images/debug-panel/cache-clear.png"
+    className="w-1/3"
+  />
+</div>
+
+#### 系统设置页
+
+系统设置页功能能直接唤起手机系统设置App页面，便捷设置APP的系统相关功能
+
+<div className="grid grid-cols-2 gap-4">
+  <ContentSpotlight
+    alt="image.png"
+    src="/xrn/static/images/debug-panel/sys-setting.png"
+    className="w-1/3"
+  />
+</div>
+
+#### 任意门
+
+任意门功能，支持复制落地页对应的urlScheme，一键跳转到指定页面，对于层级很深的页面，不再需要一层一层点击跳转
+
+<div className="grid grid-cols-2 gap-4">
+  <ContentSpotlight
+    alt="image.png"
+    src="/xrn/static/images/debug-panel/auto-linking.png"
+    className="w-1/3"
+  />
+</div>
+
+
+#### 常用路由
+
+常用路由列表，对应的是通过任意门跳转过的历史记录，便于常用的业务页面快速点击跳转到指定落地页
+
+<div className="grid grid-cols-2 gap-4">
+  <ContentSpotlight
+    alt="image.png"
+    src="/xrn/static/images/debug-panel/linking-history.png"
+    className="w-1/3"
+  />
+</div>
+
+#### 网站诊断
+
+网络诊断功能方便在App接口请求异常时，排查是否因为网络问题导致的无法访问，不需要通过抓包，就能知道App的网络是否正常
+
+<div className="grid grid-cols-2 gap-4">
+  <ContentSpotlight
+    alt="image.png"
+    src="/xrn/static/images/debug-panel/net-diagnosis.png"
+    className="w-1/3"
+  />
+</div>
+
+#### 接口抓包
+
+接口抓包功能可以在App内直接拦截网络请求，查看接口数据，不需要设置代理，开启抓包工具。支持网络日志筛选，一键复制能力
+
+
+请求列表
+<div className="grid grid-cols-2 gap-4">
+  <ContentSpotlight
+    alt="image.png"
+    src="/xrn/static/images/debug-panel/api-list.png"
+    className="w-1/3"
+  />
+</div>
+
+请求详情
+<div className="grid grid-cols-2 gap-4">
+  <ContentSpotlight
+    alt="image.png"
+    src="/xrn/static/images/debug-panel/api-detail.png"
+    className="w-1/3"
+  />
+</div>
+
+
+#### 功能反馈
+
+功能反馈便于收集业务&测试同学提交的需求和建议，方便后期收集需求，扩展调试功能，提效
+
+<div className="grid grid-cols-2 gap-4">
+  <ContentSpotlight
+    alt="image.png"
+    src="/xrn/static/images/debug-panel/feedback.png"
+    className="w-1/3"
+  />
+</div>
+
+
+#### 动态调试bundle
+
+动态调试bundle页面，需要调试哪一个bundle，直接勾选对应的开关即可，点击保存并重启APP后，即可启动bundle调试服务，不需要重新构建native包，大大降低native APP的打包频率
+
+<div className="grid grid-cols-2 gap-4">
+  <ContentSpotlight
+    alt="image.png"
+    src="/xrn/static/images/debug-panel/debug-bundle.png"
+    className="w-1/3"
+  />
+</div>
+
+#### Reload bundle
+
+ReloadBundle 按钮功能延用react native DevMenu 中的Reload bundle 能力，点击Reload bundle会重新加载当前bundle，不需要重新启动App
+
+
+#### ShowInspector（审查元素）
+
+元素审查，延用react native DevMenu中的Inspector能力，方便查看元素的层级结构和元素组件名，以及布局信息
+
+<div className="grid grid-cols-2 gap-4">
+  <ContentSpotlight
+    alt="image.png"
+    src="/xrn/static/images/debug-panel/inspector.png"
+    className="w-1/3"
+  />
+</div>
+
+
+#### ShowPMonitor（性能指标）
+
+performanceMonitor工具，延用react native DevMenu中的monitor能力，可以便捷的查看当前的RAM，页面FPS等性能指标
+
+<div className="grid grid-cols-2 gap-4">
+  <ContentSpotlight
+    alt="image.png"
+    src="/xrn/static/images/debug-panel/monitor.png"
+    className="w-1/3"
+  />
+</div>

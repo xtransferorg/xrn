@@ -1,0 +1,19 @@
+{
+  "string": [
+    { "name": "module_desc", "value": "module description" },
+    { "name": "EntryAbility_desc", "value": "description" },
+    { "name": "EntryAbility_label", "value": "XRNTemplate" },
+    { "name": "reason", "value": "采集oaid信息用于崩溃、性能分析" },
+    { "name": "camera_reason", "value": "使用相机" },
+    { "name": "location_reason", "value": "获取当前位置" },
+    { "name": "microphone_reason", "value": "使用麦克风" },
+    {
+      "name": "clipboard_reason",
+      "value": "获取剪切板内容"
+    },
+    {
+      "name": "biometric_reason",
+      "value": "生物识别认证"
+    }
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "name": "@xrnjs/native-storage",
+  "version": "0.0.2",
+  "description": "提供本地数据存储方案，支持持久化存储",
+  "main": "./build/index.js",
+  "types": "./build/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf build",
+    "prepare": "yarn clean && yarn build",
+    "watch": "nodemon --ignore build/ --watch ./src -C -e js,jsx,ts,tsx,css,less --debug -x 'yalc publish --push'"
+  },
+  "files": [
+    "src",
+    "build",
+    "android",
+    "ios",
+    "harmony/*.har",
+    "harmony/xrn_native_storage",
+    "!harmony/xrn_native_storage/oh_modules",
+    "!harmony/xrn_native_storage/build",
+    "!harmony/xrn_native_storage/.hvigor",
+    "cpp",
+    "*.podspec",
+    "!ios/build",
+    "!android/build",
+    "!android/gradle",
+    "!android/gradlew",
+    "!android/gradlew.bat",
+    "!android/local.properties",
+    "!**/__tests__",
+    "!**/__fixtures__",
+    "!**/__mocks__",
+    "!**/.*"
+  ],
+  "keywords": [
+    "react-native",
+    "xrn",
+    "xrn-native-storage",
+    "XRNNativeStorage",
+    "xrnjs"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": "https://github.com/xtransferorg/xrn",
+  "bugs": {
+    "url": "https://github.com/xtransferorg/xrn/issues"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "homepage": "https://xtransferorg.github.io/xrn/versions/latest/sdk/storage/xrn-native-storage",
+  "dependencies": {
+    "@xrnjs/modules-core": "0.0.2"
+  },
+  "devDependencies": {
+    "@react-native-oh/react-native-harmony": "0.72.38",
+    "@types/react": "^18.0.25",
+    "nodemon": "^3.1.1",
+    "react-native": "0.72.5",
+    "typescript": "^5.1.3"
+  },
+  "peerDependencies": {
+    "react": "*",
+    "react-native": "*"
+  },
+  "harmony": {
+    "codegenConfig": {
+      "specPaths": [
+        "./src"
+      ]
+    }
+  },
+  "xrnMeta": {
+    "name": "XrnNativeStorage",
+    "title": "本地存储",
+    "showName": "本地存储",
+    "group": "数据存储",
+    "description": "提供本地数据存储方案，支持持久化存储",
+    "packageName": "xrn-native-storage",
+    "sdkPath": "storage/xrn-native-storage"
+  }
+}

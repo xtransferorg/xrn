@@ -1,0 +1,64 @@
+import { ContentSpotlight } from '~/ui/components/ContentSpotlight';
+import { Terminal } from '~/ui/components/Snippet';
+import { Step } from '~/ui/components/Step';
+
+# Android Studio 设置
+
+要使用 Android 模拟器，你需要安装 Android Studio。
+
+## 安装 Android Studio
+
+1. 从 [Android Studio 官网](https://developer.android.com/studio) 下载并安装 Android Studio。
+
+2. 打开 Android Studio，按照设置向导完成初始配置。
+
+## 配置 Android SDK
+
+1. 在 Android Studio 中，点击 **File** > **Settings** (Windows/Linux) 或 **Android Studio** > **Preferences** (macOS)。
+
+2. 在左侧导航栏中，点击 **Appearance & Behavior** > **System Settings** > **Android SDK**。
+
+3. 在 **SDK Platforms** 标签页中，确保选中了以下项目：
+   - Android 13 (API level 33)
+   - Android 12 (API level 31)
+   - Android 11 (API level 30)
+
+   ![SDK Platforms](/xrn/static/images/android-studio/sdk-platforms.png)
+
+4. 在 **SDK Tools** 标签页中，确保选中了以下项目：
+   - Android SDK Build-Tools
+   - Android SDK Command-line Tools
+   - Android Emulator
+   - Android SDK Platform-Tools
+
+   ![Build Tools](/xrn/static/images/android-studio/build-tools.png)
+
+5. 点击 **Apply** 开始下载和安装选中的组件。
+
+## 设置 Android SDK 路径
+
+1. 在 Android Studio 中，点击 **File** > **Settings** (Windows/Linux) 或 **Android Studio** > **Preferences** (macOS)。
+
+2. 在左侧导航栏中，点击 **Appearance & Behavior** > **System Settings** > **Android SDK**。
+
+3. 复制 **Android SDK Location** 路径。
+
+   ![SDK Location](/xrn/static/images/android-studio/sdk-location.png)
+
+4. 将路径添加到你的环境变量中：
+   - **Windows**: 将路径添加到 `ANDROID_HOME` 环境变量
+   - **macOS/Linux**: 将路径添加到 `ANDROID_HOME` 环境变量
+
+## 创建 Android 虚拟设备
+
+1. 在 Android Studio 中，点击 **Tools** > **AVD Manager**。
+
+2. 点击 **Create Virtual Device**。
+
+3. 选择一个设备定义（例如 Pixel 4）。
+
+4. 选择一个系统镜像（建议选择 API level 31 或更高）。
+
+5. 点击 **Finish** 完成创建。
+
+现在你已经完成了 Android Studio 的设置，可以开始使用 Android 模拟器了。

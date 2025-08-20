@@ -1,0 +1,51 @@
+---
+title: 项目创建（@xrnjs/create）
+maxHeadingDepth: 4
+description: 一个用于创建新的 XRN 和 App Bundle 项目的命令行工具。
+---
+
+import { Terminal } from '~/ui/components/Snippet';
+import { Tab, Tabs } from '~/ui/components/Tabs';
+
+`@xrnjs/create` 是一个用于创建和设置新的 XRN 和 App Bundle 项目的命令行工具。该工具通过提供各种模板来简化初始化过程，从而快速开始，而无需手动配置。
+
+## 创建一个新项目
+
+要创建一个新项目，请运行以下命令：
+
+<Tabs>
+
+<Tab label="npx">
+
+<Terminal cmd={['$ npx @xrnjs/create --template']} />
+
+</Tab>
+
+</Tabs>
+
+运行上述命令将提示您输入项目的应用名称。
+
+<Terminal cmd={['What is your app named? my-app']} />
+
+## 选项
+
+### `--no-install`
+
+跳过安装 npm 依赖或 CocoaPods。
+
+### `--template`
+
+运行 `@xrnjs/create` 时，将使用默认模板初始化并设置一个新的 app 项目。
+
+您可以使用 --template 选项选择以下模板之一
+
+- app: 创建一个 app 项目
+- bundle: 创建一个 bundle 项目
+
+### `--version`
+
+打印版本号并退出。
+
+### `--help`
+
+打印可用选项列表并退出。

@@ -1,0 +1,13 @@
+{
+  "name": "xrn-app-utils",
+  "version": "1.0.0",
+  "description": "Please describe the basic information.",
+  "main": "index.ets",
+  "author": "",
+  "license": "Apache-2.0",
+  "dependencies": {
+//"@rnoh/react-native-openharmony": "file:../react_native_openharmony",
+    "@rnoh/react-native-openharmony": "../../node_modules/@react-native-oh/react-native-harmony/react_native_openharmony.har",
+    "@pura/harmony-utils": "1.2.6"
+  }
+}

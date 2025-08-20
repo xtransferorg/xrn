@@ -1,0 +1,14 @@
+# OSX
+.DS_Store
+.vscode
+
+# vscode
+.history
+node_modules/
+npm-debug.log
+yarn-error.log
+
+#*.lock
+lib
+
+xt-app-*

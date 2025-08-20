@@ -1,0 +1,9 @@
+ios/**/*.js
+node_modules/**/*.js
+*.json
+android
+ios
+yarn.lock
+dist
+bin
+docs

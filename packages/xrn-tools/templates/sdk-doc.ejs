@@ -1,0 +1,28 @@
+---
+title: <%= meta.showName %> (<%= meta.packageName %>)
+description: <%= meta.description %>
+platforms: ['android', 'ios', 'harmony']
+---
+
+import APISection from '~/components/plugins/APISection';
+import { SnackInline, Terminal } from '~/ui/components/Snippet';
+
+## 安装
+
+<% if (meta.exportFromCore ?? true) { %>
+<Terminal cmd={['$ yarn add xt-rn-core']} />
+<% } else { %>
+<Terminal cmd={['$ yarn add <%= meta.packageName %>']} />
+<% } %>
+
+## 使用
+
+<SnackInline label="Basic usage">
+```ts
+<%- screenContent %>
+```
+</SnackInline>
+
+## API
+
+<APISection packageName="<%= meta.packageName %>" /> 

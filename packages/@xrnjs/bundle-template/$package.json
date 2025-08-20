@@ -1,0 +1,34 @@
+{
+  "name": "xrn-bundle-template",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.ts",
+  "scripts": {
+    "start": "xrn start",
+    "postinstall": "xrn-bundle-postinstall"
+  },
+  "installConfig": {
+    "hoistingLimits": "workspaces"
+  },
+  "resolutions": {
+    "metro": "0.72.4",
+    "metro-config": "0.72.4",
+    "@react-native-community/cli": "9.3.3"
+  },
+  "dependencies": {
+    "@xrnjs/core": "0.0.4",
+    "react": "18.2.0",
+    "react-native": "0.72.5"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.12.9",
+    "@babel/runtime": "^7.12.5",
+    "@react-native-community/eslint-config": "^2.0.0",
+    "@react-native/metro-config": "^0.72.9",
+    "@types/react": "18.0.25",
+    "@types/react-native": "0.72.8",
+    "@xrnjs/cli": "0.0.6",
+    "eslint": "^7.32.0",
+    "metro-react-native-babel-preset": "0.72.4"
+  }
+}

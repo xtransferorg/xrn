@@ -1,0 +1,65 @@
+{
+  "name": "xrn-tools",
+  "private": true,
+  "version": "1.0.0",
+  "description": "The script to create the Xrn module",
+  "main": "build/xrn-tools.js",
+  "types": "build/xrn-tools.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "xrn-module build --watch"
+  },
+  "bin": "./bin/xrn-tools",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xrn/xrn.git",
+    "directory": "packages/xrn-tools"
+  },
+  "keywords": [
+    "xrn",
+    "module",
+    "modules",
+    "library",
+    "react",
+    "native"
+  ],
+  "author": "Xrn",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/xrn/xrn/issues"
+  },
+  "homepage": "https://github.com/xrn/xrn/tree/main/packages/xrn",
+  "dependencies": {
+    "@expo/config": "~9.0.0",
+    "@expo/json-file": "^8.3.0",
+    "@expo/rudder-sdk-node": "^1.1.1",
+    "@expo/spawn-async": "^1.7.2",
+    "chalk": "^4.1.2",
+    "commander": "^8.3.0",
+    "cross-spawn": "^7.0.3",
+    "debug": "^4.3.4",
+    "download-tarball": "^2.0.0",
+    "ejs": "^3.1.10",
+    "exec-sh": "0.4.0",
+    "find-up": "^5.0.0",
+    "fs-extra": "^11.2.0",
+    "getenv": "^1.0.0",
+    "inquirer": "^8.2.2",
+    "json5": "^2.2.3",
+    "ora": "^5.4.1",
+    "prompts": "^2.4.2",
+    "recursive-omit-by": "^2.0.0",
+    "typedoc": "0.25.13",
+    "validate-npm-package-name": "^5.0.1"
+  },
+  "devDependencies": {
+    "@octokit/types": "^13.5.0",
+    "@tsconfig/node18": "^18.2.2",
+    "@types/ejs": "^3.1.5",
+    "@types/find-up": "^4.0.0",
+    "@types/fs-extra": "^9.0.13",
+    "@types/inquirer": "^8.2.1",
+    "@types/prompts": "^2.4.9",
+    "typescript": "^5.1.3"
+  }
+}

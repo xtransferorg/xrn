@@ -1,0 +1,9 @@
+{
+  "module": {
+    "name": "xrn_debug_tools",
+    "type": "har",
+    "deviceTypes": [
+      "default"
+    ]
+  }
+}

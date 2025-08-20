@@ -1,0 +1,79 @@
+import { Terminal } from '~/ui/components/Snippet';
+import { Step } from '~/ui/components/Step';
+import { ContentSpotlight } from '~/ui/components/ContentSpotlight';
+
+### 安装依赖
+
+<Step label="1">
+
+使用像 Homebrew 这样的工具 [安装 Watchman](https://facebook.github.io/watchman/docs/install#macos)：
+
+<Terminal cmd={['$ brew install watchman']} />
+
+</Step>
+
+<Step label="2">
+
+使用 Homebrew 安装名为 android-platform-tools。此工具提供 adb 命令行工具。
+
+已安装 android studio 的用户可以跳过此步骤。
+
+<Terminal cmd={['$ brew install android-platform-tools']} />
+
+</Step>
+
+### 在 Android 设备上运行你的应用
+
+<Step label="1">
+**启用 USB 调试**
+
+大多数 Android 设备默认只能安装和运行从 Google Play 下载的应用。你需要在设备上启用 USB 调试，以便在开发过程中安装你的应用。
+
+要启用设备上的 USB 调试，首先需要通过访问 **设置** > **关于手机** > **软件信息**，然后点击底部的 `版本号` 行七次来启用“开发者选项”菜单。然后你可以返回 **设置** > **开发者选项** 启用“USB 调试”。
+
+</Step>
+
+<Step label="2">
+
+**通过 USB 连接你的设备**
+
+通过 USB 将 Android 设备连接到计算机。
+
+通过在终端中运行 `adb devices` 检查设备是否正确连接到 ADB（Android 调试桥）。你应该看到设备列在其中，旁边标注有 `device`。例如：
+
+<Terminal cmd={['$ adb devices', '', '已连接设备列表', '8AHX0T32K	device']} />
+
+</Step>
+
+<Step label="3">
+**运行你的应用**
+
+在项目的根目录下运行以下命令：
+
+<Terminal cmd={['$ npx xrn start']} />
+
+根据提示，在命令行中输入 `a` 以在 Android 设备上运行你的应用。
+
+</Step>
+
+<Step label="4">
+**扫码调试项目**
+
+根据提示，在命令行中输入 `p` 打印二维码，使用调试面板的扫码功能调试项目。
+<div className="grid grid-cols-2 gap-8">
+
+<ContentSpotlight
+  alt="image.png"
+  className='max-w-320'
+  src="/xrn/static/images/debug-panel/debug-qr.png"
+/>
+
+<ContentSpotlight
+  alt="image.png"
+  className='max-w-320'
+  src="/xrn/static/images/debug-panel/scan-box.png"
+/>
+</div>
+
+
+</Step>

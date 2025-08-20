@@ -1,0 +1,39 @@
+diff --git a/node_modules/@react-native-oh-tpl/react-native-safe-area-context/src/SafeAreaView.tsx b/node_modules/@react-native-oh-tpl/react-native-safe-area-context/src/SafeAreaView.tsx
+index 50c3f3e..3e08feb 100644
+--- a/node_modules/@react-native-oh-tpl/react-native-safe-area-context/src/SafeAreaView.tsx
++++ b/node_modules/@react-native-oh-tpl/react-native-safe-area-context/src/SafeAreaView.tsx
+@@ -9,6 +9,7 @@ import type {
+ import NativeSafeAreaView, { onSafeAreaValueChangeEvent } from './specs/NativeSafeAreaView';
+ import type * as ReactNative from "react-native";
+ import { useMemo, useState } from 'react';
++import { useSafeAreaInsets } from './';
+ 
+ const defaultEdges: Record<Edge, EdgeMode> = {
+   top: 'additive',
+@@ -82,20 +83,12 @@ export const SafeAreaView = React.forwardRef<
+   let rawMarginLeft: number | undefined = undefined;
+   let rawMarginBottom: number | undefined = undefined;
+   let rawMarginRight: number | undefined = undefined;
+-
+-  const safeAreaChange = (e: ReactNative.NativeSyntheticEvent<onSafeAreaValueChangeEvent>) => {
+-    if (e.nativeEvent.safeAreaViewInsetsValue?.top) {
+-      safeAreaTop = e.nativeEvent.safeAreaViewInsetsValue?.top;
+-    }
+-    if (e.nativeEvent.safeAreaViewInsetsValue?.right) {
+-      safeAreaRight = e.nativeEvent.safeAreaViewInsetsValue?.right;
+-    }
+-    if (e.nativeEvent.safeAreaViewInsetsValue?.bottom) {
+-      safeAreaBottom = e.nativeEvent.safeAreaViewInsetsValue?.bottom;
+-    }
+-    if (e.nativeEvent.safeAreaViewInsetsValue?.left) {
+-      safeAreaLeft = e.nativeEvent.safeAreaViewInsetsValue?.left;
+-    }
++  const safeInsets = useSafeAreaInsets()
++  const safeAreaChange = (_e: ReactNative.NativeSyntheticEvent<onSafeAreaValueChangeEvent>) => {
++    safeAreaTop = safeInsets?.top || 0
++    safeAreaRight = safeInsets?.right || 0
++    safeAreaBottom = safeInsets?.bottom || 0
++    safeAreaLeft = safeInsets?.left || 0
+ 
+     if (!isOnChange) {
+       setIsFirstRefresh(true);

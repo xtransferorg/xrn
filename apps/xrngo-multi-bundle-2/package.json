@@ -1,0 +1,37 @@
+{
+  "name": "xrngo-multi-bundle-2",
+  "version": "0.0.1",
+  "private": true,
+  "main": "index.ts",
+  "scripts": {
+    "start": "xrn start --project xrngo",
+    "bind-port:harmony": "xrn bind-port harmony",
+    "codepush:harmony": "xrn codepush XTransfer harmony 3.6.10  sitxt1 --branch feat-xrn-opensource-feature --increment false --desc 测试热更新 --mandatory true ",
+    "add-code-push-app:harmony": "xrn add-code-push-app harmony",
+    "postinstall": "xrn-bundle-postinstall"
+  },
+  "installConfig": {
+    "hoistingLimits": "workspaces"
+  },
+  "resolutions": {
+    "metro": "0.72.4",
+    "metro-config": "0.72.4"
+  },
+  "dependencies": {
+    "@xrnjs/core": "0.0.4",
+    "react": "18.2.0",
+    "react-native": "0.72.5",
+    "react-native-svg": "15.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.12.9",
+    "@babel/runtime": "^7.12.5",
+    "@react-native-community/eslint-config": "^2.0.0",
+    "@react-native/metro-config": "^0.72.9",
+    "@types/react": "18.0.25",
+    "@types/react-native": "0.72.8",
+    "@xrnjs/cli": "0.0.6",
+    "eslint": "^7.32.0",
+    "metro-react-native-babel-preset": "0.72.4"
+  }
+}

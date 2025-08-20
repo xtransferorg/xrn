@@ -1,0 +1,91 @@
+import { Terminal, SnackInline } from '~/ui/components/Snippet';
+import { Step } from '~/ui/components/Step';
+import { A } from '~/ui/components/Text';
+import { ContentSpotlight } from '~/ui/components/ContentSpotlight';
+
+### 安装鸿蒙开发工具
+
+
+下载并安装 DevEco Studio。这是开发鸿蒙应用的官方 IDE。
+
+请前往[下载中心](https://developer.huawei.com/consumer/cn/download/deveco-studio)，登录华为账号后下载DevEco Studio，并根据下载中心页面工具完整性指导进行完整性校验。
+
+
+### 鸿蒙环境变量配置
+
+在 .bash\_profile 或 .zshrc 下面添加配置
+
+<SnackInline label='.bash_profile 或 .zshrc 配置'>
+```shell
+export PATH="/Applications/DevEco-Studio.app/Contents/sdk/default/openharmony/toolchains:$PATH" # 按照实际 SDK 安装路径配置，需要选择{显示包内容}
+HDC_SERVER_PORT=7035 # HDC 端口变量名为：HDC_SERVER_PORT，变量值可设置为任意未被占用的端口，如 7035
+launchctl setenv HDC_SERVER_PORT $HDC_SERVER_PORT 
+export HDC_SERVER_PORT
+
+# 鸿蒙配置
+export RNOH_C_API_ARCH=1
+
+# HamonyOS SDK
+export HAMONY_TOOL_HOME="/Applications/DevEco-Studio.app/Contents"
+export DEVECO_SDK_HOME="$HAMONY_TOOL_HOME/sdk"
+export PATH="$HAMONY_TOOL_HOME/tools/ohpm/bin:$PATH"
+export PATH="$HAMONY_TOOL_HOME/tools/hvigor/bin:$PATH"
+export PATH="$HAMONY_TOOL_HOME/tools/node/bin:$PATH"
+```
+</SnackInline>
+
+### 设置鸿蒙模拟器
+
+<Step label="1">
+
+打开 DevEco Studio，点击顶部菜单栏的 "Tools" > "Device Manager"。
+
+<ContentSpotlight
+  alt="image.png"
+  src="/xrn/static/images/harmony-env/1f30e521-dd2a-47ff-9911-a65cd66b2baa.png"
+/>
+
+</Step>
+
+<Step label="2">
+
+在Local Emulator页签中，单击右下角的New Emulator按钮，创建一个模拟器。
+
+在模拟器配置界面，可以选择一个默认的设备模板，首次使用时会提示"Download the system image first"，请点击设备右侧的下载按钮下载模拟器镜像，您也可以在该界面更新或删除不同设备的模拟器镜像。单击Edit可以设置镜像文件的存储路径。Mac默认存储在~/Library/Huawei/Sdk下，Windows默认存储在C:\Users\xxx\AppData\Local\Huawei\Sdk下。
+
+<ContentSpotlight
+  alt="模拟器配置界面"
+  src="/xrn/static/images/harmony-env/9a9078dd-f41a-4558-be62-4aba33cb4bcb.png"
+/>
+
+</Step>
+
+<Step label="3">
+
+单击Next，核实确定需要创建的模拟器的名称，内存和存储空间，然后单击Finish创建模拟器。
+
+<ContentSpotlight
+  alt="创建模拟器"
+  src="/xrn/static/images/harmony-env/8be3b299-0348-4c77-ad71-fb59b3d8335b.png"
+/>
+
+</Step>
+
+<Step label="4">
+
+在设备管理器页面，单击启动按钮开启模拟器。
+
+<ContentSpotlight
+  alt="启动模拟器"
+  src="/xrn/static/images/harmony-env/0b196b21-08b7-4ffd-b416-a97ea55619f4.png"
+/>
+
+</Step>
+
+### 在鸿蒙模拟器上运行你的应用
+
+执行以下命令启动应用
+
+<Terminal cmd={['$ npx xrn start']} />
+
+根据提示，在命令行中输入 `h` 以在鸿蒙模拟器上运行你的应用。

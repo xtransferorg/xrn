@@ -1,0 +1,32 @@
+import XcodeInstructions from './_xcodeInstructions.mdx';
+
+import { Terminal } from '~/ui/components/Snippet';
+import { Step } from '~/ui/components/Step';
+import { BoxLink } from '~/ui/components/BoxLink';
+import { ContentSpotlight } from '~/ui/components/ContentSpotlight';
+
+## 设置 Xcode 和 Watchman
+
+<XcodeInstructions />
+
+## 配置你的项目
+
+<Step label="1">
+
+### 通过 USB 连接你的设备
+
+使用 USB 转 Lightning 数据线将你的 iOS 设备连接到 Mac。解锁设备并在提示时点击 **信任**。
+
+</Step>
+
+<Step label="2">
+
+### 在你的设备上运行项目
+
+在项目的根目录下运行以下命令：
+
+<Terminal cmd={['$ npx xrn start']} />
+
+根据提示，在命令行中输入 `o` 以在 iOS 设备上运行你的应用。
+
+</Step>

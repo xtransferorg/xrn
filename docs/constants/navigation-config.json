@@ -1,0 +1,24 @@
+{
+  "sdk": [
+    {
+      "name": "路由与导航",
+      "directory": "routing-navigation",
+      "expanded": false
+    },
+    {
+      "name": "界面组件",
+      "directory": "interface-ui", 
+      "expanded": false
+    },
+    {
+      "name": "资源管理",
+      "directory": "resource-management",
+      "expanded": false
+    },
+    {
+      "name": "更新",
+      "directory": "update",
+      "expanded": false
+    }
+  ]
+} 

@@ -1,0 +1,9 @@
+{
+  "module": {
+    "name": "xrn_navigation",
+    "type": "har",
+    "deviceTypes": [
+      "default"
+    ]
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "CommonJS",
+    "strict": false,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "outDir": "lib",
+    "types": ["jest", "node"]
+  },
+  "include": ["src/**/*", "types/**/*", "react-native.config.js"],
+  "exclude": ["node_modules", "lib/**/*", "files/**/*", ".eslintrc.js", "jest.config.js", "scripts/**"]
+}

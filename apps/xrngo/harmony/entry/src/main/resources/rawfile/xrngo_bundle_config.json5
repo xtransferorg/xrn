@@ -1,0 +1,51 @@
+{
+  projuect: {
+    name: "xrngo"
+  },
+  bundles: [
+    {
+      bundleName: "xrngo-main",
+      defaultModuleName: "xrngo-main",
+      moduleNames: ["xrngo-main"],
+      codePushKey:'u3V6ID9LbDrExkZhcpKQ2ty2NfRs4ksvOXqog',
+      port: 8081,
+      bundleType: "main"
+    },
+    {
+      bundleName: "xrngo-bare",
+      moduleNames: ["xrngo-bare"],
+      codePushKey:'',
+      port: 18082,
+    },
+    {
+      bundleName: "xrngo-multi-bundle-1",
+      moduleNames: ["xrngo-multi-bundle-1"],
+      codePushKey:'Hx1f2tW9HspYmR5JrN35SdorfYKw4ksvOXqog',
+      port: 7071,
+    },
+    {
+      bundleName: "xrngo-multi-bundle-2",
+      moduleNames: ["xrngo-multi-bundle-2"],
+      codePushKey:'tObukXGyAV88Dv6Vo4nmb62XYJ2M4ksvOXqog',
+      port: 7072,
+    },
+    {
+      bundleName: "xrngo-multi-bundle-3",
+      moduleNames: ["xrngo-multi-bundle-3"],
+      codePushKey:'xkwORWoCqcg0XJJ4nQocXzWWOtJ04ksvOXqog',
+      port: 7073,
+    },
+    {
+      bundleName: "xt-package-xrn",
+      moduleNames: ["xt-package-xrn"],
+      codePushKey:'',
+      port: 8101,
+    },
+    {
+      bundleName: "xrn-bundle-template",
+      moduleNames: ["xrn-bundle-template"],
+      codePushKey:'',
+      port: 18888,
+    }
+  ]
+}

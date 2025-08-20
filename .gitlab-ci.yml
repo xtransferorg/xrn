@@ -1,0 +1,35 @@
+stages:
+  - build
+  - deploy
+  - deploy_server
+  - start_server
+
+build_docs:
+  stage: build
+  only:
+    - docs_deploy # 在 docs_deploy 分支触发
+  script:
+    - cd docs  # 进入 docs 目录
+    - yarn install --frozen-lockfile  # 使用缓存安装依赖
+    - yarn run build  # 假设您的 build 命令
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-docs-node-modules  # 缓存键，可以基于分支或其他标识生成唯一值
+    paths:
+      - docs/node_modules/  # 缓存 node_modules 目录
+  artifacts:
+    paths:
+      - docs/out/
+    expire_in: 1 week  # 可选：设置工件过期时间，避免占用空间
+  tags:
+   - docs-deploy
+
+deploy_docs:
+  stage: deploy
+  only:
+    - docs_deploy
+  script:
+    - cp -r docs/out/* /opt/docker/nginx/html/
+  dependencies:
+    - build_docs
+  tags:
+   - docs-deploy

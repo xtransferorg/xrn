@@ -1,0 +1,14 @@
+harmony/entry/src/main/resources/rawfile/*.bundle
+harmony/entry/src/main/resources/rawfile/assets/
+harmony/entry/src/main/resources/rawfile/packages/
+*.hap
+
+yalc.lock
+
+# Yarn
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions

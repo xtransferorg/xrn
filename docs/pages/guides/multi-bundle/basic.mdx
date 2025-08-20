@@ -1,0 +1,269 @@
+---
+title: 多Bundle基础接入
+sidebar_title: 基础接入
+---
+
+import { FileTree } from '~/ui/components/FileTree';
+import { Terminal, DiffBlock } from '~/ui/components/Snippet';
+import { Tab, Tabs } from '~/ui/components/Tabs';
+
+多Bundle功能允许您将应用拆分为多个独立的Bundle，每个Bundle可以独立开发、测试和部署。这提供了更好的模块化、更快的构建速度和更灵活的部署策略。
+
+## 概述
+
+多Bundle架构的主要优势：
+
+- **模块化开发**：不同团队可以独立开发不同的Bundle
+- **增量更新**：可以只更新特定的Bundle，而不是整个应用
+- **性能优化**：减少初始加载时间，按需加载功能模块
+- **更好的测试**：可以独立测试每个Bundle
+
+## 目录结构
+
+一个典型的多Bundle项目结构如下：
+
+<FileTree
+  files={[
+    ['android/', <code>Android原生代码目录</code>],
+    ['harmony/', <code>Harmony原生代码目录</code>],
+    ['ios/', <code>iOS原生代码目录</code>],
+    ['main-bundle/App.tsx', <code>主Bundle入口文件</code>],
+    ['main-bundle/app.json', <code>主Bundle配置文件</code>],
+    ['main-bundle/index.ts', <code>主Bundle入口点</code>],
+    ['main-bundle/package.json', <code>主Bundle依赖配置</code>],
+    ['main-bundle/xrn.config.ts', <code>主Bundle XRN配置</code>],
+    ['sub-bundle/...', <code>子Bundle目录</code>],
+    ['package.json', <code>项目根目录依赖配置</code>],
+    ['xrn.config.json', <code>XRN全局配置</code>],
+    ['react-native.config.js', <code>React Native配置</code>],
+  ]}
+/>
+
+## 快速开始
+### 1.创建 App & Bundle
+通过  `npx @xrnjs/create --template`  创建 App 工程和 多个Bundle；
+<Tabs>
+
+<Tab>
+
+<Terminal cmd={['$ npx @xrnjs/create --template']} />
+
+</Tab>
+
+</Tabs>
+### 2.Bundle 配置
+2.1 在工程根目录 xrn.config.json 文件 bundles 节点配置 Bundle 信息；  
+```json
+  {
+    "name": "sub-bundle", // bundle名
+    "bundleType": "main", // bundle类型，主 bundle 为 "main"，其他可不填
+    "bundlePackageRelativePath": "./sub-bundle", // bundle 代码本地路径
+    "gitUrl": "git@github.com:group/repo.git", // bundle 代码git仓库
+    "codePushKey": "xxxx", // 用于 bundle 热更新
+    "port": 6061 // 本地服务端口，用于bundle开发调试
+  }
+```
+2.2 在工程根目录执行 yarn，会同步Bundle信息到 Android & iOS & Harmony 工程中的配置文件；
+### 3.初始化
+App 启动阶段初始化（模版中已有，无需代码调整）
+<Tabs>
+
+<Tab label="Android">
+Android 初始化（App模版中已有，无需新增代码）
+```kotlin
+import androidx.multidex.MultiDexApplication
+import com.facebook.soloader.SoLoader
+import com.xrn.template.multibundle.XBundleInfoHook
+import com.xrn.template.multibundle.XDevSupportParams
+import com.xrn.template.multibundle.XRNHostParams
+import com.xrn.template.navigation.MainClazzFactory
+import xrn.modules.multibundle.bundle.BundleInfoManager.initWithRawFile
+import xrn.modules.multibundle.bundle.RNHostManager.init
+import xrn.modules.multibundle.bundle.RNHostManagerParams
+import xrn.modules.navigation.Navigation.initialize
+import xrn.modules.navigation.kotlin.exception.NavigationException
+
+
+class MainApplication : MultiDexApplication() {
+
+    override fun onCreate() {
+        super.onCreate()
+        initMultiBundle() //初始化多bundle
+        initNavigation() //初始化导航
+        SoLoader.init(this,  /* native exopackage */false)
+    }
+
+    private fun initMultiBundle() {
+        //加载多bundle配置文件
+        initWithRawFile(this, R.raw.bundle_config, XBundleInfoHook())
+        val params = RNHostManagerParams()
+        params.isProd = !BuildConfig.DEBUG
+        params.rnHostParams = XRNHostParams(this) //RN容器配置项
+        params.devSupportParams = XDevSupportParams() //开发调试配置项
+        params.onError = { e: Exception, map: Map<String, Any?>? ->
+            e.printStackTrace()
+            Unit
+        }
+        //初始化多Bundle框架
+        init(this, params)
+    }
+
+    private fun initNavigation() {
+        initialize(MainClazzFactory()) { e: NavigationException ->
+            e.printStackTrace()
+        }
+    }
+
+}
+```
+</Tab>
+
+<Tab label="iOS">
+</Tab>
+
+<Tab label="Harmony">
+Harmony 初始化（App模版中已有，无需新增代码）
+```ts
+export default class MainAbilityStage extends AbilityStage {
+
+  constructor() {
+    super()
+  }
+
+  onCreate(): void {
+    //RN容器配置项
+    initRNContainerOptions(getRNContainerOptions())
+    //加载 Bundle 配置
+    BundleInfoManager.initWithRawFile(this.context, "bundle_config.json5", undefined)
+    //初始化多Bundle框架
+    RNInstanceManager.init({
+      getRNInstanceOptions: getRNInstanceOptions,
+      createJSBundleProvider: createJSBundleProvider,
+    })
+  }
+}
+```
+</Tab>
+
+</Tabs>
+
+### 4.Bundle开发调试
+4.1 本地调试
+<Tabs>
+<Tab label="Android">
+```kotlin
+import android.app.Application
+import xrn.modules.multibundle.bundle.BundleInfo
+import xrn.modules.multibundle.bundle.RNHostParams
+
+class XRNHostParams(val application: Application): RNHostParams() {
+    //是否连接本地服务，默认为true，如果需要调试面板来控制，代码为
+    // if (BuildConfig.DEBUG) XDevInternalSettings.instance(info.bundleName)?.isBundleDebugEnabled() == true else false
+    override val getUseDeveloperSupport: ((info: BundleInfo) -> Boolean)? = { info: BundleInfo ->
+        true
+        //if (BuildConfig.DEBUG) XDevInternalSettings.instance(info.bundleName)?.isBundleDebugEnabled() == true else false
+    }
+}
+```
+</Tab>
+<Tab label="iOS">
+</Tab>
+<Tab label="Harmony">
+鸿蒙开发调试不需要特殊配置，只要确保 MetroJSBundleProvider 在 JSBundleProvider 列表中；  
+如果是生产环境，需要排除掉 MetroJSBundleProvider
+```ts
+function createJSBundleProvider(bundleInfo: BundleInfo): JSBundleProvider | undefined {
+  const rnohCoreContext: RNOHCoreContext | undefined = AppStorage.get<RNOHCoreContext>(APP_RNOH_RNOHCoreContext)
+  const jsBundleProviderArray: Array<JSBundleProvider> = new Array()
+  //本地服务
+  jsBundleProviderArray.push(new MetroJSBundleProvider(bundleInfo.getLocalServerUrl(), bundleInfo.getModuleNames()))
+  // //热更新
+  jsBundleProviderArray.push(CodePushJSBundleProvider.loadCodePushBundle(rnohCoreContext?.uiAbilityContext, bundleInfo.getJSBundleName(), bundleInfo.getCodePushKey()))
+  //内置 hbc
+  // jsBundleProviderArray.push(new ResourceJSBundleProvider(rnohCoreContext?.uiAbilityContext.resourceManager!, 'hermes_bundle.hbc'))
+  // //内置 js
+  jsBundleProviderArray.push(new ResourceJSBundleProvider(rnohCoreContext?.uiAbilityContext.resourceManager!, bundleInfo?.getJSBundleName(), bundleInfo.getModuleNames()))
+  return newProvider
+}
+```
+</Tab>
+</Tabs>
+
+4.2 原生能力桥接
+<Tabs>
+<Tab label="Android">
+原生桥接能力，如果是 AutoLink 的 Package，不需要处理，手动 Link 的 Package 需要在手动添加 Package；
+```kotlin
+import android.app.Application
+import com.facebook.react.PackageList
+import com.facebook.react.ReactPackage
+import com.microsoft.codepush.react.CodePush
+import com.xrn.template.BuildConfig
+import com.xrn.template.R
+import xrn.modules.multibundle.bundle.BundleInfo
+import xrn.modules.multibundle.bundle.RNHostManager
+import xrn.modules.multibundle.bundle.RNHostParams
+
+class XRNHostParams(val application: Application): RNHostParams() {
+
+    companion object {
+        val codePushMap = mutableMapOf<String, CodePush>()
+    }
+
+    //原生桥接能力，如果是 AutoLink 的 Package，不需要处理，手动 Link 的 Package 需要在手动添加 Package
+    override val getPackage: ((info: BundleInfo) -> List<ReactPackage>?)? = { info ->
+        val codePush = CodePush(
+            info.getCodePushKey(),
+            application,
+            BuildConfig.DEBUG,
+            BuildConfig.CODEPUSH_URL,
+            R.string.codepush_public_key
+        )
+        codePush.setReactInstanceHolder {
+            RNHostManager.getRNHostByBundle(info.bundleName)?.reactInstanceManager
+        }
+        codePushMap[info.bundleName] = codePush
+        val packages: MutableList<ReactPackage> = PackageList(application).packages
+        packages.add(codePush)
+        //添加手动 Link 的 Package
+        packages
+    }
+
+}
+```
+</Tab>
+<Tab label="iOS">
+</Tab>
+<Tab label="Harmony">
+HarmonyRN 不支持 AutoLink，需要在 createRNPackages 中添加原生能力桥接 package；
+```ts
+export function createRNPackages(ctx: RNPackageContext, bundleInfo: BundleInfo): RNPackage[] {
+  return [
+    new RNDeviceInfoPackage(ctx),
+    new RNLocalizePackage(ctx),
+    new XRNNavigationPackage(ctx),
+    new XRNNativeStoragePackage(ctx),
+    new XRNDebugToolsPackage(ctx, bundleInfo.bundleName),
+    //添加原生能力桥接 package
+  ]
+}
+```
+</Tab>
+</Tabs>
+
+### 5.启动App
+<Tabs>
+<Tab label="Android">
+5.1 Sync Android 工程；  
+5.2 run Application；
+</Tab>
+<Tab label="iOS">
+</Tab>
+<Tab label="Harmony">
+5.1 Sync Harmony 工程；  
+5.2 在工程根目录中执行 `yarn codegen`；  
+5.3 配置签名证书；  
+5.4 run `entry`；  
+</Tab>
+</Tabs>
+

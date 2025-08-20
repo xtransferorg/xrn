@@ -1,0 +1,206 @@
+diff --git a/node_modules/@react-navigation/core/lib/commonjs/useFocusEvents.js b/node_modules/@react-navigation/core/lib/commonjs/useFocusEvents.js
+index 67606aa..885931b 100644
+--- a/node_modules/@react-navigation/core/lib/commonjs/useFocusEvents.js
++++ b/node_modules/@react-navigation/core/lib/commonjs/useFocusEvents.js
+@@ -6,6 +6,8 @@ Object.defineProperty(exports, "__esModule", {
+ exports.default = useFocusEvents;
+ var React = _interopRequireWildcard(require("react"));
+ var _NavigationContext = _interopRequireDefault(require("./NavigationContext"));
++var _NavigationContainerRefContext = _interopRequireDefault(require("./NavigationContainerRefContext"));
++var _reactNative = require("react-native");
+ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+ function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function (nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
+ function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+@@ -18,6 +20,7 @@ function useFocusEvents(_ref) {
+     emitter
+   } = _ref;
+   const navigation = React.useContext(_NavigationContext.default);
++  const root = React.useContext(_NavigationContainerRefContext.default);
+   const lastFocusedKeyRef = React.useRef();
+   const currentFocusedKey = state.routes[state.index].key;
+ 
+@@ -68,5 +71,36 @@ function useFocusEvents(_ref) {
+       target: currentFocusedKey
+     });
+   }, [currentFocusedKey, emitter, navigation]);
++  React.useEffect(() => {
++    const eventEmitter = new _reactNative.NativeEventEmitter(_reactNative.NativeModules.XRNNavigation);
++    const subscriptionAppear = eventEmitter === null || eventEmitter === void 0 ? void 0 : eventEmitter.addListener('XT_SCREEN_APPEAR', res => {
++      const {
++        rootKey
++      } = res;
++      const rootState = root === null || root === void 0 ? void 0 : root.getRootState();
++      if (rootKey && rootKey === (rootState === null || rootState === void 0 ? void 0 : rootState.key)) {
++        emitter.emit({
++          type: 'focus',
++          target: currentFocusedKey
++        });
++      }
++    });
++    const subscriptionDisAppear = eventEmitter === null || eventEmitter === void 0 ? void 0 : eventEmitter.addListener('XT_SCREEN_DISAPPEAR', res => {
++      const {
++        rootKey
++      } = res;
++      const rootState = root === null || root === void 0 ? void 0 : root.getRootState();
++      if (rootKey && rootKey === (rootState === null || rootState === void 0 ? void 0 : rootState.key)) {
++        emitter.emit({
++          type: 'blur',
++          target: lastFocusedKeyRef.current
++        });
++      }
++    });
++    return () => {
++      subscriptionAppear === null || subscriptionAppear === void 0 ? void 0 : subscriptionAppear.remove();
++      subscriptionDisAppear === null || subscriptionDisAppear === void 0 ? void 0 : subscriptionDisAppear.remove();
++    };
++  }, [currentFocusedKey, emitter, navigation]);
+ }
+ //# sourceMappingURL=useFocusEvents.js.map
+\ No newline at end of file
+diff --git a/node_modules/@react-navigation/core/lib/commonjs/useFocusEvents.js.map b/node_modules/@react-navigation/core/lib/commonjs/useFocusEvents.js.map
+index 2caf6e7..1457407 100644
+--- a/node_modules/@react-navigation/core/lib/commonjs/useFocusEvents.js.map
++++ b/node_modules/@react-navigation/core/lib/commonjs/useFocusEvents.js.map
+@@ -1 +1 @@
+-{"version":3,"names":["useFocusEvents","state","emitter","navigation","React","useContext","NavigationContext","lastFocusedKeyRef","useRef","currentFocusedKey","routes","index","key","useEffect","addListener","current","emit","type","target","undefined","lastFocusedKey","isFocused"],"sourceRoot":"../../src","sources":["useFocusEvents.tsx"],"mappings":";;;;;;AACA;AAEA;AAAoD;AAAA;AAAA;AASpD;AACA;AACA;AACe,SAASA,cAAc,OAGnB;EAAA,IAHmD;IACpEC,KAAK;IACLC;EACc,CAAC;EACf,MAAMC,UAAU,GAAGC,KAAK,CAACC,UAAU,CAACC,0BAAiB,CAAC;EACtD,MAAMC,iBAAiB,GAAGH,KAAK,CAACI,MAAM,EAAsB;EAE5D,MAAMC,iBAAiB,GAAGR,KAAK,CAACS,MAAM,CAACT,KAAK,CAACU,KAAK,CAAC,CAACC,GAAG;;EAEvD;EACA;EACAR,KAAK,CAACS,SAAS,CACb,MACEV,UAAU,aAAVA,UAAU,uBAAVA,UAAU,CAAEW,WAAW,CAAC,OAAO,EAAE,MAAM;IACrCP,iBAAiB,CAACQ,OAAO,GAAGN,iBAAiB;IAC7CP,OAAO,CAACc,IAAI,CAAC;MAAEC,IAAI,EAAE,OAAO;MAAEC,MAAM,EAAET;IAAkB,CAAC,CAAC;EAC5D,CAAC,CAAC,EACJ,CAACA,iBAAiB,EAAEP,OAAO,EAAEC,UAAU,CAAC,CACzC;EAEDC,KAAK,CAACS,SAAS,CACb,MACEV,UAAU,aAAVA,UAAU,uBAAVA,UAAU,CAAEW,WAAW,CAAC,MAAM,EAAE,MAAM;IACpCP,iBAAiB,CAACQ,OAAO,GAAGI,SAAS;IACrCjB,OAAO,CAACc,IAAI,CAAC;MAAEC,IAAI,EAAE,MAAM;MAAEC,MAAM,EAAET;IAAkB,CAAC,CAAC;EAC3D,CAAC,CAAC,EACJ,CAACA,iBAAiB,EAAEP,OAAO,EAAEC,UAAU,CAAC,CACzC;EAEDC,KAAK,CAACS,SAAS,CAAC,MAAM;IACpB,MAAMO,cAAc,GAAGb,iBAAiB,CAACQ,OAAO;IAEhDR,iBAAiB,CAACQ,OAAO,GAAGN,iBAAiB;;IAE7C;IACA;IACA,IAAIW,cAAc,KAAKD,SAAS,IAAI,CAAChB,UAAU,EAAE;MAC/CD,OAAO,CAACc,IAAI,CAAC;QAAEC,IAAI,EAAE,OAAO;QAAEC,MAAM,EAAET;MAAkB,CAAC,CAAC;IAC5D;;IAEA;IACA;IACA,IACEW,cAAc,KAAKX,iBAAiB,IACpC,EAAEN,UAAU,GAAGA,UAAU,CAACkB,SAAS,EAAE,GAAG,IAAI,CAAC,EAC7C;MACA;IACF;IAEA,IAAID,cAAc,KAAKD,SAAS,EAAE;MAChC;MACA;IACF;IAEAjB,OAAO,CAACc,IAAI,CAAC;MAAEC,IAAI,EAAE,MAAM;MAAEC,MAAM,EAAEE;IAAe,CAAC,CAAC;IACtDlB,OAAO,CAACc,IAAI,CAAC;MAAEC,IAAI,EAAE,OAAO;MAAEC,MAAM,EAAET;IAAkB,CAAC,CAAC;EAC5D,CAAC,EAAE,CAACA,iBAAiB,EAAEP,OAAO,EAAEC,UAAU,CAAC,CAAC;AAC9C"}
+\ No newline at end of file
++{"version":3,"names":["useFocusEvents","state","emitter","navigation","React","useContext","NavigationContext","root","NavigationContainerRefContext","lastFocusedKeyRef","useRef","currentFocusedKey","routes","index","key","useEffect","addListener","current","emit","type","target","undefined","lastFocusedKey","isFocused","eventEmitter","NativeEventEmitter","NativeModules","XRNNavigation","subscriptionAppear","res","rootKey","rootState","getRootState","subscriptionDisAppear","remove"],"sourceRoot":"../../src","sources":["useFocusEvents.tsx"],"mappings":"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"}
+\ No newline at end of file
+diff --git a/node_modules/@react-navigation/core/lib/module/useFocusEvents.js b/node_modules/@react-navigation/core/lib/module/useFocusEvents.js
+index 2634f07..0c2be51 100644
+--- a/node_modules/@react-navigation/core/lib/module/useFocusEvents.js
++++ b/node_modules/@react-navigation/core/lib/module/useFocusEvents.js
+@@ -1,5 +1,7 @@
+ import * as React from 'react';
+ import NavigationContext from './NavigationContext';
++import NavigationContainerRefContext from './NavigationContainerRefContext';
++import { NativeEventEmitter, NativeModules } from 'react-native';
+ /**
+  * Hook to take care of emitting `focus` and `blur` events.
+  */
+@@ -9,6 +11,7 @@ export default function useFocusEvents(_ref) {
+     emitter
+   } = _ref;
+   const navigation = React.useContext(NavigationContext);
++  const root = React.useContext(NavigationContainerRefContext);
+   const lastFocusedKeyRef = React.useRef();
+   const currentFocusedKey = state.routes[state.index].key;
+ 
+@@ -59,5 +62,36 @@ export default function useFocusEvents(_ref) {
+       target: currentFocusedKey
+     });
+   }, [currentFocusedKey, emitter, navigation]);
++  React.useEffect(() => {
++    const eventEmitter = new NativeEventEmitter(NativeModules.XRNNavigation);
++    const subscriptionAppear = eventEmitter === null || eventEmitter === void 0 ? void 0 : eventEmitter.addListener('XT_SCREEN_APPEAR', res => {
++      const {
++        rootKey
++      } = res;
++      const rootState = root === null || root === void 0 ? void 0 : root.getRootState();
++      if (rootKey && rootKey === (rootState === null || rootState === void 0 ? void 0 : rootState.key)) {
++        emitter.emit({
++          type: 'focus',
++          target: currentFocusedKey
++        });
++      }
++    });
++    const subscriptionDisAppear = eventEmitter === null || eventEmitter === void 0 ? void 0 : eventEmitter.addListener('XT_SCREEN_DISAPPEAR', res => {
++      const {
++        rootKey
++      } = res;
++      const rootState = root === null || root === void 0 ? void 0 : root.getRootState();
++      if (rootKey && rootKey === (rootState === null || rootState === void 0 ? void 0 : rootState.key)) {
++        emitter.emit({
++          type: 'blur',
++          target: lastFocusedKeyRef.current
++        });
++      }
++    });
++    return () => {
++      subscriptionAppear === null || subscriptionAppear === void 0 ? void 0 : subscriptionAppear.remove();
++      subscriptionDisAppear === null || subscriptionDisAppear === void 0 ? void 0 : subscriptionDisAppear.remove();
++    };
++  }, [currentFocusedKey, emitter, navigation]);
+ }
+ //# sourceMappingURL=useFocusEvents.js.map
+\ No newline at end of file
+diff --git a/node_modules/@react-navigation/core/lib/module/useFocusEvents.js.map b/node_modules/@react-navigation/core/lib/module/useFocusEvents.js.map
+index bbbe367..a9cdaa8 100644
+--- a/node_modules/@react-navigation/core/lib/module/useFocusEvents.js.map
++++ b/node_modules/@react-navigation/core/lib/module/useFocusEvents.js.map
+@@ -1 +1 @@
+-{"version":3,"names":["React","NavigationContext","useFocusEvents","state","emitter","navigation","useContext","lastFocusedKeyRef","useRef","currentFocusedKey","routes","index","key","useEffect","addListener","current","emit","type","target","undefined","lastFocusedKey","isFocused"],"sourceRoot":"../../src","sources":["useFocusEvents.tsx"],"mappings":"AACA,OAAO,KAAKA,KAAK,MAAM,OAAO;AAE9B,OAAOC,iBAAiB,MAAM,qBAAqB;AASnD;AACA;AACA;AACA,eAAe,SAASC,cAAc,OAGnB;EAAA,IAHmD;IACpEC,KAAK;IACLC;EACc,CAAC;EACf,MAAMC,UAAU,GAAGL,KAAK,CAACM,UAAU,CAACL,iBAAiB,CAAC;EACtD,MAAMM,iBAAiB,GAAGP,KAAK,CAACQ,MAAM,EAAsB;EAE5D,MAAMC,iBAAiB,GAAGN,KAAK,CAACO,MAAM,CAACP,KAAK,CAACQ,KAAK,CAAC,CAACC,GAAG;;EAEvD;EACA;EACAZ,KAAK,CAACa,SAAS,CACb,MACER,UAAU,aAAVA,UAAU,uBAAVA,UAAU,CAAES,WAAW,CAAC,OAAO,EAAE,MAAM;IACrCP,iBAAiB,CAACQ,OAAO,GAAGN,iBAAiB;IAC7CL,OAAO,CAACY,IAAI,CAAC;MAAEC,IAAI,EAAE,OAAO;MAAEC,MAAM,EAAET;IAAkB,CAAC,CAAC;EAC5D,CAAC,CAAC,EACJ,CAACA,iBAAiB,EAAEL,OAAO,EAAEC,UAAU,CAAC,CACzC;EAEDL,KAAK,CAACa,SAAS,CACb,MACER,UAAU,aAAVA,UAAU,uBAAVA,UAAU,CAAES,WAAW,CAAC,MAAM,EAAE,MAAM;IACpCP,iBAAiB,CAACQ,OAAO,GAAGI,SAAS;IACrCf,OAAO,CAACY,IAAI,CAAC;MAAEC,IAAI,EAAE,MAAM;MAAEC,MAAM,EAAET;IAAkB,CAAC,CAAC;EAC3D,CAAC,CAAC,EACJ,CAACA,iBAAiB,EAAEL,OAAO,EAAEC,UAAU,CAAC,CACzC;EAEDL,KAAK,CAACa,SAAS,CAAC,MAAM;IACpB,MAAMO,cAAc,GAAGb,iBAAiB,CAACQ,OAAO;IAEhDR,iBAAiB,CAACQ,OAAO,GAAGN,iBAAiB;;IAE7C;IACA;IACA,IAAIW,cAAc,KAAKD,SAAS,IAAI,CAACd,UAAU,EAAE;MAC/CD,OAAO,CAACY,IAAI,CAAC;QAAEC,IAAI,EAAE,OAAO;QAAEC,MAAM,EAAET;MAAkB,CAAC,CAAC;IAC5D;;IAEA;IACA;IACA,IACEW,cAAc,KAAKX,iBAAiB,IACpC,EAAEJ,UAAU,GAAGA,UAAU,CAACgB,SAAS,EAAE,GAAG,IAAI,CAAC,EAC7C;MACA;IACF;IAEA,IAAID,cAAc,KAAKD,SAAS,EAAE;MAChC;MACA;IACF;IAEAf,OAAO,CAACY,IAAI,CAAC;MAAEC,IAAI,EAAE,MAAM;MAAEC,MAAM,EAAEE;IAAe,CAAC,CAAC;IACtDhB,OAAO,CAACY,IAAI,CAAC;MAAEC,IAAI,EAAE,OAAO;MAAEC,MAAM,EAAET;IAAkB,CAAC,CAAC;EAC5D,CAAC,EAAE,CAACA,iBAAiB,EAAEL,OAAO,EAAEC,UAAU,CAAC,CAAC;AAC9C"}
+\ No newline at end of file
++{"version":3,"names":["React","NavigationContext","NavigationContainerRefContext","NativeEventEmitter","NativeModules","useFocusEvents","state","emitter","navigation","useContext","root","lastFocusedKeyRef","useRef","currentFocusedKey","routes","index","key","useEffect","addListener","current","emit","type","target","undefined","lastFocusedKey","isFocused","eventEmitter","XRNNavigation","subscriptionAppear","res","rootKey","rootState","getRootState","subscriptionDisAppear","remove"],"sourceRoot":"../../src","sources":["useFocusEvents.tsx"],"mappings":"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"}
+\ No newline at end of file
+diff --git a/node_modules/@react-navigation/core/lib/typescript/src/useFocusEvents.d.ts.map b/node_modules/@react-navigation/core/lib/typescript/src/useFocusEvents.d.ts.map
+index 88b214d..b5f3fc4 100644
+--- a/node_modules/@react-navigation/core/lib/typescript/src/useFocusEvents.d.ts.map
++++ b/node_modules/@react-navigation/core/lib/typescript/src/useFocusEvents.d.ts.map
+@@ -1 +1 @@
+-{"version":3,"file":"useFocusEvents.d.ts","sourceRoot":"","sources":["../../../src/useFocusEvents.tsx"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,eAAe,EAAE,MAAM,2BAA2B,CAAC;AAIjE,OAAO,KAAK,EAAE,YAAY,EAAE,MAAM,SAAS,CAAC;AAC5C,OAAO,KAAK,EAAE,sBAAsB,EAAE,MAAM,mBAAmB,CAAC;AAEhE,KAAK,OAAO,CAAC,KAAK,SAAS,eAAe,IAAI;IAC5C,KAAK,EAAE,KAAK,CAAC;IACb,OAAO,EAAE,sBAAsB,CAAC,YAAY,CAAC,KAAK,CAAC,CAAC,CAAC;CACtD,CAAC;AAEF;;GAEG;AACH,MAAM,CAAC,OAAO,UAAU,cAAc,CAAC,KAAK,SAAS,eAAe,EAAE,EACpE,KAAK,EACL,OAAO,GACR,EAAE,OAAO,CAAC,KAAK,CAAC,QAsDhB"}
+\ No newline at end of file
++{"version":3,"file":"useFocusEvents.d.ts","sourceRoot":"","sources":["../../../src/useFocusEvents.tsx"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,eAAe,EAAE,MAAM,2BAA2B,CAAC;AAKjE,OAAO,KAAK,EAAE,YAAY,EAAE,MAAM,SAAS,CAAC;AAC5C,OAAO,KAAK,EAAE,sBAAsB,EAAE,MAAM,mBAAmB,CAAC;AAMhE,KAAK,OAAO,CAAC,KAAK,SAAS,eAAe,IAAI;IAC5C,KAAK,EAAE,KAAK,CAAC;IACb,OAAO,EAAE,sBAAsB,CAAC,YAAY,CAAC,KAAK,CAAC,CAAC,CAAC;CACtD,CAAC;AAEF;;GAEG;AACH,MAAM,CAAC,OAAO,UAAU,cAAc,CAAC,KAAK,SAAS,eAAe,EAAE,EACpE,KAAK,EACL,OAAO,GACR,EAAE,OAAO,CAAC,KAAK,CAAC,QAsFhB"}
+\ No newline at end of file
+diff --git a/node_modules/@react-navigation/core/src/useFocusEvents.tsx b/node_modules/@react-navigation/core/src/useFocusEvents.tsx
+index 39ea15e..39a47bd 100644
+--- a/node_modules/@react-navigation/core/src/useFocusEvents.tsx
++++ b/node_modules/@react-navigation/core/src/useFocusEvents.tsx
+@@ -2,8 +2,13 @@ import type { NavigationState } from '@react-navigation/routers';
+ import * as React from 'react';
+ 
+ import NavigationContext from './NavigationContext';
++import NavigationContainerRefContext from './NavigationContainerRefContext';
+ import type { EventMapCore } from './types';
+ import type { NavigationEventEmitter } from './useEventEmitter';
++import {
++  NativeEventEmitter,
++  NativeModules,
++} from 'react-native';
+ 
+ type Options<State extends NavigationState> = {
+   state: State;
+@@ -18,6 +23,7 @@ export default function useFocusEvents<State extends NavigationState>({
+   emitter,
+ }: Options<State>) {
+   const navigation = React.useContext(NavigationContext);
++  const root = React.useContext(NavigationContainerRefContext);
+   const lastFocusedKeyRef = React.useRef<string | undefined>();
+ 
+   const currentFocusedKey = state.routes[state.index].key;
+@@ -70,4 +76,35 @@ export default function useFocusEvents<State extends NavigationState>({
+     emitter.emit({ type: 'blur', target: lastFocusedKey });
+     emitter.emit({ type: 'focus', target: currentFocusedKey });
+   }, [currentFocusedKey, emitter, navigation]);
++
++  React.useEffect(() => {
++    const eventEmitter = new NativeEventEmitter(NativeModules.XRNNavigation)
++
++    const subscriptionAppear = eventEmitter?.addListener(
++      'XT_SCREEN_APPEAR',
++      (res) => {
++        const { rootKey } = res;
++        const rootState = root?.getRootState();
++        if (rootKey && rootKey === rootState?.key) {
++          emitter.emit({ type: 'focus', target: currentFocusedKey });
++        }
++      }
++    );
++
++    const subscriptionDisAppear = eventEmitter?.addListener(
++      'XT_SCREEN_DISAPPEAR',
++      (res) => {
++        const { rootKey } = res;
++        const rootState = root?.getRootState();
++        if (rootKey && rootKey === rootState?.key) {
++          emitter.emit({ type: 'blur', target: lastFocusedKeyRef.current });
++        }
++      }
++    );
++
++    return () => {
++      subscriptionAppear?.remove();
++      subscriptionDisAppear?.remove();
++    };
++  }, [currentFocusedKey, emitter, navigation]);
+ }

@@ -1,0 +1,11 @@
+{
+  "module": {
+    "name": "xrn_native_storage_test",
+    "type": "feature",
+    "deviceTypes": [
+      "default"
+    ],
+    "deliveryWithInstall": true,
+    "installationFree": false
+  }
+}

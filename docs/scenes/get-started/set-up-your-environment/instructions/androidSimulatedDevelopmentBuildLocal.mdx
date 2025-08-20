@@ -1,0 +1,23 @@
+import AndroidEmulatorInstructions from './_androidEmulatorInstructions.mdx';
+import AndroidStudioEnvironmentInstructions from './_androidStudioEnvironmentInstructions.mdx';
+import AndroidStudioInstructions from './_androidStudioInstructions.mdx';
+
+import { Terminal } from '~/ui/components/Snippet';
+import { Step } from '~/ui/components/Step';
+
+> **warning** 注意：目前安卓模拟器性能和稳定性较差，建议使用真机调试。
+
+<AndroidStudioEnvironmentInstructions />
+
+<AndroidStudioInstructions />
+
+<AndroidEmulatorInstructions />
+
+## 在 Android 模拟器上运行你的应用
+
+
+在项目的根目录下运行以下命令：
+
+<Terminal cmd={['$ npx xrn start']} />
+
+根据提示，在命令行中输入 `a` 以在 Android 设备上运行你的应用。

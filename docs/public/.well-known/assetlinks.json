@@ -1,0 +1,9 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.bx.app.box",
+    "sha256_cert_fingerprints":
+    ["0F:84:E0:E4:73:42:73:8C:81:AD:23:82:B4:60:92:3B:9E:96:BC:E1:9B:5B:C3:85:8B:2C:E9:5C:F0:85:BB:9C"]
+  }
+}]

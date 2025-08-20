@@ -1,0 +1,80 @@
+{
+  "name": "xrn",
+  "version": "1.0.0",
+  "private": true,
+  "author": "xrn",
+  "license": "Apache-2.0",
+  "scripts": {
+    "build": "lerna run build --no-private",
+    "clean": "lerna clean --yes && rm -rf node_modules",
+    "sync-pkg-version": "npx xrn-tools select-sync-dep-version",
+    "sync-all-pkg-version": "npx xrn-tools sync-all-dep-version",
+    "sync-screens-to-packages": "npx xrn-tools sync-screens-to-packages",
+    "generate-screens-api-doc": "npx xrn-tools generate-screens-api-doc",
+    "generate-api-meta": "npx xrn-tools lxm > docs/ui/components/ApiOverview/api-meta.json",
+    "start-doc": "cd docs && yarn dev",
+    "start-xrngo-main": "yarn workspace xrngo-main start",
+    "create-xrn-module": "npx create-xrn-module",
+    "create-xrn-bundle-local": "export XRN_DEBUG=true && TGZ_FILE=$(cd templates/xrn-bundle-template && npm pack) && npx create-xrn --template file:./templates/xrn-bundle-template/$TGZ_FILE",
+    "postinstall": "yarn build",
+    "list-beta-packages": "npx xrn-tools list-beta-packages",
+    "version:beta": "lerna version prerelease --no-push --preid beta --no-private --yes",
+    "version:prod": "lerna version --no-push --no-private",
+    "version:fix": "npx lerna version 3.0.2 --force-publish --no-push --no-private",
+    "publish:from-package": "lerna publish from-package --yes",
+    "publish:from-package:beta": "lerna publish from-package --yes --npm-client-args=\"--tag beta\""
+  },
+  "resolutions": {
+    "@types/react": "18.0.25",
+    "@types/react-native": "0.72.8",
+    "@react-navigation/bottom-tabs": "6.6.1",
+    "@react-navigation/material-bottom-tabs": "6.2.4",
+    "@react-navigation/native": "6.1.18",
+    "@react-navigation/stack": "6.4.1",
+    "lodash": "4.17.21",
+    "react": "18.2.0",
+    "react-native": "0.72.5",
+    "react-native-gesture-handler": "2.14.1",
+    "react-native-reanimated": "3.6.0",
+    "react-native-safe-area-context": "4.7.4",
+    "react-native-screens": "3.33.0",
+    "react-native-svg": "15.0.0",
+    "@react-native-community/cli": "9.3.3",
+    "@react-native-oh-tpl/cookies": "https://registry.npmjs.org/@react-native-oh-tpl/cookies/-/cookies-6.2.1-0.0.8.tgz",
+    "metro": "0.72.4",
+    "metro-config": "0.72.4"
+  },
+  "workspaces": {
+    "packages": [
+      "packages/*",
+      "packages/@xrnjs/*"
+    ]
+  },
+  "dependencies": {
+    "eslint": "^8.56.0",
+    "prettier": "^3.1.1",
+    "yarn-deduplicate": "^6.0.2"
+  },
+  "devDependencies": {
+    "@types/react": "18.0.25",
+    "axios": "1.5.0",
+    "exec-sh": "0.4.0",
+    "lerna": "^8.2.1",
+    "lint-staged": "^15.5.1",
+    "nodemon": "^3.1.7",
+    "patch-package": "^8.0.0",
+    "react": "18.2.0",
+    "react-native": "0.72.5",
+    "standard-version": "9.5.0"
+  },
+  "volta": {
+    "node": "20.12.2"
+  },
+  "lint-staged": {
+    "*.{js,ts,jsx,tsx,json,md}": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "packageManager": "yarn@3.6.1"
+}

@@ -1,0 +1,16 @@
+{
+  "name": "@xrnjs/app-template",
+  "version": "0.0.6",
+  "description": "XRN App Template",
+  "keywords": [
+    "react-native",
+    "xrn-app-template",
+    "xrnjs",
+    "xrn"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": "连永胜",
+  "license": "Apache-2.0"
+}

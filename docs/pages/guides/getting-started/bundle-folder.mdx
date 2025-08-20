@@ -1,0 +1,170 @@
+---
+title: Bundle 目录结构
+sidebar_title: Bundle 目录结构
+---
+
+import { FileTree } from '~/ui/components/FileTree';
+import { SnackInline } from '~/ui/components/Snippet';
+
+<FileTree
+  files={[
+    ['.npmrc', <code>npm 配置</code>],
+    ['.prettierrc', <code>Prettier 配置</code>],
+    ['app.json', <code>XRN 应用配置</code>],
+    ['babel.config.js', <code>Babel 配置</code>],
+    ['index.ts', <code>应用入口文件</code>],
+    ['metro.config.js', <code>Metro bundler 配置</code>],
+    ['package.json', <code>项目描述文件</code>],
+    ['src', <code>源代码目录</code>],
+    ['src/modules', <code>模块目录</code>],
+    ['src/modules/demo', <code>示例模块</code>],
+    ['src/modules/demo/pages', <code>页面文件目录</code>],
+    ['src/modules/demo/pages/demo', <code>示例页面目录</code>],
+    ['src/modules/demo/pages/demo/index.tsx', <code>示例页面</code>],
+    ['src/modules/demo/pages/demo/router.ts', <code>示例页面路由配置</code>],
+    ['src/modules/demo/pages/demo/navigation', <code>内层路由页面目录</code>],
+    ['src/modules/demo/pages/demo/navigation/index.tsx', <code>内层路由页面</code>],
+    ['src/modules/demo/router.tsx', <code>模块页面路由</code>],
+    ['xrn.config.ts', <code>XRN Bundle 配置</code>],
+    ['appInit.ts', <code>应用初始化逻辑</code>],
+    ['tsconfig.json', <code>TypeScript 配置</code>],
+  ]}
+/>
+
+## 入口文件
+
+`index.ts` 是应用的入口文件，包含应用的初始化逻辑。其内容如下：
+
+<SnackInline label="index.ts">
+```ts
+import { initBundle } from '@xrnjs/core'
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+initBundle(require('./xrn.config').default)()
+
+````
+</SnackInline>
+
+## xrn.config.ts
+
+`xrn.config.ts` 用于配置 bundle 的注册、主入口、生命周期等。例如：
+
+```ts
+import type { InitBundleConfigProps } from '@xrnjs/core'
+import { name as appName } from './app.json'
+
+export default {
+  appName,
+  mainBundle: false,
+  registerComponents: [
+    {
+      appKey: appName,
+      getAppComponent: () => require('modules/demo/router').module,
+    },
+  ],
+  onAppInitialized: () => require('./appInit'),
+} as InitBundleConfigProps
+````
+
+## appInit.ts
+
+`appInit.ts` 用于应用初始化时的逻辑扩展，例如全局导航拦截等：
+
+```ts
+import { Navigation } from '@xrnjs/core';
+
+Navigation.interceptor.use(({ action, nextRouteName }) => {
+  if (action && nextRouteName) {
+    //
+    return true;
+  }
+});
+```
+
+## 示例模块结构
+
+- `src/modules/demo` - 示例模块
+  - `pages/demo/index.tsx` - 示例页面
+  - `pages/demo/router.ts` - 页面路由配置
+  - `pages/demo/navigation/index.tsx` - 内层路由页面
+  - `router.tsx` - 模块页面路由
+
+### 示例页面代码
+
+`src/modules/demo/pages/demo/index.tsx`：
+
+```tsx
+import React, { useEffect, useState } from 'react';
+import { View, Button, Text } from 'react-native';
+import { Page } from '@xrnjs/core';
+import { XRNLoading } from '@xrnjs/core';
+import { ROUTES } from './router';
+
+const Demo: React.FC = (props: any) => {
+  const [title] = useState('Demo页面');
+  useEffect(() => {
+    XRNLoading.hide();
+  }, []);
+  return (
+    <Page hideHeader title={title}>
+      <View style={{ margin: 8 }} />
+      <Button
+        title="跳转Demo"
+        accessibilityLabel="test"
+        onPress={() => {
+          props.navigation.navigate(ROUTES.NavigationDemo);
+        }}></Button>
+      <View style={{ margin: 8 }}>
+        <Text>XRN Demo</Text>
+      </View>
+    </Page>
+  );
+};
+
+export default Demo;
+```
+
+## 源代码
+
+### 源代码结构的示例
+
+- `src` - 源代码目录，包含项目的所有源代码。
+  - `modules` - 模块目录，包含项目的各个功能模块。
+    - `demo` - 示例模块，包含演示代码和页面。
+      - `pages` - 页面文件目录，包含具体的页面文件。
+        - `demo` - 示例页面。
+      - `router.tsx` - 示例模块页面路由，定义页面导航和路由配置。
+
+## 配置文件
+
+### app.json
+
+`app.json` 是 XRN 应用的配置文件。
+
+```ts
+export interface AppJson {
+  name: string; // 应用名称
+  port?: number; // 应用端口，用于 xrn start 启动读取
+  harmony: {
+    packageName: string; // Harmony 包名
+  };
+  android: {
+    packageName: string; // Android 包名
+  };
+  ios: {
+    bundleIdentifier: string; // iOS 包名
+  };
+}
+```
+
+### metro.config.js
+
+`metro.config.js` 文件配置 Metro bundler 打包工具。详细信息请查看 [Metro 文档](https://facebook.github.io/metro/docs/configuration)。
+
+### package.json
+
+`package.json` 文件是项目描述文件，包含项目基本信息、依赖项、脚本等配置。有关更多信息，请参见 [npm 文档](https://docs.npmjs.com/cli/v9/configuring-npm/package-json)。
+
+### tsconfig.json
+
+`tsconfig.json` 文件配置 TypeScript 编译器选项。具体配置方式请查看 [TypeScript 文档](https://www.typescriptlang.org/docs/handbook/tsconfig-json.html)。

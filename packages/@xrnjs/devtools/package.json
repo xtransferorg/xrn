@@ -1,0 +1,91 @@
+{
+  "name": "@xrnjs/devtools",
+  "version": "0.0.2",
+  "description": "开发调试工具",
+  "main": "./build/index.js",
+  "types": "./build/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf build",
+    "prepare": "yarn clean && yarn build",
+    "watch": "nodemon --ignore build/ --watch ./src -C -e js,jsx,ts,tsx,css,less --debug -x 'yalc publish --push'"
+  },
+  "files": [
+    "src",
+    "build",
+    "assets",
+    "android",
+    "ios",
+    "cpp",
+    "*.podspec",
+    "!ios/build",
+    "!android/build",
+    "!android/gradle",
+    "!android/gradlew",
+    "!android/gradlew.bat",
+    "!android/local.properties",
+    "!**/__tests__",
+    "!**/__fixtures__",
+    "!**/__mocks__",
+    "!**/.*"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "react-native",
+    "xrn",
+    "xrn-devtools",
+    "XRNDevTools",
+    "xrnjs"
+  ],
+  "repository": "https://github.com/xtransferorg/xrn",
+  "bugs": {
+    "url": "https://github.com/xtransferorg/xrn/issues"
+  },
+  "author": "xtguangqiang",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/xtransferorg/xrn#readme",
+  "dependencies": {
+    "@react-native-community/netinfo": "11.3.2",
+    "@xrnjs/debug-tools": "0.0.2",
+    "react-native-star-rating-widget": "1.9.2",
+    "react-native-vision-camera": "4.0.1",
+    "url-parse": "1.4.4"
+  },
+  "peerDependencies": {
+    "@react-native-async-storage/async-storage": "*",
+    "@react-native-clipboard/clipboard": "*",
+    "@xrnjs/app-utils": "*",
+    "@xrnjs/bundle": "*",
+    "@xrnjs/modules-core": "*",
+    "@xrnjs/native-storage": "*",
+    "@xrnjs/navigation": "*",
+    "@xrnjs/react-native-code-push": "*",
+    "ahooks": "*",
+    "react": "*",
+    "react-native": "*",
+    "react-native-config": "*",
+    "react-native-device-info": "*",
+    "react-native-linear-gradient": "*",
+    "react-native-safe-area-context": "*",
+    "react-native-svg": "*"
+  },
+  "devDependencies": {
+    "@react-native-async-storage/async-storage": "1.21.0",
+    "@react-native-clipboard/clipboard": "1.13.2",
+    "@xrnjs/app-utils": "0.0.2",
+    "@xrnjs/bundle": "0.0.3",
+    "@xrnjs/modules-core": "0.0.2",
+    "@xrnjs/native-storage": "0.0.2",
+    "@xrnjs/navigation": "0.0.3",
+    "@xrnjs/react-native-code-push": "0.0.1",
+    "ahooks": "3.7.8",
+    "nodemon": "^3.1.1",
+    "react-native-config": "1.5.3",
+    "react-native-device-info": "11.1.0",
+    "react-native-safe-area-context": "4.7.4",
+    "react-native-svg": "15.0.0",
+    "typescript": "^5.1.3"
+  }
+}

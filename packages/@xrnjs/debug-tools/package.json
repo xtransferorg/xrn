@@ -1,0 +1,84 @@
+{
+  "name": "@xrnjs/debug-tools",
+  "version": "0.0.2",
+  "description": "调试面板 NativeModule",
+  "main": "./build/index.js",
+  "types": "./build/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf build",
+    "prepare": "yarn clean && yarn build",
+    "watch": "nodemon --ignore build/ --watch ./src -C -e js,jsx,ts,tsx,css,less --debug -x 'yalc publish --push'"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "src",
+    "build",
+    "android",
+    "ios",
+    "harmony/*.har",
+    "harmony/xrn_debug_tools",
+    "!harmony/xrn_debug_tools/oh_modules",
+    "!harmony/xrn_debug_tools/build",
+    "!harmony/xrn_debug_tools/.hvigor",
+    "cpp",
+    "*.podspec",
+    "!ios/build",
+    "!android/build",
+    "!android/gradle",
+    "!android/gradlew",
+    "!android/gradlew.bat",
+    "!android/local.properties",
+    "!**/__tests__",
+    "!**/__fixtures__",
+    "!**/__mocks__",
+    "!**/.*"
+  ],
+  "keywords": [
+    "react-native",
+    "xrn",
+    "xrn-debug-tools",
+    "XRNDebugTools",
+    "xrnjs"
+  ],
+  "repository": "https://github.com/xtransferorg/xrn",
+  "bugs": {
+    "url": "https://github.com/xtransferorg/xrn/issues"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "homepage": "https://xtransferorg.github.io/xrn/versions/latest/sdk/tools",
+  "devDependencies": {
+    "@react-native-oh/react-native-harmony": "0.72.38",
+    "@types/react": "^18.0.25",
+    "@xrnjs/modules-core": "0.0.2",
+    "@xrnjs/multi-bundle": "0.0.3",
+    "nodemon": "^3.1.1",
+    "react-native": "0.72.5",
+    "typescript": "^5.1.3"
+  },
+  "peerDependencies": {
+    "@xrnjs/modules-core": "*",
+    "@xrnjs/multi-bundle": "*",
+    "react": "*",
+    "react-native": "*"
+  },
+  "harmony": {
+    "codegenConfig": {
+      "specPaths": [
+        "./src"
+      ]
+    }
+  },
+  "xrnMeta": {
+    "name": "XRNDebugTools",
+    "title": "调试面板 NativeModule",
+    "showName": "XRNDebugTools",
+    "group": "工具函数",
+    "description": "调试面板 NativeModule",
+    "packageName": "xrn-debug-tools",
+    "sdkPath": "tools/xrn-debug-tools"
+  }
+}

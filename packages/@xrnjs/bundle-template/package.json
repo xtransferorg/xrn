@@ -1,0 +1,22 @@
+{
+  "name": "@xrnjs/bundle-template",
+  "version": "0.0.5",
+  "description": "XRN Bundle Template",
+  "keywords": [
+    "react-native",
+    "xrn-bundle-template",
+    "xrnjs",
+    "xrn"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xtransferorg/xrn",
+    "directory": "packages/xrn-bundle-template"
+  },
+  "author": "连永胜",
+  "license": "Apache-2.0",
+  "homepage": "https://xtransferorg.github.io/xrn/"
+}

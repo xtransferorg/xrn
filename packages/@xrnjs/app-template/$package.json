@@ -1,0 +1,51 @@
+{
+  "name": "XRNTemplate",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.ts",
+  "scripts": {
+    "codegen": "react-native codegen-harmony --cpp-output-path ./harmony/entry/src/main/cpp/generated --rnoh-module-path ./harmony/entry/oh_modules/@rnoh/react-native-openharmony",
+    "build:harmony": "xrn build XRNTemplate harmony --type debug --appFormat hap",
+    "build:ios": "xrn build XRNTemplate ios --type debug --appFormat ipa",
+    "build:ios-sim": "xrn build XRNTemplate ios --type debug --appFormat app",
+    "build:android": "xrn build XRNTemplate android --type debug --appFormat apk",
+    "publish:ios": "xrn app-publish XRNTemplate ios --type release --appFormat ipa --changeLog iOS发布",
+    "postinstall": "xrn-native-postinstall"
+  },
+  "dependencies": {
+    "@react-native-async-storage/async-storage": "1.21.0",
+    "@react-native-clipboard/clipboard": "1.13.2",
+    "@react-native-community/netinfo": "11.3.2",
+    "@xrnjs/core": "0.0.4",
+    "react": "18.2.0",
+    "react-native": "0.72.5",
+    "react-native-config": "1.5.3",
+    "react-native-device-info": "11.1.0",
+    "react-native-fs": "2.20.0",
+    "react-native-gesture-handler": "2.14.1",
+    "react-native-permissions": "4.1.2",
+    "react-native-safe-area-context": "4.7.4",
+    "react-native-screens": "3.33.0",
+    "react-native-svg": "15.0.0",
+    "react-native-vision-camera": "4.0.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.12.9",
+    "@babel/runtime": "^7.12.5",
+    "@react-native-community/eslint-config": "^2.0.0",
+    "@react-native-oh/react-native-harmony": "0.72.38",
+    "@react-native/metro-config": "^0.72.9",
+    "@types/lodash": "^4.17.12",
+    "@types/react": "18.0.25",
+    "@types/react-native": "0.72.8",
+    "@xrnjs/cli": "0.0.6",
+    "eslint": "^7.32.0",
+    "metro-react-native-babel-preset": "0.72.4",
+    "patch-package": "^8.0.0"
+  },
+  "resolutions": {
+    "react-native-reanimated": "3.6.0",
+    "@react-native-community/cli": "9.3.3",
+    "metro-config": "0.72.4"
+  }
+}

@@ -1,0 +1,42 @@
+name: Deploy Docs to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]  # 在 main 分支推送时触发
+  workflow_dispatch:    # 允许手动触发
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # 允许写入 Pages 分支
+      pages: write     # 允许部署 Pages
+      id-token: write  # OIDC 认证
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1  # 获取完整历史记录
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+
+      - name: Build documentation
+        run: |
+          cd docs
+          yarn
+          yarn build
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/out  # 构建输出目录
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4

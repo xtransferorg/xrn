@@ -1,0 +1,284 @@
+diff --git a/node_modules/@react-native-oh-tpl/react-native-device-info/harmony/device_info/src/main/ets/RNDeviceInfoModule.ts b/node_modules/@react-native-oh-tpl/react-native-device-info/harmony/device_info/src/main/ets/RNDeviceInfoModule.ts
+index 1b3013b..eec0a5f 100644
+--- a/node_modules/@react-native-oh-tpl/react-native-device-info/harmony/device_info/src/main/ets/RNDeviceInfoModule.ts
++++ b/node_modules/@react-native-oh-tpl/react-native-device-info/harmony/device_info/src/main/ets/RNDeviceInfoModule.ts
+@@ -47,7 +47,10 @@ import screenLock from '@ohos.screenLock';
+ import { AAID } from '@kit.PushKit';
+ import { display } from '@kit.ArkUI'
+ import { asset } from '@kit.AssetStoreKit';
+-import { util } from '@kit.ArkTS'
++import { util } from '@kit.ArkTS';
++import { cryptoFramework } from '@kit.CryptoArchitectureKit';
++import { userAuth } from '@kit.UserAuthenticationKit';
++import { preferences } from "@kit.ArkData";
+ 
+ const abiList32 = ["armeabi", "win_x86", "win_arm"];
+ const abiList64 = ["arm64 v8", "Intel x86-64h Haswell", "arm64-v8a", "armeabi-v7a", "win_x64"];
+@@ -514,7 +517,7 @@ export class RNDeviceInfoModule extends TurboModule implements TM.RNDeviceInfo.S
+     }
+ 
+     getSystemVersion(): string {
+-        return deviceInfo.osReleaseType;
++        return deviceInfo.distributionOSVersion;
+     }
+ 
+     getTotalDiskCapacity(): Promise<number> {
+@@ -631,17 +634,45 @@ export class RNDeviceInfoModule extends TurboModule implements TM.RNDeviceInfo.S
+     }
+ 
+     getUserAgentSync(): string {
+-        let userAgent = '';
+-        let controller = new web_webview.WebviewController();
+-        try {
+-            userAgent = controller.getUserAgent();
+-        } catch (error) {
+-            let e: BusinessError = error as BusinessError;
+-            Logger.error(`getUserAgentSync ErrorCode: ${e.code},  Message: ${e.message}`);
+-        }
++        const userAgent = this.getUserAgentSyncLocal()
+         return userAgent;
+     }
+ 
++    private dataPreference: preferences.Preferences | null = null
++
++    private getUserAgentSyncLocal(): string {
++        if(this.dataPreference === null) {
++            const options: preferences.Options = { name: "nativeStore" };
++            try {
++                this.dataPreference = preferences.getPreferencesSync(this.context, options);
++            } catch (error) {
++                console.error(`getUserAgentSyncLocal.initNativeStorage 初始化失败:`, error);
++            }
++        }
++        const cacheValue = this.dataPreference?.getSync("xt-user-agent", "");
++        const cacheUA = typeof cacheValue === "string" ? cacheValue : "";
++        const finalUA = cacheUA || this.getDefaultUA();
++        console.log('getUserAgentSyncLocal', finalUA);
++        return finalUA;
++    }
++
++    private getDefaultUA(): string {
++        let deviceType: string =
++          deviceInfo.deviceType.charAt(0).toUpperCase() +
++          deviceInfo.deviceType.slice(1);
++        let OSName: string =
++          deviceInfo.distributionOSName.length === 0
++            ? "OpenHarmony"
++            : deviceInfo.distributionOSName;
++        let OSVersion: string = deviceInfo.osFullName.slice(0, 3);
++        let ArkWebVersionCode: string = "4.1.6.1";
++        let Mobile: string = deviceType === "Phone" ? "Mobile" : "";
++        return (
++          `Mozilla/5.0 (${deviceType}; ${OSName} ${OSVersion}) AppleWebKit/537.36 (KHTML, like Gecko) ` +
++          `Chrome/114.0.0.0 Safari/537.36 ArkWeb/${ArkWebVersionCode} ${Mobile}`
++        );
++      }
++
+     getVersion(): string {
+         let bundleFlags = bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION;
+         let result: string = "";
+@@ -923,7 +954,9 @@ export class RNDeviceInfoModule extends TurboModule implements TM.RNDeviceInfo.S
+     }
+ 
+     isPinOrFingerprintSet(): Promise<boolean> {
+-        return screenLock.isSecureMode()
++        return new Promise<boolean>((resolve, reject) => {
++            resolve(this.isPinOrFingerprintSetSync())
++        })
+     }
+ 
+     isTablet(): boolean {
+@@ -1005,4 +1038,153 @@ export class RNDeviceInfoModule extends TurboModule implements TM.RNDeviceInfo.S
+         ];
+         return result;
+     }
++
++
++    isPinOrFingerprintSetSync(): boolean {
++        const pinAvailable = this.checkAuthAvailable(userAuth.UserAuthType.PIN, userAuth.AuthTrustLevel.ATL1);
++        const fingerprintAvailable = this.checkAuthAvailable(userAuth.UserAuthType.FINGERPRINT, userAuth.AuthTrustLevel.ATL1);
++        console.warn(`isPinOrFingerprintSetSync:pinAvailable=${pinAvailable}, fingerprintAvailable=${fingerprintAvailable}`);
++        return pinAvailable || fingerprintAvailable;
++    }
++
++    checkAuthAvailable(authType: userAuth.UserAuthType, authTrustLevel: userAuth.AuthTrustLevel): boolean {
++        try {
++            userAuth.getAvailableStatus(authType, authTrustLevel);
++            return true;
++        } catch (error) {
++            console.error(`checkAuthAvailable fail:authType=${authType}, authTrustLevel=${authTrustLevel}, error=${JSON.stringify(error)}`);
++        }
++        return false;
++    }
++
++    getMacAddressSync(): string {
++        console.warn('getMacAddressSync');
++        return "UnSupport"
++    }
++
++    getUsedMemorySync(): number {
++        console.warn('getUsedMemorySync');
++        return -1;
++    }
++
++    isEmulator(): Promise<boolean> {
++        console.warn('isEmulator');
++        return new Promise<boolean>((resolve, reject) => {
++            resolve(this.isEmulatorSync());
++        });
++    }
++
++    isEmulatorSync(): boolean {
++        console.warn('isEmulatorSync');
++        return deviceInfo.productModel.includes("emulator") || deviceInfo.productSeries.includes("emulator");
++    }
++
++    hasSystemFeature(feature: string): Promise<boolean> {
++        console.warn('hasSystemFeature');
++        return new Promise<boolean>((resolve, reject) => {
++            resolve(this.hasSystemFeatureSync(feature));
++        });
++    }
++
++    hasSystemFeatureSync(feature: string): boolean {
++        console.warn('hasSystemFeatureSync');
++        return canIUse(feature);
++    }
++
++    getSystemAvailableFeatures(): Promise<string[]> {
++        console.warn('getSystemAvailableFeatures');
++        return new Promise<string[]>((resolve, reject) => {
++            resolve([]);
++        });
++    }
++    getSystemAvailableFeaturesSync(): string[] {
++        console.warn('getSystemAvailableFeaturesSync');
++        return []
++    }
++    getInstallReferrer(): Promise<string> {
++        console.warn('getInstallReferrer');
++        return new Promise<string>((resolve, reject) => {
++            resolve("Huawei");
++        });
++    }
++    getInstallReferrerSync(): string {
++        console.warn('getInstallReferrerSync');
++        return "Huawei";
++    }
++    getTags(): Promise<string> {
++        console.warn('getTags');
++        return new Promise<string>((resolve, reject) => {
++            resolve("Unsupported");
++        });
++    }
++    getTagsSync(): string {
++        console.warn('getTagsSync');
++        return "Unsupported"
++    }
++    getSystemManufacturer(): Promise<string> {
++        console.warn('getSystemManufacturer');
++        return new Promise<string>((resolve, reject) => {
++            resolve(deviceInfo.manufacture);
++        });
++    }
++    getSystemManufacturerSync(): string {
++        console.warn('getSystemManufacturerSync');
++        return deviceInfo.manufacture;
++    }
++    getAndroidId(): Promise<string> {
++        console.warn('getAndroidId');
++        return this.getUniqueId();
++    }
++    getAndroidIdSync(): string {
++        console.warn('getAndroidIdSync');
++        return this.getUniqueIdSync();
++    }
++    getMaxMemory(): Promise<number> {
++        console.warn('getMaxMemory');
++        return appManager.getAppMemorySize();
++    }
++    getMaxMemorySync(): number {
++        console.warn('getMaxMemorySync');
++        return -1;
++    }
++    getPreviewSdkInt(): Promise<string> {
++        console.warn('getPreviewSdkInt');
++        return new Promise<string>((resolve, reject) => {
++            resolve("Unsupported");
++        });
++    }
++    getPreviewSdkIntSync(): string {
++        console.warn('getPreviewSdkIntSync');
++        return "Unsupported";
++    }
++    getSupportedAbis(): Promise<string[]> {
++        console.warn('getSupportedAbis');
++        return new Promise<string[]>((resolve, reject) => {
++            resolve(this.getSupportedAbisSync());
++        });
++    }
++    getSupportedAbisSync(): string[] {
++        console.warn('getSupportedAbisSync');
++        return [deviceInfo.abiList];
++    }
++    getSupported32BitAbis(): Promise<string[]> {
++        console.warn('getSupported32BitAbis');
++        return new Promise<string[]>((resolve, reject) => {
++            resolve(this.getSupported32BitAbisSync());
++        });
++    }
++    getSupported32BitAbisSync(): string[] {
++        console.warn('getSupported32BitAbisSync');
++        return [deviceInfo.abiList];
++    }
++    getSupported64BitAbis(): Promise<string[]> {
++        console.warn('getSupported64BitAbis');
++        return new Promise<string[]>((resolve, reject) => {
++            resolve(this.getSupported64BitAbisSync());
++        });
++    }
++    getSupported64BitAbisSync(): string[] {
++        console.warn('getSupported64BitAbisSync');
++        return [deviceInfo.abiList];
++    }
+ }
+\ No newline at end of file
+diff --git a/node_modules/@react-native-oh-tpl/react-native-device-info/src/NativeRNDeviceInfo.ts b/node_modules/@react-native-oh-tpl/react-native-device-info/src/NativeRNDeviceInfo.ts
+index 90daa1c..8ca1823 100644
+--- a/node_modules/@react-native-oh-tpl/react-native-device-info/src/NativeRNDeviceInfo.ts
++++ b/node_modules/@react-native-oh-tpl/react-native-device-info/src/NativeRNDeviceInfo.ts
+@@ -119,6 +119,33 @@ export interface Spec extends TurboModule {
+     supportedAbisSync(): string[];
+     getSupportedMediaTypeList(): Promise<string[]>;
+     getSupportedMediaTypeListSync(): string[];
++    isPinOrFingerprintSetSync(): boolean;
++    getMacAddressSync(): string;
++    getUsedMemorySync(): number;
++    isEmulator(): Promise<boolean>;
++    isEmulatorSync(): boolean;
++    hasSystemFeature(feature: string): Promise<boolean>;
++    hasSystemFeatureSync(feature: string): boolean;
++    getSystemAvailableFeatures(): Promise<string[]>;
++    getSystemAvailableFeaturesSync(): string[];
++    getInstallReferrer(): Promise<string>;
++    getInstallReferrerSync(): string;
++    getTags(): Promise<string>;
++    getTagsSync(): string;
++    getSystemManufacturer(): Promise<string>;
++    getSystemManufacturerSync(): string;
++    getAndroidId(): Promise<string>;
++    getAndroidIdSync(): string;
++    getMaxMemory(): Promise<number>;
++    getMaxMemorySync(): number;
++    getPreviewSdkInt(): Promise<string>;
++    getPreviewSdkIntSync(): string;
++    getSupportedAbis(): Promise<string[]>;
++    getSupportedAbisSync(): string[];
++    getSupported32BitAbis(): Promise<string[]>;
++    getSupported32BitAbisSync(): string[];
++    getSupported64BitAbis(): Promise<string[]>;
++    getSupported64BitAbisSync(): string[];
+ }
+ 
+ export default TurboModuleRegistry.getEnforcing<Spec>("RNDeviceInfo");
+\ No newline at end of file

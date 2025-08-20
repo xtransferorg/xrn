@@ -1,0 +1,221 @@
+require_relative '../node_modules/react-native/scripts/react_native_pods'
+require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
+require_relative '../node_modules/react-native-permissions/scripts/setup'
+
+# Resolve react_native_pods.rb with node to allow for hoisting
+require Pod::Executable.execute_command('node', ['-p',
+	'require.resolve(
+	"react-native/scripts/react_native_pods.rb",
+	{paths: [process.argv[1]]},
+	)', __dir__]).strip
+
+platform :ios, '13'
+prepare_react_native_project!
+
+# If you are using a `react-native-flipper` your iOS build will fail when `NO_FLIPPER=1` is set.
+# because `react-native-flipper` depends on (FlipperKit,...) that will be excluded
+#
+# To fix this you can also exclude `react-native-flipper` using a `react-native.config.js`
+# ```js
+# module.exports = {
+#   dependencies: {
+#     ...(process.env.NO_FLIPPER ? { 'react-native-flipper': { platforms: { ios: null } } } : {}),
+# ```
+linkage = ENV['USE_FRAMEWORKS']
+if linkage != nil
+	Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
+	use_frameworks! :linkage => linkage.to_sym
+end
+
+target 'xrngo' do
+	config = use_native_modules!
+
+	# Flags change depending on the env values.
+	flags = get_default_flags()
+
+	use_react_native!(
+		:path => config[:reactNativePath],
+		# Hermes is now enabled by default. Disable by setting this flag to false.
+		# Upcoming versions of React Native may rely on get_default_flags(), but
+		# we make it explicit here to aid in the React Native upgrade process.
+		:hermes_enabled => false,
+		:fabric_enabled => flags[:fabric_enabled],
+		# Enables Flipper.
+		#
+		# Note that if you have use_frameworks! enabled, Flipper will not work and
+		# you should disable the next line.
+		:flipper_configuration => FlipperConfiguration.enabled(["Debug"], { 'Flipper' => '0.182.0' }),
+		# An absolute path to your application root.
+		:app_path => "#{Pod::Config.instance.installation_root}/.."
+	)
+	
+	# Pods for react-native
+	pod 'FBLazyVector', :path => "../node_modules/react-native/Libraries/FBLazyVector"
+#  pod 'FBReactNativeSpec', :path => "../node_modules/react-native/Libraries/FBReactNativeSpec"
+	pod 'RCTRequired', :path => "../node_modules/react-native/Libraries/RCTRequired"
+	pod 'RCTTypeSafety', :path => "../node_modules/react-native/Libraries/TypeSafety"
+	pod 'React', :path => '../node_modules/react-native/'
+	pod 'React-Core', :path => '../node_modules/react-native/'
+	pod 'React-CoreModules', :path => '../node_modules/react-native/React/CoreModules'
+	pod 'React-Core/DevSupport', :path => '../node_modules/react-native/'
+	pod 'React-RCTActionSheet', :path => '../node_modules/react-native/Libraries/ActionSheetIOS'
+	pod 'React-RCTAnimation', :path => '../node_modules/react-native/Libraries/NativeAnimation'
+#  pod 'React-RCTBlob', :patoh => '../node_modules/react-native/Libraries/Blob'
+	pod 'React-RCTImage', :path => '../node_modules/react-native/Libraries/Image'
+	pod 'React-RCTLinking', :path => '../node_modules/react-native/Libraries/LinkingIOS'
+	pod 'React-RCTNetwork', :path => '../node_modules/react-native/Libraries/Network'
+	pod 'React-RCTSettings', :path => '../node_modules/react-native/Libraries/Settings'
+	pod 'React-RCTText', :path => '../node_modules/react-native/Libraries/Text'
+	pod 'React-RCTVibration', :path => '../node_modules/react-native/Libraries/Vibration'
+	pod 'React-Core/RCTWebSocket', :path => '../node_modules/react-native/'
+
+	pod 'React-cxxreact', :path => '../node_modules/react-native/ReactCommon/cxxreact'
+	pod 'React-jsi', :path => '../node_modules/react-native/ReactCommon/jsi'
+	#   pod 'React-jsiexecutor', :path => '../node_modules/react-native/ReactCommon/jsiexecutor'
+	pod 'React-callinvoker', :path => "../node_modules/react-native/ReactCommon/callinvoker"
+	#   pod 'React-jsinspector', :path => '../node_modules/react-native/ReactCommon'
+	#   pod 'ReactCommon/jscallinvoker', :path => "../node_modules/react-native/ReactCommon"
+	pod 'ReactCommon/turbomodule/core', :path => "../node_modules/react-native/ReactCommon"
+	
+	pod 'Yoga', :path => '../node_modules/react-native/ReactCommon/yoga'
+	pod 'DoubleConversion', :podspec => '../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec'
+	pod 'glog', :podspec => '../node_modules/react-native/third-party-podspecs/glog.podspec'
+	pod 'RCT-Folly', :podspec => '../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec'
+
+	# 三方包
+	pod 'SDWebImage', '5.20.0', :modular_headers => true
+	pod 'SDWebImageWebPCoder', '0.8.4', :modular_headers => true
+	pod 'SDWebImageAVIFCoder', '0.11.0', :modular_headers => true
+	pod 'SDWebImageSVGCoder', '1.7.0', :modular_headers => true
+	pod 'libavif/libdav1d', '0.11.1', :modular_headers => true
+	pod 'MBProgressHUD', '1.2.0', :modular_headers => true
+	
+	pod 'RNCAsyncStorage', :path => '../node_modules/@react-native-async-storage/async-storage', :modular_headers => true
+	pod 'RNDeviceInfo', :path => '../node_modules/react-native-device-info', :modular_headers => true
+	pod 'RNFS', :path => '../node_modules/react-native-fs'
+	pod 'react-native-config', :path => '../node_modules/react-native-config'
+	
+	pod 'SnapKit', '5.7.1'
+	pod 'JRSwizzle'
+	pod 'YYCache', '1.0.4'
+	pod 'swiftScan', '1.2.1', :configurations => ['Debug']
+	
+	# 二方包
+	pod 'CodePush', :path => '../node_modules/@xrnjs/react-native-code-push'
+	pod 'react-native-xrn-app-utils', :path => '../node_modules/@xrnjs/app-utils'
+	pod 'react-native-xrn-multi-bundle', :path => '../node_modules/@xrnjs/multi-bundle', :modular_headers => true
+	pod 'react-native-xrn-navigation', :path => '../node_modules/@xrnjs/navigation', :modular_headers => true
+	
+	setup_permissions([
+	 'AppTrackingTransparency',
+	# 'Bluetooth',
+	# 'Calendars',
+	# 'CalendarsWriteOnly',
+	 'Camera',
+	# 'Contacts',
+	 'FaceID',
+	# 'LocationAccuracy',
+	 'LocationAlways',
+	 'LocationWhenInUse',
+	 'MediaLibrary',
+	 'Microphone',
+	 'Motion',
+	 'Notifications',
+	 'PhotoLibrary',
+	# 'PhotoLibraryAddOnly',
+	# 'Reminders',
+	# 'Siri',
+	 'SpeechRecognition',
+	 'StoreKit',
+	])
+
+	target 'xrngoTests' do
+		inherit! :complete
+		# Pods for testing
+	end
+
+	post_install do |installer|
+		react_native_post_install(
+			installer,
+			config[:reactNativePath],
+			:mac_catalyst_enabled => false
+		)
+		__apply_Xcode_12_5_M1_post_install_workaround(installer)
+	
+		# 兼容Xcode16.2 Flipper报错
+		installer.pods_project.targets.each do |target|
+			if target.name == 'Flipper'
+				file_path = 'Pods/Flipper/xplat/Flipper/FlipperTransportTypes.h'
+				contents = File.read(file_path)
+				unless contents.include?('#include <functional>')
+					File.chmod(0755, file_path)
+					File.open(file_path, 'w') do |file|
+						file.puts('#include <functional>')
+						file.puts(contents)
+					end
+				end
+			end
+		end
+		
+		# 兼容Xcode16.2 Sentry报错（https://github.com/getsentry/sentry-cocoa/pull/4051）
+		installer.pods_project.targets.each do |target|
+			if target.name == 'Sentry'
+				file_path = 'Pods/Sentry/Sources/SentryCrash/Recording/Monitors/SentryCrashMonitor_CPPException.cpp'
+				contents = File.read(file_path)
+				unless contents.include?('#include <exception>')
+					File.chmod(0755, file_path)
+					File.open(file_path, 'w') do |file|
+						file.puts('#include <exception>')
+						file.puts(contents)
+					end
+				end
+			end
+		end
+		
+		# 兼容Xcode16.2 Sentry报错 (https://github.com/getsentry/sentry-dart/issues/2222)
+		installer.pods_project.targets.each do |target|
+			if target.name == 'Sentry'
+				file_path = 'Pods/Sentry/Sources/SentryCrash/Recording/Tools/SentryCrashMachineContext.c'
+				if File.exist?(file_path)
+					contents = File.read(file_path)
+
+					# 检查是否已经插入过
+					unless contents.include?('#include <sys/_types/_ucontext64.h>')
+						# 查找 "#ifdef __arm64__" 并插入下一行
+						lines = contents.lines
+						index = lines.find_index { |line| line.include?('#ifdef __arm64__') }
+
+						if index
+							lines.insert(index + 1, "#include <sys/_types/_ucontext64.h>\n")
+							File.write(file_path, lines.join)
+							puts "[PATCH] >>>成功"
+						else
+							puts "[PATCH] >>>失败：'#ifdef __arm64__' 不存在"
+						end
+					else
+						puts "[PATCH] >>>失败：已存在patch"
+					end
+				else
+					puts "[PATCH] >>>失败：SentryCrashMachineContext文件不存在"
+				end
+			end
+		end
+		
+		# 适配xcode15报错`No template named 'unary_function' in namespace 'std'; did you mean '__unary_function'?`
+		installer.pods_project.targets.each do |target|
+			target.build_configurations.each do |config|
+				config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)', '_LIBCPP_ENABLE_CXX17_REMOVED_UNARY_BINARY_FUNCTION']
+			end
+		end
+
+		installer.pods_project.targets.each do |target|
+		if target.respond_to?(:product_type) and target.product_type == "com.apple.product-type.bundle"
+			target.build_configurations.each do |config|
+					config.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'
+				end
+			end
+		end
+		
+		
+	end
+end

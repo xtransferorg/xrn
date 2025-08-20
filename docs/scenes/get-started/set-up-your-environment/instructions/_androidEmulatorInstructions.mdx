@@ -1,0 +1,57 @@
+import { ContentSpotlight } from '~/ui/components/ContentSpotlight';
+import { Step } from '~/ui/components/Step';
+
+## 设置模拟器
+
+<Step label="1">
+在 Android Studio 主屏幕上，点击 **更多操作**，然后在下拉菜单中选择 **虚拟设备管理器**。
+
+<ContentSpotlight
+  alt="Android Studio 配置."
+  src="/xrn/static/images/android-studio/virtual-device.png"
+  className="max-w-[640px]"
+/>
+
+</Step>
+
+<Step label="2">
+
+点击 **创建设备** 按钮。
+
+<ContentSpotlight
+  alt="Android Studio 创建虚拟设备."
+  src="/xrn/static/images/android-studio/create-device.png"
+  className="max-w-[640px]"
+/>
+
+</Step>
+
+<Step label="3">
+
+在 **选择硬件** 下，选择你想要模拟的硬件类型。我们建议针对多种设备进行测试，但如果你不确定从哪里开始，最新的 Pixel 系列设备可能是一个不错的选择。
+
+<ContentSpotlight
+  alt="Android Studio 创建虚拟设备硬件选择."
+  src="/xrn/static/images/android-studio/select-hardware.png"
+  className="max-w-[640px]"
+/>
+
+</Step>
+
+<Step label="4">
+
+选择要在模拟器上加载的操作系统版本（通常是 **推荐** 标签中的系统映像），并下载该映像。
+
+<ContentSpotlight
+  alt="Android Studio 创建虚拟设备操作系统选择."
+  src="/xrn/static/images/android-studio/select-os.png"
+  className="max-w-[640px]"
+/>
+
+</Step>
+
+<Step label="5">
+
+更改任何其他设置，然后按 **完成** 创建模拟器。现在你可以通过在 AVD 管理器窗口中按播放按钮随时运行此模拟器。
+
+</Step>

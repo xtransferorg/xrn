@@ -1,0 +1,122 @@
+---
+title: APP 一键启动
+sidebar_title: APP 一键启动
+hideTOC: false
+---
+
+import { BoxLink } from '~/ui/components/BoxLink';
+import { Collapsible } from '~/ui/components/Collapsible';
+import { ContentSpotlight } from '~/ui/components/ContentSpotlight';
+import { Diagram } from '~/ui/components/Diagram';
+import { Terminal, DiffBlock } from '~/ui/components/Snippet';
+import { Tabs, Tab } from '~/ui/components/Tabs';
+
+`xrn start`是一个应用启动工具，用于启动ReactNative服务并自动下载、安装、启动应用，提供各设备模拟器和真机支持，以及通过扫码快速关联服务ip的能力。
+
+## 前置环境
+
+请确保配置好安卓或iOS本地环境，参考：
+
+<BoxLink
+  title="基础配置"
+  description="学习如何设置开发环境以开始 App 开发"
+  href="/guides/getting-started/basic-configuration"
+/>
+
+## 安装
+
+<Terminal
+  cmd={['$ yarn add -D @xrnjs/cli']}
+/>
+
+## 使用
+
+### 启动
+
+在项目根目录下，运行以下命令：
+
+<Terminal cmd={['$ npx xrn start']} />
+
+### 在设备中打开
+
+#### 输入“ ？”，显示提示信息
+
+<ContentSpotlight
+  alt="image.png"
+  src="/xrn/static/images/app-startup/0c7a71af-1e75-47a7-a707-4852ad16cca5.png"
+  className="max-w-640"
+/>
+
+<Tabs tabs={['在安卓设备打开', '在 iOS 设备打开']}>
+
+{/* 在安卓设备打开 */}
+
+<Tab>
+
+#### 输入a，选择安卓模拟器或已连接的真机设备
+
+<ContentSpotlight
+  alt="image.png"
+  src="/xrn/static/images/app-startup/db1ff461-6c20-4819-9a48-650291aee49d.png"
+  className="max-w-640"
+/>
+
+#### 下载 Debug 包 (如果当前已安装版本比已上线版本低，则默认下载安装最新app包)
+
+<ContentSpotlight
+  alt="image.png"
+  src="/xrn/static/images/app-startup/eb82ce2f-1fe1-41aa-a811-c8b10283c61b.png"
+  className="max-w-640"
+/>
+
+</Tab>
+
+{/* 在 iOS 设备打开 */}
+
+<Tab>
+
+#### 输入i，选择一个 iOS 模拟器
+
+<ContentSpotlight
+  alt="image.png"
+  src="/xrn/static/images/app-startup/aaf5d2b5-cd3c-47ca-bae3-2f81ffb49574.png"
+  className="max-w-640"
+/>
+
+#### 下载并安装最新版 app
+
+<ContentSpotlight
+  alt="image.png"
+  src="/xrn/static/images/app-startup/1c25a3ae-c790-4897-9597-839c4d4bed44.png"
+  className="max-w-640"
+/>
+
+</Tab>
+
+</Tabs>
+
+### 扫码连接服务（真机设备）
+
+请参考调试文档
+
+<BoxLink
+  title="调试面板"
+  description="请参考调试面板中的扫码绑定IP章节"
+  href="/guides/debugging/debug-panel/debug-panel/#%E6%89%AB%E7%A0%81%E7%BB%91ip"
+/>
+
+## 整体流程
+
+<Collapsible summary="完整流程图">
+  <Diagram
+    source="/xrn/static/images/app-startup/1bc03fc0-3418-4a9a-b858-298743f0df42.SVG"
+    darkSource="/xrn/static/images/app-startup/1bc03fc0-3418-4a9a-b858-298743f0df42.SVG"
+    alt="Core"
+    disableSrcSet
+  />
+</Collapsible>
+## 配置相关
+
+### 其他选项
+
+> 允许用户传入reactnative支持的所有参数

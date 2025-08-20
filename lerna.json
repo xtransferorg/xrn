@@ -1,0 +1,13 @@
+{
+  "$schema": "node_modules/lerna/schemas/lerna-schema.json",
+  "version": "independent",
+  "packages": [
+    "packages/@xrnjs/*"
+  ],
+  "command": {
+    "run": {
+      "concurrency": 4
+    }
+  },
+  "npmClient": "yarn"
+}

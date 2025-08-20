@@ -1,0 +1,35 @@
+---
+title: 导航 (@xrnjs/navigation)
+description: 提供应用内导航管理，支持多种路由方式
+platforms: ['android', 'ios', 'harmony']
+---
+
+import APISection from '~/components/plugins/APISection';
+import { SnackInline, Terminal } from '~/ui/components/Snippet';
+
+## 安装
+
+
+<Terminal cmd={['$ yarn add @xrnjs/navigation']} />
+
+
+## 使用
+
+<SnackInline label="Basic usage">
+```ts
+import * as React from 'react';
+import {
+  goBack,
+  finishBundle,
+  replaceBundle,
+  navigateBundle,
+  pushEvent,
+  pushAllEvent
+} from '@xrnjs/navigation';
+
+```
+</SnackInline>
+
+## API
+
+<APISection packageName="@xrnjs/navigation" /> 

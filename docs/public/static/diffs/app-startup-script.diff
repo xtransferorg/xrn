@@ -1,0 +1,16 @@
+diff --git a/package.json b/package.json
+index 1938e9e3..a865945c 100644
+--- a/package.json
++++ b/package.json
+@@ -5,7 +5,7 @@
+ 	"scripts": {
+ 		"eslint:fix": "eslint --fix",
+ 		"postinstall": "patch-package && node node_modules/sensorsdata-analytics-react-native/SensorsDataRNHook.js -run",
+-		"start": "yarn write && cross-env ENVFILE=.env react-native start --port 8081 --reset-cache ./rn-cli.config.js",
++		"start": "yarn write && cross-env ENVFILE=.env npx xrn start --port 8081 --reset-cache ./rn-cli.config.js",
+ 		"start-reset": "yarn write && npx react-native-fix-image && cross-env ENVFILE=.env.staging react-native start -- --reset-cache ./rn-cli.config.js",
+ 		"start-ios": "npx react-native-fix-image && cross-env ENVFILE=.env react-native start --port=5388 --reset-cache ./rn-cli.config.js ",
+ 		"install-ios": "cross-env ENVFILE=.env.staging react-native run-ios --simulator='iPhone 13 Pro Max'",
+
+2
+

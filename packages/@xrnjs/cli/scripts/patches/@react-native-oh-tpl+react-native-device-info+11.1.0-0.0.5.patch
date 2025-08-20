@@ -1,0 +1,440 @@
+diff --git a/node_modules/@react-native-oh-tpl/react-native-device-info/harmony/device_info/src/main/ets/RNDeviceInfoModule.ts b/node_modules/@react-native-oh-tpl/react-native-device-info/harmony/device_info/src/main/ets/RNDeviceInfoModule.ts
+index 1b3013b..eec0a5f 100644
+--- a/node_modules/@react-native-oh-tpl/react-native-device-info/harmony/device_info/src/main/ets/RNDeviceInfoModule.ts
++++ b/node_modules/@react-native-oh-tpl/react-native-device-info/harmony/device_info/src/main/ets/RNDeviceInfoModule.ts
+@@ -47,7 +47,10 @@ import screenLock from '@ohos.screenLock';
+ import { AAID } from '@kit.PushKit';
+ import { display } from '@kit.ArkUI'
+ import { asset } from '@kit.AssetStoreKit';
+-import { util } from '@kit.ArkTS'
++import { util } from '@kit.ArkTS';
++import { cryptoFramework } from '@kit.CryptoArchitectureKit';
++import { userAuth } from '@kit.UserAuthenticationKit';
++import { preferences } from "@kit.ArkData";
+ 
+ const abiList32 = ["armeabi", "win_x86", "win_arm"];
+ const abiList64 = ["arm64 v8", "Intel x86-64h Haswell", "arm64-v8a", "armeabi-v7a", "win_x64"];
+@@ -514,7 +517,7 @@ export class RNDeviceInfoModule extends TurboModule implements TM.RNDeviceInfo.S
+     }
+ 
+     getSystemVersion(): string {
+-        return deviceInfo.osReleaseType;
++        return deviceInfo.distributionOSVersion;
+     }
+ 
+     getTotalDiskCapacity(): Promise<number> {
+@@ -631,17 +634,45 @@ export class RNDeviceInfoModule extends TurboModule implements TM.RNDeviceInfo.S
+     }
+ 
+     getUserAgentSync(): string {
+-        let userAgent = '';
+-        let controller = new web_webview.WebviewController();
+-        try {
+-            userAgent = controller.getUserAgent();
+-        } catch (error) {
+-            let e: BusinessError = error as BusinessError;
+-            Logger.error(`getUserAgentSync ErrorCode: ${e.code},  Message: ${e.message}`);
+-        }
++        const userAgent = this.getUserAgentSyncLocal()
+         return userAgent;
+     }
+ 
++    private dataPreference: preferences.Preferences | null = null
++
++    private getUserAgentSyncLocal(): string {
++        if(this.dataPreference === null) {
++            const options: preferences.Options = { name: "nativeStore" };
++            try {
++                this.dataPreference = preferences.getPreferencesSync(this.context, options);
++            } catch (error) {
++                console.error(`getUserAgentSyncLocal.initNativeStorage 初始化失败:`, error);
++            }
++        }
++        const cacheValue = this.dataPreference?.getSync("xt-user-agent", "");
++        const cacheUA = typeof cacheValue === "string" ? cacheValue : "";
++        const finalUA = cacheUA || this.getDefaultUA();
++        console.log('getUserAgentSyncLocal', finalUA);
++        return finalUA;
++    }
++
++    private getDefaultUA(): string {
++        let deviceType: string =
++          deviceInfo.deviceType.charAt(0).toUpperCase() +
++          deviceInfo.deviceType.slice(1);
++        let OSName: string =
++          deviceInfo.distributionOSName.length === 0
++            ? "OpenHarmony"
++            : deviceInfo.distributionOSName;
++        let OSVersion: string = deviceInfo.osFullName.slice(0, 3);
++        let ArkWebVersionCode: string = "4.1.6.1";
++        let Mobile: string = deviceType === "Phone" ? "Mobile" : "";
++        return (
++          `Mozilla/5.0 (${deviceType}; ${OSName} ${OSVersion}) AppleWebKit/537.36 (KHTML, like Gecko) ` +
++          `Chrome/114.0.0.0 Safari/537.36 ArkWeb/${ArkWebVersionCode} ${Mobile}`
++        );
++      }
++
+     getVersion(): string {
+         let bundleFlags = bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_APPLICATION;
+         let result: string = "";
+@@ -923,7 +954,9 @@ export class RNDeviceInfoModule extends TurboModule implements TM.RNDeviceInfo.S
+     }
+ 
+     isPinOrFingerprintSet(): Promise<boolean> {
+-        return screenLock.isSecureMode()
++        return new Promise<boolean>((resolve, reject) => {
++            resolve(this.isPinOrFingerprintSetSync())
++        })
+     }
+ 
+     isTablet(): boolean {
+@@ -1005,4 +1038,153 @@ export class RNDeviceInfoModule extends TurboModule implements TM.RNDeviceInfo.S
+         ];
+         return result;
+     }
++
++
++    isPinOrFingerprintSetSync(): boolean {
++        const pinAvailable = this.checkAuthAvailable(userAuth.UserAuthType.PIN, userAuth.AuthTrustLevel.ATL1);
++        const fingerprintAvailable = this.checkAuthAvailable(userAuth.UserAuthType.FINGERPRINT, userAuth.AuthTrustLevel.ATL1);
++        console.warn(`isPinOrFingerprintSetSync:pinAvailable=${pinAvailable}, fingerprintAvailable=${fingerprintAvailable}`);
++        return pinAvailable || fingerprintAvailable;
++    }
++
++    checkAuthAvailable(authType: userAuth.UserAuthType, authTrustLevel: userAuth.AuthTrustLevel): boolean {
++        try {
++            userAuth.getAvailableStatus(authType, authTrustLevel);
++            return true;
++        } catch (error) {
++            console.error(`checkAuthAvailable fail:authType=${authType}, authTrustLevel=${authTrustLevel}, error=${JSON.stringify(error)}`);
++        }
++        return false;
++    }
++
++    getMacAddressSync(): string {
++        console.warn('getMacAddressSync');
++        return "UnSupport"
++    }
++
++    getUsedMemorySync(): number {
++        console.warn('getUsedMemorySync');
++        return -1;
++    }
++
++    isEmulator(): Promise<boolean> {
++        console.warn('isEmulator');
++        return new Promise<boolean>((resolve, reject) => {
++            resolve(this.isEmulatorSync());
++        });
++    }
++
++    isEmulatorSync(): boolean {
++        console.warn('isEmulatorSync');
++        return deviceInfo.productModel.includes("emulator") || deviceInfo.productSeries.includes("emulator");
++    }
++
++    hasSystemFeature(feature: string): Promise<boolean> {
++        console.warn('hasSystemFeature');
++        return new Promise<boolean>((resolve, reject) => {
++            resolve(this.hasSystemFeatureSync(feature));
++        });
++    }
++
++    hasSystemFeatureSync(feature: string): boolean {
++        console.warn('hasSystemFeatureSync');
++        return canIUse(feature);
++    }
++
++    getSystemAvailableFeatures(): Promise<string[]> {
++        console.warn('getSystemAvailableFeatures');
++        return new Promise<string[]>((resolve, reject) => {
++            resolve([]);
++        });
++    }
++    getSystemAvailableFeaturesSync(): string[] {
++        console.warn('getSystemAvailableFeaturesSync');
++        return []
++    }
++    getInstallReferrer(): Promise<string> {
++        console.warn('getInstallReferrer');
++        return new Promise<string>((resolve, reject) => {
++            resolve("Huawei");
++        });
++    }
++    getInstallReferrerSync(): string {
++        console.warn('getInstallReferrerSync');
++        return "Huawei";
++    }
++    getTags(): Promise<string> {
++        console.warn('getTags');
++        return new Promise<string>((resolve, reject) => {
++            resolve("Unsupported");
++        });
++    }
++    getTagsSync(): string {
++        console.warn('getTagsSync');
++        return "Unsupported"
++    }
++    getSystemManufacturer(): Promise<string> {
++        console.warn('getSystemManufacturer');
++        return new Promise<string>((resolve, reject) => {
++            resolve(deviceInfo.manufacture);
++        });
++    }
++    getSystemManufacturerSync(): string {
++        console.warn('getSystemManufacturerSync');
++        return deviceInfo.manufacture;
++    }
++    getAndroidId(): Promise<string> {
++        console.warn('getAndroidId');
++        return this.getUniqueId();
++    }
++    getAndroidIdSync(): string {
++        console.warn('getAndroidIdSync');
++        return this.getUniqueIdSync();
++    }
++    getMaxMemory(): Promise<number> {
++        console.warn('getMaxMemory');
++        return appManager.getAppMemorySize();
++    }
++    getMaxMemorySync(): number {
++        console.warn('getMaxMemorySync');
++        return -1;
++    }
++    getPreviewSdkInt(): Promise<string> {
++        console.warn('getPreviewSdkInt');
++        return new Promise<string>((resolve, reject) => {
++            resolve("Unsupported");
++        });
++    }
++    getPreviewSdkIntSync(): string {
++        console.warn('getPreviewSdkIntSync');
++        return "Unsupported";
++    }
++    getSupportedAbis(): Promise<string[]> {
++        console.warn('getSupportedAbis');
++        return new Promise<string[]>((resolve, reject) => {
++            resolve(this.getSupportedAbisSync());
++        });
++    }
++    getSupportedAbisSync(): string[] {
++        console.warn('getSupportedAbisSync');
++        return [deviceInfo.abiList];
++    }
++    getSupported32BitAbis(): Promise<string[]> {
++        console.warn('getSupported32BitAbis');
++        return new Promise<string[]>((resolve, reject) => {
++            resolve(this.getSupported32BitAbisSync());
++        });
++    }
++    getSupported32BitAbisSync(): string[] {
++        console.warn('getSupported32BitAbisSync');
++        return [deviceInfo.abiList];
++    }
++    getSupported64BitAbis(): Promise<string[]> {
++        console.warn('getSupported64BitAbis');
++        return new Promise<string[]>((resolve, reject) => {
++            resolve(this.getSupported64BitAbisSync());
++        });
++    }
++    getSupported64BitAbisSync(): string[] {
++        console.warn('getSupported64BitAbisSync');
++        return [deviceInfo.abiList];
++    }
+ }
+\ No newline at end of file
+diff --git a/node_modules/@react-native-oh-tpl/react-native-device-info/src/NativeRNDeviceInfo.ts b/node_modules/@react-native-oh-tpl/react-native-device-info/src/NativeRNDeviceInfo.ts
+index 90daa1c..8ca1823 100644
+--- a/node_modules/@react-native-oh-tpl/react-native-device-info/src/NativeRNDeviceInfo.ts
++++ b/node_modules/@react-native-oh-tpl/react-native-device-info/src/NativeRNDeviceInfo.ts
+@@ -119,6 +119,33 @@ export interface Spec extends TurboModule {
+     supportedAbisSync(): string[];
+     getSupportedMediaTypeList(): Promise<string[]>;
+     getSupportedMediaTypeListSync(): string[];
++    isPinOrFingerprintSetSync(): boolean;
++    getMacAddressSync(): string;
++    getUsedMemorySync(): number;
++    isEmulator(): Promise<boolean>;
++    isEmulatorSync(): boolean;
++    hasSystemFeature(feature: string): Promise<boolean>;
++    hasSystemFeatureSync(feature: string): boolean;
++    getSystemAvailableFeatures(): Promise<string[]>;
++    getSystemAvailableFeaturesSync(): string[];
++    getInstallReferrer(): Promise<string>;
++    getInstallReferrerSync(): string;
++    getTags(): Promise<string>;
++    getTagsSync(): string;
++    getSystemManufacturer(): Promise<string>;
++    getSystemManufacturerSync(): string;
++    getAndroidId(): Promise<string>;
++    getAndroidIdSync(): string;
++    getMaxMemory(): Promise<number>;
++    getMaxMemorySync(): number;
++    getPreviewSdkInt(): Promise<string>;
++    getPreviewSdkIntSync(): string;
++    getSupportedAbis(): Promise<string[]>;
++    getSupportedAbisSync(): string[];
++    getSupported32BitAbis(): Promise<string[]>;
++    getSupported32BitAbisSync(): string[];
++    getSupported64BitAbis(): Promise<string[]>;
++    getSupported64BitAbisSync(): string[];
+ }
+ 
+ export default TurboModuleRegistry.getEnforcing<Spec>("RNDeviceInfo");
+\ No newline at end of file
+diff --git a/node_modules/@react-native-oh-tpl/react-native-device-info/src/RNDeviceInfo.ts b/node_modules/@react-native-oh-tpl/react-native-device-info/src/RNDeviceInfo.ts
+index 9139a02..b4f25f2 100644
+--- a/node_modules/@react-native-oh-tpl/react-native-device-info/src/RNDeviceInfo.ts
++++ b/node_modules/@react-native-oh-tpl/react-native-device-info/src/RNDeviceInfo.ts
+@@ -1,3 +1,151 @@
+ import NativeRNDeviceInfo from "./NativeRNDeviceInfo";
+ const RNDeviceInfo = NativeRNDeviceInfo;
++
++
++export const getApiLevel = RNDeviceInfo.getApiLevel
++export const getApiLevelSync = RNDeviceInfo.getApiLevelSync
++export const getApplicationName = RNDeviceInfo.getApplicationName
++export const getAvailableLocationProviders = RNDeviceInfo.getAvailableLocationProviders
++export const getAvailableLocationProvidersSync = RNDeviceInfo.getAvailableLocationProvidersSync
++export const getBaseOs = RNDeviceInfo.getBaseOs
++export const getBaseOsSync = RNDeviceInfo.getBaseOsSync
++export const getBatteryLevel = RNDeviceInfo.getBatteryLevel
++export const getBatteryLevelSync = RNDeviceInfo.getBatteryLevelSync
++export const getBootloader = RNDeviceInfo.getBootloader
++export const getBootloaderSync = RNDeviceInfo.getBootloaderSync
++export const getBrand = RNDeviceInfo.getBrand
++export const getBuildId = RNDeviceInfo.getBuildId
++export const getBuildIdSync = RNDeviceInfo.getBuildIdSync
++export const getBuildNumber = RNDeviceInfo.getBuildNumber
++export const getBundleId = RNDeviceInfo.getBundleId
++export const getCarrier = RNDeviceInfo.getCarrier
++export const getCarrierSync = RNDeviceInfo.getCarrierSync
++export const getCodename = RNDeviceInfo.getCodename
++export const getCodenameSync = RNDeviceInfo.getCodenameSync
++export const getDevice = RNDeviceInfo.getDevice
++export const getDeviceSync = RNDeviceInfo.getDeviceSync
++export const getDeviceId = RNDeviceInfo.getDeviceId
++export const getDeviceName = RNDeviceInfo.getDeviceName
++export const getDeviceNameSync = RNDeviceInfo.getDeviceNameSync
++export const getDeviceType = RNDeviceInfo.getDeviceType
++export const getDisplay = RNDeviceInfo.getDisplay
++export const getDisplaySync = RNDeviceInfo.getDisplaySync
++export const getFingerprint = RNDeviceInfo.getFingerprint
++export const getFingerprintSync = RNDeviceInfo.getFingerprintSync
++export const getFirstInstallTime = RNDeviceInfo.getFirstInstallTime
++export const getFirstInstallTimeSync = RNDeviceInfo.getFirstInstallTimeSync
++export const getFontScale = RNDeviceInfo.getFontScale
++export const getFontScaleSync = RNDeviceInfo.getFontScaleSync
++export const getFreeDiskStorage = RNDeviceInfo.getFreeDiskStorage
++export const getFreeDiskStorageOld = RNDeviceInfo.getFreeDiskStorageOld
++export const getFreeDiskStorageSync = RNDeviceInfo.getFreeDiskStorageSync
++export const getFreeDiskStorageOldSync = RNDeviceInfo.getFreeDiskStorageOldSync
++export const getHardware = RNDeviceInfo.getHardware
++export const getHardwareSync = RNDeviceInfo.getHardwareSync
++export const getHost = RNDeviceInfo.getHost
++export const getHostSync = RNDeviceInfo.getHostSync
++export const getIncremental = RNDeviceInfo.getIncremental
++export const getIncrementalSync = RNDeviceInfo.getIncrementalSync
++export const getInstallerPackageName = RNDeviceInfo.getInstallerPackageName
++export const getInstallerPackageNameSync = RNDeviceInfo.getInstallerPackageNameSync
++export const getInstanceId = RNDeviceInfo.getInstanceId
++export const getInstanceIdSync = RNDeviceInfo.getInstanceIdSync
++export const getIpAddress = RNDeviceInfo.getIpAddress
++export const getIpAddressSync = RNDeviceInfo.getIpAddressSync
++export const getLastUpdateTime = RNDeviceInfo.getLastUpdateTime
++export const getLastUpdateTimeSync = RNDeviceInfo.getLastUpdateTimeSync
++export const getMacAddress = RNDeviceInfo.getMacAddress
++export const getManufacturer = RNDeviceInfo.getManufacturer
++export const getManufacturerSync = RNDeviceInfo.getManufacturerSync
++export const getPowerState = RNDeviceInfo.getPowerState
++export const getPowerStateSync = RNDeviceInfo.getPowerStateSync
++export const getModel = RNDeviceInfo.getModel
++export const getProduct = RNDeviceInfo.getProduct
++export const getProductSync = RNDeviceInfo.getProductSync
++export const getReadableVersion = RNDeviceInfo.getReadableVersion
++export const getSecurityPatch = RNDeviceInfo.getSecurityPatch
++export const getSecurityPatchSync = RNDeviceInfo.getSecurityPatchSync
++export const getSerialNumber = RNDeviceInfo.getSerialNumber
++export const getSerialNumberSync = RNDeviceInfo.getSerialNumberSync
++export const getSystemName = RNDeviceInfo.getSystemName
++export const getSystemVersion = RNDeviceInfo.getSystemVersion
++export const getTotalDiskCapacity = RNDeviceInfo.getTotalDiskCapacity
++export const getTotalDiskCapacityOld = RNDeviceInfo.getTotalDiskCapacityOld
++export const getTotalDiskCapacitySync = RNDeviceInfo.getTotalDiskCapacitySync
++export const getTotalDiskCapacityOldSync = RNDeviceInfo.getTotalDiskCapacityOldSync
++export const getTotalMemory = RNDeviceInfo.getTotalMemory
++export const getTotalMemorySync = RNDeviceInfo.getTotalMemorySync
++export const isLowRamDevice = RNDeviceInfo.isLowRamDevice
++export const getUsedMemory = RNDeviceInfo.getUsedMemory
++export const getType = RNDeviceInfo.getType
++export const getTypeSync = RNDeviceInfo.getTypeSync
++export const getUniqueId = RNDeviceInfo.getUniqueId
++export const getUniqueIdSync = RNDeviceInfo.getUniqueIdSync
++export const getUserAgent = RNDeviceInfo.getUserAgent
++export const getUserAgentSync = RNDeviceInfo.getUserAgentSync
++export const getVersion = RNDeviceInfo.getVersion
++export const hasGms = RNDeviceInfo.hasGms
++export const hasGmsSync = RNDeviceInfo.hasGmsSync
++export const hasHms = RNDeviceInfo.hasHms
++export const hasHmsSync = RNDeviceInfo.hasHmsSync
++export const hasNotch = RNDeviceInfo.hasNotch
++export const isAirplaneMode = RNDeviceInfo.isAirplaneMode
++export const isAirplaneModeSync = RNDeviceInfo.isAirplaneModeSync
++export const isKeyboardConnected = RNDeviceInfo.isKeyboardConnected
++export const isKeyboardConnectedSync = RNDeviceInfo.isKeyboardConnectedSync
++export const isMouseConnected = RNDeviceInfo.isMouseConnected
++export const isMouseConnectedSync = RNDeviceInfo.isMouseConnectedSync
++export const isBatteryCharging = RNDeviceInfo.isBatteryCharging
++export const isBatteryChargingSync = RNDeviceInfo.isBatteryChargingSync
++export const isCameraPresent = RNDeviceInfo.isCameraPresent
++export const isCameraPresentSync = RNDeviceInfo.isCameraPresentSync
++export const isHeadphonesConnected = RNDeviceInfo.isHeadphonesConnected
++export const isHeadphonesConnectedSync = RNDeviceInfo.isHeadphonesConnectedSync
++export const isWiredHeadphonesConnected = RNDeviceInfo.isWiredHeadphonesConnected
++export const isWiredHeadphonesConnectedSync = RNDeviceInfo.isWiredHeadphonesConnectedSync
++export const isBluetoothHeadphonesConnected = RNDeviceInfo.isBluetoothHeadphonesConnected
++export const isBluetoothHeadphonesConnectedSync = RNDeviceInfo.isBluetoothHeadphonesConnectedSync
++export const isLandscape = RNDeviceInfo.isLandscape
++export const isLandscapeSync = RNDeviceInfo.isLandscapeSync
++export const isLocationEnabled = RNDeviceInfo.isLocationEnabled
++export const isLocationEnabledSync = RNDeviceInfo.isLocationEnabledSync
++export const isPinOrFingerprintSet = RNDeviceInfo.isPinOrFingerprintSet
++export const isTablet = RNDeviceInfo.isTablet
++export const supported32BitAbis = RNDeviceInfo.supported32BitAbis
++export const supported32BitAbisSync = RNDeviceInfo.supported32BitAbisSync
++export const supported64BitAbis = RNDeviceInfo.supported64BitAbis
++export const supported64BitAbisSync = RNDeviceInfo.supported64BitAbisSync
++export const supportedAbis = RNDeviceInfo.supportedAbis
++export const supportedAbisSync = RNDeviceInfo.supportedAbisSync
++export const getSupportedMediaTypeList = RNDeviceInfo.getSupportedMediaTypeList
++export const getSupportedMediaTypeListSync = RNDeviceInfo.getSupportedMediaTypeListSync
++export const isPinOrFingerprintSetSync = RNDeviceInfo.isPinOrFingerprintSetSync
++export const getMacAddressSync = RNDeviceInfo.getMacAddressSync
++export const getUsedMemorySync = RNDeviceInfo.getUsedMemorySync
++export const isEmulator = RNDeviceInfo.isEmulator
++export const isEmulatorSync = RNDeviceInfo.isEmulatorSync
++export const hasSystemFeature = RNDeviceInfo.hasSystemFeature
++export const hasSystemFeatureSync = RNDeviceInfo.hasSystemFeatureSync
++export const getSystemAvailableFeatures = RNDeviceInfo.getSystemAvailableFeatures
++export const getSystemAvailableFeaturesSync = RNDeviceInfo.getSystemAvailableFeaturesSync
++export const getInstallReferrer = RNDeviceInfo.getInstallReferrer
++export const getInstallReferrerSync = RNDeviceInfo.getInstallReferrerSync
++export const getTags = RNDeviceInfo.getTags
++export const getTagsSync = RNDeviceInfo.getTagsSync
++export const getSystemManufacturer = RNDeviceInfo.getSystemManufacturer
++export const getSystemManufacturerSync = RNDeviceInfo.getSystemManufacturerSync
++export const getAndroidId = RNDeviceInfo.getAndroidId
++export const getAndroidIdSync = RNDeviceInfo.getAndroidIdSync
++export const getMaxMemory = RNDeviceInfo.getMaxMemory
++export const getMaxMemorySync = RNDeviceInfo.getMaxMemorySync
++export const getPreviewSdkInt = RNDeviceInfo.getPreviewSdkInt
++export const getPreviewSdkIntSync = RNDeviceInfo.getPreviewSdkIntSync
++export const getSupportedAbis = RNDeviceInfo.getSupportedAbis
++export const getSupportedAbisSync = RNDeviceInfo.getSupportedAbisSync
++export const getSupported32BitAbis = RNDeviceInfo.getSupported32BitAbis
++export const getSupported32BitAbisSync = RNDeviceInfo.getSupported32BitAbisSync
++export const getSupported64BitAbis = RNDeviceInfo.getSupported64BitAbis
++export const getSupported64BitAbisSync = RNDeviceInfo.getSupported64BitAbisSync
++
++
+ export default RNDeviceInfo;
