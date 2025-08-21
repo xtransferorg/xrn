@@ -1,11 +1,12 @@
 import { Button, ButtonProps, mergeClasses } from '@expo/styleguide';
+import { LinkBase } from '../Text/LinkBase';
 
 export const HomeButton = ({ children, style, href, className, ...rest }: ButtonProps) => (
   <Button
     {...rest}
-    href={href}
+    // href={href}
     openInNewTab={href?.startsWith('http')}
     className={mergeClasses('px-3.5 absolute bottom-7 z-10', 'hocus:opacity-80', className)}>
-    {children}
+    <LinkBase href={href}>{children}</LinkBase>
   </Button>
 );
