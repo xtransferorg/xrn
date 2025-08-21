@@ -9,6 +9,12 @@ import { ContentSpotlight } from '~/ui/components/ContentSpotlight';
 
 <XcodeInstructions />
 
+## 构建 iOS 应用
+
+构建一个 iOS 应用，在项目的根目录下运行以下命令：
+
+<Terminal cmd={['$ yarn build:ios']} />
+
 ## 配置你的项目
 
 <Step label="1">
@@ -23,9 +29,9 @@ import { ContentSpotlight } from '~/ui/components/ContentSpotlight';
 
 ### 在你的设备上运行项目
 
-在项目的根目录下运行以下命令：
+在项目的 `main-bundle` 目录下运行以下命令：
 
-<Terminal cmd={['$ npx xrn start']} />
+<Terminal cmd={['$ yarn start']} />
 
 根据提示，在命令行中输入 `o` 以在 iOS 设备上运行你的应用。
 

@@ -36,8 +36,8 @@ export function DevelopmentEnvironmentInstructions() {
   }
 
   if (query.platform === 'harmony' && query.device === 'physical') {
-    // return <HarmonyPhysicalDevelopmentBuildLocal />;
-    return <div>文档正在建设中</div>;
+    return <HarmonyPhysicalDevelopmentBuildLocal />;
+    // return <div>文档正在建设中</div>;
   }
 
   if (query.platform === 'harmony' && query.device === 'simulated') {

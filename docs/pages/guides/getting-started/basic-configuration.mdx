@@ -6,24 +6,25 @@ hideTOC: true
 
 import { DevelopmentEnvironmentInstructions } from '~/scenes/get-started/set-up-your-environment/DevelopmentEnvironmentInstructions';
 import { PlatformAndDeviceForm } from '~/scenes/get-started/set-up-your-environment/PlatformAndDeviceForm';
-import { BoxLink } from '~/ui/components/BoxLink';
+import { Terminal } from '~/ui/components/Snippet';
 
-**前提条件**
-
-为了确保兼容性，建议使用 nvm 安装 Node.js 18 版本。
+## 环境要求
 
 需要使用 [Homebrew](https://brew.sh/) 安装一些依赖。
 
-{/* <BoxLink
-  title="nvm 官方仓库"
-  description="nvm 是一个用于管理 Node.js 版本的工具。"
-  href="https://github.com/nvm-sh/nvm"
-/> */}
+为了确保兼容性，需要安装 Node.js 18 版本。
+[nvm 官方仓库](https://github.com/nvm-sh/nvm)
 
-{/* <Terminal
-  cmd={['$ nvm install 18']}
-/> */}
+<Terminal cmd={['$ nvm install 18', '$ nvm use 18']} />
 
+
+需要安装 [Yarn](https://yarnpkg.com/) 包管理器。
+
+<Terminal cmd={['$ brew install yarn']} />
+
+需要安装 [watchman](https://facebook.github.io/watchman/docs/install#macos)。
+
+<Terminal cmd={['$ brew install watchman']} />
 
 
 ## 你想在哪里开发？
