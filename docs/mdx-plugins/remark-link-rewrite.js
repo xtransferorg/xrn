@@ -46,8 +46,8 @@ export default function remarkLinkRewrite(options) {
       const ref = new URL(node.url, FAKE_DOMAIN);
       
       // rewrite static resource links to include /xrn/ prefix
-      if (node.url.startsWith('/static/')) {
-        node.url = node.url.replace('/static/', '/xrn/static/');
+      if (node.url.startsWith('/')) {
+        node.url = node.url.replace(/^\//, '/xrn/');
         return;
       }
       
