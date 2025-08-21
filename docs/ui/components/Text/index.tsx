@@ -1,5 +1,5 @@
 import { css, CSSObject, SerializedStyles } from '@emotion/react';
-import { theme, typography, LinkBase, LinkBaseProps, mergeClasses } from '@expo/styleguide';
+import { theme, typography, LinkBaseProps, mergeClasses } from '@expo/styleguide';
 import { spacing, borderRadius } from '@expo/styleguide-base';
 import * as React from 'react';
 
@@ -8,6 +8,7 @@ import { TextComponentProps, TextElement } from './types';
 import { AdditionalProps, HeadingType } from '~/common/headingManager';
 import { Permalink } from '~/ui/components/Permalink';
 import { durations } from '~/ui/foundations/durations';
+import { LinkBase } from './LinkBase';
 
 export { AnchorContext } from './withAnchor';
 
