@@ -1,28 +1,19 @@
 import { Terminal } from '~/ui/components/Snippet';
 import { Step } from '~/ui/components/Step';
 import { ContentSpotlight } from '~/ui/components/ContentSpotlight';
+import AndroidStudioEnvironmentInstructions from './_androidStudioEnvironmentInstructions.mdx';
+import AndroidStudioInstructions from './_androidStudioInstructions.mdx';
 
-### 安装依赖
+<AndroidStudioInstructions />
 
-<Step label="1">
 
-使用像 Homebrew 这样的工具 [安装 Watchman](https://facebook.github.io/watchman/docs/install#macos)：
+# 构建 Android 应用
 
-<Terminal cmd={['$ brew install watchman']} />
+构建一个 Android 应用，在项目的根目录下运行以下命令：
 
-</Step>
+<Terminal cmd={['$ yarn build:android']} />
 
-<Step label="2">
-
-使用 Homebrew 安装名为 android-platform-tools。此工具提供 adb 命令行工具。
-
-已安装 android studio 的用户可以跳过此步骤。
-
-<Terminal cmd={['$ brew install android-platform-tools']} />
-
-</Step>
-
-### 在 Android 设备上运行你的应用
+# 在 Android 设备上运行你的应用
 
 <Step label="1">
 **启用 USB 调试**
@@ -48,9 +39,9 @@ import { ContentSpotlight } from '~/ui/components/ContentSpotlight';
 <Step label="3">
 **运行你的应用**
 
-在项目的根目录下运行以下命令：
+在项目的 `main-bundle` 目录下运行以下命令：
 
-<Terminal cmd={['$ npx xrn start']} />
+<Terminal cmd={['$ yarn start']} />
 
 根据提示，在命令行中输入 `a` 以在 Android 设备上运行你的应用。
 

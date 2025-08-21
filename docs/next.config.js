@@ -37,6 +37,7 @@ const removeConsole =
 /** @type {import('next').NextConfig}  */
 export default {
   basePath: '/xrn',
+  assetPrefix: '/xrn',
   trailingSlash: true,
   experimental: {
     esmExternals: true,

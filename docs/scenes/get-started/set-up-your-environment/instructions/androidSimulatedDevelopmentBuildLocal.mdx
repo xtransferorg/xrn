@@ -11,13 +11,32 @@ import { Step } from '~/ui/components/Step';
 
 <AndroidStudioInstructions />
 
+## 创建 Android 虚拟设备
+
+1. 在 Android Studio 中，点击 **Tools** > **AVD Manager**。
+
+2. 点击 **Create Virtual Device**。
+
+3. 选择一个设备定义（例如 Pixel 4）。
+
+4. 选择一个系统镜像（建议选择 API level 31 或更高）。
+
+5. 点击 **Finish** 完成创建。
+
+现在你已经完成了 Android Studio 的设置，可以开始使用 Android 模拟器了。
+
 <AndroidEmulatorInstructions />
 
-## 在 Android 模拟器上运行你的应用
+# 构建 Android 应用
 
+构建一个 Android 应用，在项目的根目录下运行以下命令：
 
-在项目的根目录下运行以下命令：
+<Terminal cmd={['$ yarn build:android']} />
 
-<Terminal cmd={['$ npx xrn start']} />
+# 在 Android 模拟器上运行你的应用
+
+在项目的 `main-bundle` 目录下运行以下命令：
+
+<Terminal cmd={['$ yarn start']} />
 
 根据提示，在命令行中输入 `a` 以在 Android 设备上运行你的应用。
