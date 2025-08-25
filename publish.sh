@@ -5,6 +5,8 @@ export APP_NAME=$2
 echo "is_prod: $is_prod"
 echo "APP_NAME: $APP_NAME"
 
+yarn install --no-immutable
+
 yarn publish:from-package
 
 # 将逗号分隔的包名转换为空格分隔
