@@ -5,6 +5,8 @@ export APP_NAME=$2
 echo "is_prod: $is_prod"
 echo "APP_NAME: $APP_NAME"
 
+nvm install v20.16.0 && nvm use v20.16.0 
+
 yarn install --no-immutable
 
 yarn publish:from-package
