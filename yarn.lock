@@ -7931,10 +7931,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"commander@npm:~2.13.0":
-  version: 2.13.0
-  resolution: "commander@npm:2.13.0"
-  checksum: b23e2de09428e3852e881c3e265c70438ca038c834744479b72dde0bbc570f45c7f1ea2feea27fbe26382d2cbf6fb7b1963d7dee2c08b3f4adc95dbc45d977f5
+"commander@npm:~2.14.1":
+  version: 2.14.1
+  resolution: "commander@npm:2.14.1"
+  checksum: 26bd49febeac8efabb7488fb5a4a2480b04bc4c4eef3c50da93eead72959f7a5232d003deda5b9761937205721274e80108f6d1d2b45ae7a8387cfb92031084e
   languageName: node
   linkType: hard
 
@@ -20671,13 +20671,13 @@ __metadata:
 
 "uglify-es@npm:^3.1.9":
   version: 3.3.10
-  resolution: "uglify-es@npm:3.3.10::__archiveUrl=http%3A%2F%2Fregistry.xtrfr.cn%2Frepository%2Fnpm%2Fuglify-es%2F-%2Fuglify-es-3.3.9.tgz"
+  resolution: "uglify-es@npm:3.3.10"
   dependencies:
-    commander: ~2.13.0
+    commander: ~2.14.1
     source-map: ~0.6.1
   bin:
     uglifyjs: bin/uglifyjs
-  checksum: f2de133ba71f05aca442db2c31a2f2614201e5b540948f022f5b53cd39b6b1b43a7db7cc2aa9917383bbb26e8043947fce35867cd1edcf2444854cb7fae0fa99
+  checksum: 22b028b6454c4d684c76617e9ac5b8da0e56611b32cd5d89e797225d6f1022f697a5642d9084319436df3aed462225749f8287d37bf67dccda1ac9d0365dd950
   languageName: node
   linkType: hard
 
