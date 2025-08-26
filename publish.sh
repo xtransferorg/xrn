@@ -1,4 +1,6 @@
 #!/bin/bash
+source /etc/profile
+
 is_prod=$1
 export APP_NAME=$2
 
