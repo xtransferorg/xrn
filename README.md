@@ -11,7 +11,7 @@ XRN 是一个面向跨平台应用开发的 **React Native 一体化解决方案
 ## ✨ 功能特性
 
 - **跨平台支持**  
-  支持 iOS、Android，以及 HarmonyOS（鸿蒙）平台的应用开发与构建。
+  支持 iOS、Android，以及 HarmonyOS Next（鸿蒙 Next）平台的应用开发与构建。
 
 - **统一依赖管理**  
   集成二方包管理、版本控制、依赖安全校验。

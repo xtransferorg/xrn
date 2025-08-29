@@ -11,7 +11,7 @@ XRN is a **React Native all-in-one solution** for cross-platform application dev
 ## ✨ Features
 
 - **Cross-Platform Support**  
-  Supports application development and building for iOS, Android, and HarmonyOS platforms.
+  Supports application development and building for iOS, Android, and HarmonyOS Next platforms.
 
 - **Unified Dependency Management**  
   Integrates second-party package management, version control, and dependency security validation.
