@@ -13,6 +13,12 @@ XRN 是一个面向跨平台应用开发的 **React Native 一体化解决方案
 - **跨平台支持**  
   支持 iOS、Android，以及 HarmonyOS Next（鸿蒙 Next）平台的应用开发与构建。
 
+- **多Bundle架构**
+  支持主包 + 子包的多 Bundle 形态，按业务模块解耦拆分，独立开发、编译与按需下发，降低首包体积并提升迭代效率。
+
+- **组件库**
+  内置常用 UI 组件与业务能力封装（导航、状态管理、资源加载等），支持按需引入与主题定制，提供示例应用便于快速上手。
+
 - **统一依赖管理**  
   集成二方包管理、版本控制、依赖安全校验。
 
@@ -32,14 +38,21 @@ XRN 是一个面向跨平台应用开发的 **React Native 一体化解决方案
 | `apps/`           | 应用示例或测试项目，主要用于本地调试和验证功能。 |
 | `packages/`       | XRN 的核心与扩展模块源码，按功能拆分为多个 NPM 包。 |
 | `docs/`           | 项目文档与教程的源码。 |
-| `scripts/`        | 构建、发布、自动化任务脚本。 |
-| `package.json`    | 项目的依赖与元数据管理入口。 |
 | `LICENSE`         | Apache 2.0 开源协议文本。 |
 | `README.md`       | 项目介绍与使用说明（本文档）。 |
 
 ## 🛠️ 文档
 
 详细文档请参见 [xrn](https://xtransferorg.github.io/xrn/) 
+
+- [组件库](https://github.com/xtransferorg/xtd-rn)
+- [热更新](https://github.com/xtransferorg/code-push)
+
+## 🙋 交流与答疑
+
+扫码加入答疑群：
+
+![XRN 答疑群二维码](./imgs/qa_qrcode.png)
 
 ## 📄 License
 
