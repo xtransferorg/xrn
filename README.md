@@ -52,7 +52,7 @@ XRN 是一个面向跨平台应用开发的 **React Native 一体化解决方案
 
 扫码加入答疑群：
 
-![XRN 答疑群二维码](./imgs/qa_qrcode.png)
+<img src="./imgs/qa_qrcode.png" alt="XRN 答疑群二维码" width="220" />
 
 ## 📄 License
 

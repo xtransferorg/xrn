@@ -52,7 +52,7 @@ For detailed documentation, please visit [xrn](https://xtransferorg.github.io/xr
 
 Scan to join the Q&A group:
 
-![XRN Q&A Group QR Code](./imgs/qa_qrcode.png)
+<img src="./imgs/qa_qrcode.png" alt="XRN Q&A Group QR Code" width="220" />
 
 ## 📄 License
 
