@@ -11,7 +11,13 @@ XRN is a **React Native all-in-one solution** for cross-platform application dev
 ## ✨ Features
 
 - **Cross-Platform Support**  
-  Supports application development and building for iOS, Android, and HarmonyOS platforms.
+  Supports application development and building for iOS, Android, and HarmonyOS Next platforms.
+
+- **Multi-Bundle Architecture**
+  Supports a main bundle plus sub-bundles. Split by business modules for decoupling, develop/build/deliver independently on demand, reducing initial bundle size and improving iteration efficiency.
+
+- **Component Library**
+  Built-in common UI components and business abstractions (navigation, state management, asset loading, etc.), supporting on-demand imports and theming, with example apps for a quick start.
 
 - **Unified Dependency Management**  
   Integrates second-party package management, version control, and dependency security validation.
@@ -32,14 +38,21 @@ XRN is a **React Native all-in-one solution** for cross-platform application dev
 | `apps/`           | Application examples or test projects, mainly used for local debugging and feature validation. |
 | `packages/`       | XRN core and extension module source code, split into multiple NPM packages by functionality. |
 | `docs/`           | Project documentation and tutorial source code. |
-| `scripts/`        | Build, publish, and automation task scripts. |
-| `package.json`    | Project dependency and metadata management entry point. |
 | `LICENSE`         | Apache 2.0 open source license text. |
 | `README.md`       | Project introduction and usage instructions (this document). |
 
 ## 🛠️ Documentation
 
 For detailed documentation, please visit [xrn](https://xtransferorg.github.io/xrn/)
+
+- Component library: [xtd-rn](https://github.com/xtransferorg/xtd-rn)
+- CodePush: [code-push](https://github.com/xtransferorg/code-push)
+
+## 🙋 Community & Q&A
+
+Scan to join the Q&A group:
+
+![XRN Q&A Group QR Code](./imgs/qa_qrcode.png)
 
 ## 📄 License
 
