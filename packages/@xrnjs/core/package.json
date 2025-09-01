@@ -1,6 +1,6 @@
 {
   "name": "@xrnjs/core",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "xrn 核心库",
   "types": "build/index.d.ts",
   "main": "build/index.js",
@@ -92,7 +92,7 @@
     "@xrnjs/debug-tools": "0.0.2",
     "@xrnjs/devtools": "0.0.2",
     "@xrnjs/image": "0.0.2",
-    "@xrnjs/loading": "0.0.2",
+    "@xrnjs/loading": "0.0.3",
     "@xrnjs/modules-core": "0.0.2",
     "@xrnjs/multi-bundle": "0.0.3",
     "@xrnjs/native-storage": "0.0.2",
