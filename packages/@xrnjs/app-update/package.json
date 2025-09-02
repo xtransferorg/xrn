@@ -57,7 +57,7 @@
     "@xrnjs/app-utils": "0.0.2",
     "@xrnjs/image": "0.0.2",
     "@xrnjs/native-storage": "0.0.2",
-    "@xrnjs/ui": "0.0.2",
+    "@xrnjs/ui": "0.0.3",
     "nodemon": "^3.1.1",
     "react-native": "0.72.5",
     "typescript": "^5.1.3"
