@@ -3065,9 +3065,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@xrnjs/core@npm:0.0.4":
-  version: 0.0.4
-  resolution: "@xrnjs/core@npm:0.0.4"
+"@xrnjs/core@npm:0.0.5":
+  version: 0.0.5
+  resolution: "@xrnjs/core@npm:0.0.5"
   dependencies:
     "@react-native-async-storage/async-storage": 1.21.0
     "@react-native-clipboard/clipboard": 1.13.2
@@ -3110,7 +3110,7 @@ __metadata:
     "@xrnjs/debug-tools": 0.0.2
     "@xrnjs/devtools": 0.0.2
     "@xrnjs/image": 0.0.2
-    "@xrnjs/loading": 0.0.2
+    "@xrnjs/loading": 0.0.3
     "@xrnjs/modules-core": 0.0.2
     "@xrnjs/multi-bundle": 0.0.3
     "@xrnjs/native-storage": 0.0.2
@@ -3132,7 +3132,7 @@ __metadata:
     react-native-get-random-values: "*"
     react-native-safe-area-context: "*"
     react-native-uuid: "*"
-  checksum: 96b4915b02a2d42d7567717e98c455798ca86032390395c64671fa2f85445615eff97664bd13d110cbe6e84cccbfe07dff1631db2468c9fa97981a4f65246021
+  checksum: 54b943ab7fa4ca3fbc61ab6803a8417d23c3b9babcd4b95e75d969bbd4c3d74e558b78f2f786d6f93893c783e6f5af5cf43f7e1724dd08f19827ccae9b06ae8d
   languageName: node
   linkType: hard
 
@@ -3191,15 +3191,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@xrnjs/loading@npm:0.0.2":
-  version: 0.0.2
-  resolution: "@xrnjs/loading@npm:0.0.2"
+"@xrnjs/loading@npm:0.0.3":
+  version: 0.0.3
+  resolution: "@xrnjs/loading@npm:0.0.3"
   dependencies:
     "@xrnjs/modules-core": 0.0.2
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 16bc56c767e3cc80e2b24675f676908c1df04823f0d3aa8f1c478ecf817522fbca8544c9b757ab1f1447da7235d304a8d91b2e0c98daf3dc1b2a283845419fe2
+  checksum: 110943424f14faace652f1ea6e9fd6d9249eb1789e4d18f1fe4e45d0efc39ca035d31aebd535a4c7a42eb64f4222868f36e97ee535cd8259519cb7d19bbb9608
   languageName: node
   linkType: hard
 
@@ -3278,15 +3278,6 @@ __metadata:
   version: 1.1.0
   resolution: "@yarnpkg/lockfile@npm:1.1.0"
   checksum: 05b881b4866a3546861fee756e6d3812776ea47fa6eb7098f983d6d0eefa02e12b66c3fff931574120f196286a7ad4879ce02743c8bb2be36c6a576c7852083a
-  languageName: node
-  linkType: hard
-
-"@yidun/quickpass-plugin-rn@npm:1.3.4":
-  version: 1.3.4
-  resolution: "@yidun/quickpass-plugin-rn@npm:1.3.4"
-  peerDependencies:
-    react-native: ">= 0.41.2"
-  checksum: 209743a601afc32dcc6dd987031c0476ae009d2943f9b3baa9ecdebba9727a3032829b9e1c3c789965a68c9be06d2606e270a655dc8ce1074873c5650929a869
   languageName: node
   linkType: hard
 
@@ -11356,16 +11347,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-native-place-module@npm:0.1.1":
-  version: 0.1.1
-  resolution: "react-native-place-module@npm:0.1.1"
-  peerDependencies:
-    react: "*"
-    react-native: "*"
-  checksum: e0114d9997491bf30b4482a70b8df00e82c2f34a5a9c9de9b50beca12ed563046ff1ddd049672ef1e839f5ceaadb4a07c18d8e5dd3ef26f401189533ba0548d4
-  languageName: node
-  linkType: hard
-
 "react-native-reanimated@npm:3.6.0":
   version: 3.6.0
   resolution: "react-native-reanimated@npm:3.6.0"
@@ -12162,13 +12143,6 @@ __metadata:
     range-parser: ~1.2.1
     statuses: 2.0.1
   checksum: 5ae11bd900c1c2575525e2aa622e856804e2f96a09281ec1e39610d089f53aa69e13fd8db84b52f001d0318cf4bb0b3b904ad532fc4c0014eb90d32db0cff55f
-  languageName: node
-  linkType: hard
-
-"sensorsdata-analytics-react-native@npm:2.3.7":
-  version: 2.3.7
-  resolution: "sensorsdata-analytics-react-native@npm:2.3.7"
-  checksum: f7aeaa29edd5f00ff6a7ef220ee903c27370b11eb6cf2607693dfb63705174e400b88aa5b6b0d7cc6c2c7a4b932c204102b3a1013e8d0673010dbfc86b14d7a0
   languageName: node
   linkType: hard
 
@@ -14243,15 +14217,13 @@ __metadata:
     "@types/react": 18.0.25
     "@types/react-native": 0.72.8
     "@xrnjs/cli": 0.0.6
-    "@xrnjs/core": 0.0.4
-    "@yidun/quickpass-plugin-rn": 1.3.4
+    "@xrnjs/core": 0.0.5
     eslint: ^7.32.0
     lottie-react-native: 6.4.1
     metro-react-native-babel-preset: 0.72.4
     patch-package: ^8.0.0
     react: 18.2.0
     react-native: 0.72.5
-    react-native-adjust: 4.38.0
     react-native-blob-util: 0.19.11
     react-native-config: 1.5.3
     react-native-device-info: 11.1.0
@@ -14269,7 +14241,6 @@ __metadata:
     react-native-orientation-locker: 1.7.0
     react-native-pdf: 6.7.4
     react-native-permissions: 4.1.2
-    react-native-place-module: 0.1.1
     react-native-reanimated: 3.6.0
     react-native-safe-area-context: 4.7.4
     react-native-screens: 3.33.0
@@ -14278,7 +14249,6 @@ __metadata:
     react-native-video: 6.0.0-alpha.9
     react-native-vision-camera: 4.0.1
     react-native-webview: 13.10.2
-    sensorsdata-analytics-react-native: 2.3.7
   languageName: unknown
   linkType: soft
 

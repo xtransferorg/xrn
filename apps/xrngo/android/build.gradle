@@ -42,7 +42,6 @@ buildscript {
         classpath("com.facebook.react:react-native-gradle-plugin")
         classpath("de.undercouch:gradle-download-task:5.0.1")
         classpath 'com.huawei.agconnect:agcp:1.6.0.300'
-        classpath 'com.sensorsdata.analytics.android:android-gradle-plugin2:4.0.4'
         classpath "org.jetbrains.kotlin:kotlin-serialization:1.8.0"
     }
 }
