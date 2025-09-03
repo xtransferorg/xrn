@@ -1,1 +1,0 @@
-ffmpeg -y -i "imgs/app_create_build_start.mp4" -filter_complex "[0:v]fps=15,scale=720:-1:flags=lanczos,split[a][b];[a]palettegen=stats_mode=diff:max_colors=256[p];[b][p]paletteuse=dither=floyd_steinberg" -loop 0 "imgs/app_create_build_start.gif" | cat
