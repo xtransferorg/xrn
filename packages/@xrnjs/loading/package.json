@@ -1,6 +1,6 @@
 {
   "name": "@xrnjs/loading",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "提供标准化的加载动画，提升用户体验",
   "main": "./build/index.js",
   "types": "./build/index.d.ts",

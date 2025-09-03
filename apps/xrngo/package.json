@@ -5,11 +5,11 @@
   "main": "index.ts",
   "scripts": {
     "codegen": "react-native codegen-harmony --cpp-output-path ./harmony/entry/src/main/cpp/generated --rnoh-module-path ./harmony/entry/oh_modules/@rnoh/react-native-openharmony",
-    "build:harmony": "xrn build xrngo harmony '' sitxt1 --type debug --bundleBranch develop --sec false --appFormat hap",
-    "publish:harmony": "xrn app-publish xrngo harmony '' sitxt1 --type debug --channel AppGallery --bundleBranch develop --sec false --appFormat hap --notOnlyApplyVersion '' --updateType Force --isBackwardCompatible false --changeLog xrngo --dsym false --shouldFirstCodePush false",
-    "build:android": "xrn build xrngo android --type debug --appFormat apk --bundleBranch develop",
-    "build:android:release": "xrn build xrngo android --type release --appFormat apk --bundleBranch develop",
-    "build:ios": "xrn build xrngo ios --type debug --appFormat ipa --bundleBranch develop",
+    "build:harmony": "xrn build xrngo harmony '' sitxt1 --type debug --bundleBranch github/main --sec false --appFormat hap",
+    "publish:harmony": "xrn app-publish xrngo harmony '' sitxt1 --type debug --channel AppGallery --bundleBranch github/main --sec false --appFormat hap --notOnlyApplyVersion '' --updateType Force --isBackwardCompatible false --changeLog xrngo --dsym false --shouldFirstCodePush false",
+    "build:android": "xrn build xrngo android --type debug --appFormat apk --bundleBranch github/main",
+    "build:android:release": "xrn build xrngo android --type release --appFormat apk --bundleBranch github/main",
+    "build:ios": "xrn build xrngo ios --type debug --appFormat ipa --bundleBranch github/main",
     "postinstall": "node ./scripts/postinstall.js && patch-package && xrn-native-postinstall"
   },
   "installConfig": {
@@ -27,12 +27,10 @@
     "@react-native-picker/picker": "2.6.1",
     "@sdcx/pull-to-refresh": "0.21.0",
     "@sentry/react-native": "4.15.2",
-    "@xrnjs/core": "0.0.4",
-    "@yidun/quickpass-plugin-rn": "1.3.4",
+    "@xrnjs/core": "0.0.5",
     "lottie-react-native": "6.4.1",
     "react": "18.2.0",
     "react-native": "0.72.5",
-    "react-native-adjust": "4.38.0",
     "react-native-blob-util": "0.19.11",
     "react-native-config": "1.5.3",
     "react-native-device-info": "11.1.0",
@@ -50,7 +48,6 @@
     "react-native-orientation-locker": "1.7.0",
     "react-native-pdf": "6.7.4",
     "react-native-permissions": "4.1.2",
-    "react-native-place-module": "0.1.1",
     "react-native-reanimated": "3.6.0",
     "react-native-safe-area-context": "4.7.4",
     "react-native-screens": "3.33.0",
@@ -58,8 +55,7 @@
     "react-native-touch-id": "4.4.1",
     "react-native-video": "6.0.0-alpha.9",
     "react-native-vision-camera": "4.0.1",
-    "react-native-webview": "13.10.2",
-    "sensorsdata-analytics-react-native": "2.3.7"
+    "react-native-webview": "13.10.2"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",

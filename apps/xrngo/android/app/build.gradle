@@ -3,7 +3,6 @@ apply plugin: "com.facebook.react"
 apply plugin: 'org.jetbrains.kotlin.android'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlinx-serialization'
-apply plugin: 'com.sensorsdata.analytics.android'
 
 apply from: "../../node_modules/@xrnjs/react-native-code-push/android/codepush.gradle"
 apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
@@ -159,9 +158,6 @@ dependencies {
     implementation 'com.airbnb.android:lottie:6.1.0'
     implementation 'com.facebook.fresco:animated-gif:2.6.0'
     implementation 'com.google.android.gms:play-services-ads-identifier:18.0.1'
-    implementation "com.adjust.sdk:adjust-android-huawei-referrer:5.0.0"
-    // 神策埋点 添加 Sensors Analytics SDK 依赖
-    implementation 'com.sensorsdata.analytics.android:SensorsAnalyticsSDK:6.8.2'
 
     debugImplementation "com.bytedance.tools.codelocator:codelocator-core:2.0.4"
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {

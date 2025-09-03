@@ -15,7 +15,7 @@
     "metro-config": "0.72.4"
   },
   "dependencies": {
-    "@xrnjs/core": "0.0.4",
+    "@xrnjs/core": "0.0.5",
     "react": "18.2.0",
     "react-native": "0.72.5",
     "react-native-svg": "15.0.0"

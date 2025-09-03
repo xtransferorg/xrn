@@ -5270,7 +5270,7 @@ __metadata:
     "@xrnjs/image": 0.0.2
     "@xrnjs/modules-core": 0.0.2
     "@xrnjs/native-storage": 0.0.2
-    "@xrnjs/ui": 0.0.1
+    "@xrnjs/ui": 0.0.2
     lodash: 4.17.21
     nodemon: ^3.1.1
     react-native: 0.72.5
@@ -5488,7 +5488,7 @@ __metadata:
     "@xrnjs/debug-tools": 0.0.2
     "@xrnjs/devtools": 0.0.2
     "@xrnjs/image": 0.0.2
-    "@xrnjs/loading": 0.0.2
+    "@xrnjs/loading": 0.0.3
     "@xrnjs/modules-core": 0.0.2
     "@xrnjs/multi-bundle": 0.0.3
     "@xrnjs/native-storage": 0.0.2
@@ -5632,7 +5632,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@xrnjs/loading@0.0.2, @xrnjs/loading@workspace:packages/@xrnjs/loading":
+"@xrnjs/loading@0.0.3, @xrnjs/loading@workspace:packages/@xrnjs/loading":
   version: 0.0.0-use.local
   resolution: "@xrnjs/loading@workspace:packages/@xrnjs/loading"
   dependencies:
@@ -5731,9 +5731,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@xrnjs/ui@npm:0.0.1":
-  version: 0.0.1
-  resolution: "@xrnjs/ui@npm:0.0.1"
+"@xrnjs/ui@npm:0.0.2":
+  version: 0.0.2
+  resolution: "@xrnjs/ui@npm:0.0.2"
   dependencies:
     "@fruits-chain/design-tokens-bailu": 0.0.7
     "@fruits-chain/icons-react-native": 0.0.9
@@ -5750,6 +5750,7 @@ __metadata:
     memoize-one: 5.2.1
     mime: ^4.0.7
     prop-types: 15.5.10
+    react-icons: ^4.12.0
     react-is: 18.2.0
     react-native-blob-util: 0.19.11
     react-native-confirmation-code-field: 6
@@ -5780,7 +5781,7 @@ __metadata:
     react-native-safe-area-context: "*"
     react-native-svg: "*"
     react-native-vision-camera: "*"
-  checksum: 0e52aa15bf1f45ab5e56bdb12f7472757c0dbfb819974bc4ce8a0b69262d80ceb046ae296407077bad78414a59be0724f18670157ee18b6dad264e1aafec40b0
+  checksum: a137b5d26e9bee3623b9870d319e6ef0ac637e6988c13fbe95a3320621ee830aa4afc161a0b562833ce2531d2894a1a4dfc3ffef305c2206dbd48be26daa2b05
   languageName: node
   linkType: hard
 
@@ -17385,6 +17386,15 @@ __metadata:
   peerDependencies:
     react: ">=17.0.0"
   checksum: 6b4d93209dff04a1f25d9f8e0c56a9a8a80e7889e8e8267299f34449c7e41a9ab90cad24569d03dd7173b56b7496576dba68f71f1d4e5c8be72f0633023668bc
+  languageName: node
+  linkType: hard
+
+"react-icons@npm:^4.12.0":
+  version: 4.12.0
+  resolution: "react-icons@npm:4.12.0"
+  peerDependencies:
+    react: "*"
+  checksum: db82a141117edcd884ade4229f0294b2ce15d82f68e0533294db07765d6dce00b129cf504338ec7081ce364fe899b296cb7752554ea08665b1d6bad811134e79
   languageName: node
   linkType: hard
 

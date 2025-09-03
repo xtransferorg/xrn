@@ -11,7 +11,7 @@ nvm install v20.16.0 && nvm use v20.16.0
 
 yarn install --no-immutable
 
-yarn config set registry https://registry.npmjs.org
+# yarn config set registry https://registry.npmjs.org
 
 npm view @xrnjs/core
 
