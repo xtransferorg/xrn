@@ -3548,9 +3548,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@xrnjs/ui@npm:0.0.1":
-  version: 0.0.1
-  resolution: "@xrnjs/ui@npm:0.0.1"
+"@xrnjs/ui@npm:0.0.3":
+  version: 0.0.3
+  resolution: "@xrnjs/ui@npm:0.0.3"
   dependencies:
     "@fruits-chain/design-tokens-bailu": 0.0.7
     "@fruits-chain/icons-react-native": 0.0.9
@@ -3567,6 +3567,7 @@ __metadata:
     memoize-one: 5.2.1
     mime: ^4.0.7
     prop-types: 15.5.10
+    react-icons: ^4.12.0
     react-is: 18.2.0
     react-native-blob-util: 0.19.11
     react-native-confirmation-code-field: 6
@@ -3597,7 +3598,7 @@ __metadata:
     react-native-safe-area-context: "*"
     react-native-svg: "*"
     react-native-vision-camera: "*"
-  checksum: 0e52aa15bf1f45ab5e56bdb12f7472757c0dbfb819974bc4ce8a0b69262d80ceb046ae296407077bad78414a59be0724f18670157ee18b6dad264e1aafec40b0
+  checksum: 579b592fdc57ed794617064931ee98fc764e2964ff983a722e9df58e4cb3be6d86a032086767d1f218949e7b6d05acbad4acdb0d31a4116a956bc7c5244c466a
   languageName: node
   linkType: hard
 
@@ -11500,6 +11501,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-icons@npm:^4.12.0":
+  version: 4.12.0
+  resolution: "react-icons@npm:4.12.0"
+  peerDependencies:
+    react: "*"
+  checksum: db82a141117edcd884ade4229f0294b2ce15d82f68e0533294db07765d6dce00b129cf504338ec7081ce364fe899b296cb7752554ea08665b1d6bad811134e79
+  languageName: node
+  linkType: hard
+
 "react-is@npm:18.2.0":
   version: 18.2.0
   resolution: "react-is@npm:18.2.0"
@@ -14834,7 +14844,7 @@ __metadata:
     "@xrnjs/cli": 0.0.6
     "@xrnjs/core": 0.0.4
     "@xrnjs/react-native-code-push": 0.0.1
-    "@xrnjs/ui": 0.0.1
+    "@xrnjs/ui": 0.0.3
     ahooks: 3.7.8
     axios: 1.5.0
     eslint: ^7.32.0

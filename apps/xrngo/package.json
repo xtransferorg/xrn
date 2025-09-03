@@ -5,11 +5,11 @@
   "main": "index.ts",
   "scripts": {
     "codegen": "react-native codegen-harmony --cpp-output-path ./harmony/entry/src/main/cpp/generated --rnoh-module-path ./harmony/entry/oh_modules/@rnoh/react-native-openharmony",
-    "build:harmony": "xrn build xrngo harmony '' sitxt1 --type debug --bundleBranch develop --sec false --appFormat hap",
-    "publish:harmony": "xrn app-publish xrngo harmony '' sitxt1 --type debug --channel AppGallery --bundleBranch develop --sec false --appFormat hap --notOnlyApplyVersion '' --updateType Force --isBackwardCompatible false --changeLog xrngo --dsym false --shouldFirstCodePush false",
-    "build:android": "xrn build xrngo android --type debug --appFormat apk --bundleBranch develop",
-    "build:android:release": "xrn build xrngo android --type release --appFormat apk --bundleBranch develop",
-    "build:ios": "xrn build xrngo ios --type debug --appFormat ipa --bundleBranch develop",
+    "build:harmony": "xrn build xrngo harmony '' sitxt1 --type debug --bundleBranch github/main --sec false --appFormat hap",
+    "publish:harmony": "xrn app-publish xrngo harmony '' sitxt1 --type debug --channel AppGallery --bundleBranch github/main --sec false --appFormat hap --notOnlyApplyVersion '' --updateType Force --isBackwardCompatible false --changeLog xrngo --dsym false --shouldFirstCodePush false",
+    "build:android": "xrn build xrngo android --type debug --appFormat apk --bundleBranch github/main",
+    "build:android:release": "xrn build xrngo android --type release --appFormat apk --bundleBranch github/main",
+    "build:ios": "xrn build xrngo ios --type debug --appFormat ipa --bundleBranch github/main",
     "postinstall": "node ./scripts/postinstall.js && patch-package && xrn-native-postinstall"
   },
   "installConfig": {
