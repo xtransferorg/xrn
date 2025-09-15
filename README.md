@@ -37,6 +37,10 @@ XRN 是一个面向跨平台应用开发的 **React Native 一体化解决方案
 
 <img src="./imgs/app_create_build_start.gif" alt="XRN 演示动图" width="720" />
 
+#### 多 Bundle
+
+<img src="./imgs/multi_bundle.gif" alt="XRN 演示动图" width="320" />
+
 #### 热更新
 
 <img src="./imgs/codepush.gif" alt="XRN 演示动图" width="720" />
