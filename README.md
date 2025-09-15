@@ -33,9 +33,17 @@ XRN 是一个面向跨平台应用开发的 **React Native 一体化解决方案
 
 ## 🎥 演示视频
 
-观看应用创建、构建、启动的完整演示流程：
+#### 应用创建、构建、启动的完整演示流程：
 
 <img src="./imgs/app_create_build_start.gif" alt="XRN 演示动图" width="720" />
+
+#### 热更新
+
+<img src="./imgs/codepush.gif" alt="XRN 演示动图" width="720" />
+
+#### 组件库
+
+<img src="./imgs/components.gif" alt="XRN 演示动图" width="320" />
 
 ## 📥 Demo App 下载
 
