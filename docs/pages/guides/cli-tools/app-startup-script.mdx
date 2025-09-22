@@ -25,9 +25,7 @@ import { Tabs, Tab } from '~/ui/components/Tabs';
 
 ## 安装
 
-<Terminal
-  cmd={['$ yarn add -D @xrnjs/cli']}
-/>
+<Terminal cmd={['$ yarn add -D @xrnjs/cli']} />
 
 ## 使用
 
@@ -39,7 +37,7 @@ import { Tabs, Tab } from '~/ui/components/Tabs';
 
 ### 在设备中打开
 
-#### 输入“ ？”，显示提示信息
+#### 输入"?"，显示提示信息
 
 <ContentSpotlight
   alt="image.png"
@@ -47,7 +45,7 @@ import { Tabs, Tab } from '~/ui/components/Tabs';
   className="max-w-640"
 />
 
-<Tabs tabs={['在安卓设备打开', '在 iOS 设备打开']}>
+<Tabs tabs={['在安卓设备打开', '在 iOS 模拟器打开', '在 iOS 真机打开', '在鸿蒙设备打开']}>
 
 {/* 在安卓设备打开 */}
 
@@ -61,17 +59,9 @@ import { Tabs, Tab } from '~/ui/components/Tabs';
   className="max-w-640"
 />
 
-#### 下载 Debug 包 (如果当前已安装版本比已上线版本低，则默认下载安装最新app包)
-
-<ContentSpotlight
-  alt="image.png"
-  src="/xrn/static/images/app-startup/eb82ce2f-1fe1-41aa-a811-c8b10283c61b.png"
-  className="max-w-640"
-/>
-
 </Tab>
 
-{/* 在 iOS 设备打开 */}
+{/* 在 iOS 模拟器打开 */}
 
 <Tab>
 
@@ -83,11 +73,42 @@ import { Tabs, Tab } from '~/ui/components/Tabs';
   className="max-w-640"
 />
 
-#### 下载并安装最新版 app
+</Tab>
+
+{/* 在 iOS 真机打开 */}
+
+<Tab>
+
+#### 安装 ios-deploy
+
+<Terminal cmd={['$ npm install -g ios-deploy']} />
+
+#### 输入o，选择已连接的 iOS 真机设备
 
 <ContentSpotlight
-  alt="image.png"
-  src="/xrn/static/images/app-startup/1c25a3ae-c790-4897-9597-839c4d4bed44.png"
+  alt="iOS真机设备选择"
+  src="/xrn/static/images/app-startup/xrn-start-ios-physical.png"
+  className="max-w-640"
+/>
+
+注意：首次安装时需要在设备上信任开发者证书：
+
+1. ios 应用安装完成后无法自动打开，需要手动打开
+2. 打开设置 > 通用 > VPN与设备管理
+3. 在"企业级应用"部分找到相应的开发者证书
+4. 点击"信任"该开发者
+
+</Tab>
+
+{/* 在鸿蒙设备打开 */}
+
+<Tab>
+
+#### 输入 h，选择已连接的鸿蒙设备
+
+<ContentSpotlight
+  alt="鸿蒙设备选择"
+  src="/xrn/static/images/app-startup/xrn-start-help-info.png"
   className="max-w-640"
 />
 
