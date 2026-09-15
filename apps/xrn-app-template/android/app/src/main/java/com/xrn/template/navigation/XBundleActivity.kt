@@ -10,15 +10,15 @@ import com.lzf.easyfloat.EasyFloat
 import com.lzf.easyfloat.enums.ShowPattern
 import com.lzf.easyfloat.enums.SidePattern
 import com.xrn.template.R
+import com.xrn.template.multibundle.CodePushBundleActivity
 import com.xrn.template.utils.DevEntryUtil
 import com.xrn.template.utils.LifecycleAwareRunnable
-import xrn.modules.navigation.kotlin.BaseRNContainerActivity
 
-open class XBundleActivity:BaseRNContainerActivity() {
+open class XBundleActivity: CodePushBundleActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(null)
-        if (mBundleName.isBlank() || mModuleName.isBlank()) {
+        if (getBundleName().isBlank() || getModuleName().isBlank()) {
             ToastUtils.showShort("RN容器初始化失败、bundleName或moduleName不允许为空")
             finish()
             return
@@ -32,12 +32,15 @@ open class XBundleActivity:BaseRNContainerActivity() {
             .setTag(this@XBundleActivity.toString())
             .registerCallback {
                 createResult { isCreated, msg, view ->
+                    val envView = view?.findViewById<TextView>(R.id.tvEnv)
                     view?.setOnClickListener {
-                        getRNHost()?.reactInstanceManager?.currentReactContext?.getJSModule(
-                            DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)?.emit("NATIVE_FLOAT_BAR_CLICK", null)
+                        reactHost.currentReactContext?.getJSModule(
+                            DeviceEventManagerModule.RCTDeviceEventEmitter::class.java
+                        )?.emit("NATIVE_FLOAT_BAR_CLICK", null)
                     }
                     view?.background = drawable
-                    val runnable = LifecycleAwareRunnable(lifecycle) { DevEntryUtil.devEntryAttachSide(view) }
+                    val runnable =
+                        LifecycleAwareRunnable(lifecycle) { DevEntryUtil.devEntryAttachSide(view) }
                     LifecycleAwareRunnable.getHandler().postDelayed(runnable, 500)
                 }
 

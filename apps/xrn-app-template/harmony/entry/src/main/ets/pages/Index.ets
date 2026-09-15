@@ -1,10 +1,10 @@
 import { Splash } from '../navDestination/Splash';
-import { NavigationContainer, getModuleRouteParams, ModuleRouteParams } from 'xrn-navigation'
+import { NavigationContainer, getModuleRouteParams, ModuleRouteParams } from '@xrnjs/navigation'
 import webview from '@ohos.web.webview';
 import { preferences } from "@kit.ArkData";
 import { MainModuleContainer } from '../navDestination/MainModuleContainer';
 import { BizModuleContainer } from '../navDestination/BizModuleContainer';
-import { RN_INSTANCE_MANAGER } from 'xrn-multi-bundle';
+import { RN_INSTANCE_MANAGER } from '@xrnjs/multi-bundle';
 import { FloatBall } from '../module/devtools/components/FloatBall'
 import { RNInstance } from '@rnoh/react-native-openharmony';
 import { BuildConfig } from '@react-native-oh-tpl/react-native-config/BuildConfig'

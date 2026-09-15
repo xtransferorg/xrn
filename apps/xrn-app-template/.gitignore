@@ -1,45 +1,13 @@
-dist
-.DS_Store
-build
-reports
-node_modules
-.vscode
-pnpm-lock.yaml
-package-lock.json
-.pnpm-debug.log
-.npm-debug.log
-config/.env.staging.local
-config/.env.prt.local
-config/.env.online.local
-./node_modules
-xt-app-*/
-xtapp/
-release_*/
-index.xt-app-*/
-.idea
-./.vscode
-languageOutput
-./languageOutput
-/.yalc/
-/.run/
-/yalc.lock
-locales
-*.tgz
-*.apk
-
-*.zip
-iOS_Out_debug_simulator/
-iOS_Out_release_simulator/
-iOS_Out_debug/
-iOS_Out_release/
-*.app
-
 harmony/entry/src/main/resources/rawfile/*.bundle
 harmony/entry/src/main/resources/rawfile/assets/
 harmony/entry/src/main/resources/rawfile/packages/
 *.hap
-
-yalc.lock
+.baseline
+iOS_Out_*/
+android/app/src/main/res/raw/*.svg
+android/app/src/main/res/drawable-*
+android/app/src/main/assets/*.bundle
+android/app/src/main/assets/xrn-manifest.json
 
 # Yarn
 .yarn/*
@@ -48,42 +16,3 @@ yalc.lock
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
-
-
-# 鸿蒙
-
-harmony/entry/src/main/resources/rawfile/*.bundle
-harmony/entry/src/main/resources/rawfile/assets/
-harmony/entry/src/main/resources/rawfile/packages/
-*.hap
-
-
-**/fastlane/report.xml
-**/fastlane/Preview.html
-**/fastlane/screenshots
-**/fastlane/test_output
-
-# Bundle artifact
-*.jsbundle
-
-# Ruby / CocoaPods
-/ios/Pods/
-/vendor/bundle/
-
-# Temporary files created by Metro to check the health of the file watcher
-.metro-health-check*
-
-# testing
-/coverage
-
-.hvigor/
-
-bundle.harmony.js
-
-oh_modules/
-harmony/*/.preview
-harmony/*/build
-harmony/*/.cxx
-harmony/*/.test
-
-*.zip

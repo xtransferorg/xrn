@@ -1,7 +1,7 @@
 import { AbilityStage } from "@kit.AbilityKit";
 import {
   APP_RNOH_RNOHCoreContext,
-  BundleInfo, BundleInfoManager, initRNContainerOptions, RNInstanceManager } from "xrn-multi-bundle";
+  BundleInfo, BundleInfoManager, initRNContainerOptions, RNInstanceManager } from "@xrnjs/multi-bundle";
 import { getRNContainerOptions, getRNInstanceOptions } from "./BundleHelper";
 import {
   AnyJSBundleProvider,

@@ -1,26 +1,19 @@
+ENV['RCT_NEW_ARCH_ENABLED'] = '1'
+ENV['USE_FABRIC'] = '1'
+
 require_relative '../node_modules/react-native/scripts/react_native_pods'
-require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
 require_relative '../node_modules/react-native-permissions/scripts/setup'
 
 # Resolve react_native_pods.rb with node to allow for hoisting
 require Pod::Executable.execute_command('node', ['-p',
-	'require.resolve(
-	"react-native/scripts/react_native_pods.rb",
-	{paths: [process.argv[1]]},
-	)', __dir__]).strip
+  'require.resolve(
+    "react-native/scripts/react_native_pods.rb",
+    {paths: [process.argv[1]]},
+  )', __dir__]).strip
 
-platform :ios, '13'
+platform :ios, '15.1'
 prepare_react_native_project!
 
-# If you are using a `react-native-flipper` your iOS build will fail when `NO_FLIPPER=1` is set.
-# because `react-native-flipper` depends on (FlipperKit,...) that will be excluded
-#
-# To fix this you can also exclude `react-native-flipper` using a `react-native.config.js`
-# ```js
-# module.exports = {
-#   dependencies: {
-#     ...(process.env.NO_FLIPPER ? { 'react-native-flipper': { platforms: { ios: null } } } : {}),
-# ```
 linkage = ENV['USE_FRAMEWORKS']
 if linkage != nil
 	Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
@@ -35,52 +28,9 @@ target 'XRNTemplate' do
 
 	use_react_native!(
 		:path => config[:reactNativePath],
-		# Hermes is now enabled by default. Disable by setting this flag to false.
-		# Upcoming versions of React Native may rely on get_default_flags(), but
-		# we make it explicit here to aid in the React Native upgrade process.
-		:hermes_enabled => false,
-		:fabric_enabled => flags[:fabric_enabled],
-		# Enables Flipper.
-		#
-		# Note that if you have use_frameworks! enabled, Flipper will not work and
-		# you should disable the next line.
-		:flipper_configuration => FlipperConfiguration.enabled(["Debug"], { 'Flipper' => '0.182.0' }),
-		# An absolute path to your application root.
+		:hermes_enabled => true,
 		:app_path => "#{Pod::Config.instance.installation_root}/.."
 	)
-	
-	# Pods for react-native
-	pod 'FBLazyVector', :path => "../node_modules/react-native/Libraries/FBLazyVector"
-#  pod 'FBReactNativeSpec', :path => "../node_modules/react-native/Libraries/FBReactNativeSpec"
-	pod 'RCTRequired', :path => "../node_modules/react-native/Libraries/RCTRequired"
-	pod 'RCTTypeSafety', :path => "../node_modules/react-native/Libraries/TypeSafety"
-	pod 'React', :path => '../node_modules/react-native/'
-	pod 'React-Core', :path => '../node_modules/react-native/'
-	pod 'React-CoreModules', :path => '../node_modules/react-native/React/CoreModules'
-	pod 'React-Core/DevSupport', :path => '../node_modules/react-native/'
-	pod 'React-RCTActionSheet', :path => '../node_modules/react-native/Libraries/ActionSheetIOS'
-	pod 'React-RCTAnimation', :path => '../node_modules/react-native/Libraries/NativeAnimation'
-#  pod 'React-RCTBlob', :patoh => '../node_modules/react-native/Libraries/Blob'
-	pod 'React-RCTImage', :path => '../node_modules/react-native/Libraries/Image'
-	pod 'React-RCTLinking', :path => '../node_modules/react-native/Libraries/LinkingIOS'
-	pod 'React-RCTNetwork', :path => '../node_modules/react-native/Libraries/Network'
-	pod 'React-RCTSettings', :path => '../node_modules/react-native/Libraries/Settings'
-	pod 'React-RCTText', :path => '../node_modules/react-native/Libraries/Text'
-	pod 'React-RCTVibration', :path => '../node_modules/react-native/Libraries/Vibration'
-	pod 'React-Core/RCTWebSocket', :path => '../node_modules/react-native/'
-
-	pod 'React-cxxreact', :path => '../node_modules/react-native/ReactCommon/cxxreact'
-	pod 'React-jsi', :path => '../node_modules/react-native/ReactCommon/jsi'
-	#   pod 'React-jsiexecutor', :path => '../node_modules/react-native/ReactCommon/jsiexecutor'
-	pod 'React-callinvoker', :path => "../node_modules/react-native/ReactCommon/callinvoker"
-	#   pod 'React-jsinspector', :path => '../node_modules/react-native/ReactCommon'
-	#   pod 'ReactCommon/jscallinvoker', :path => "../node_modules/react-native/ReactCommon"
-	pod 'ReactCommon/turbomodule/core', :path => "../node_modules/react-native/ReactCommon"
-	
-	pod 'Yoga', :path => '../node_modules/react-native/ReactCommon/yoga'
-	pod 'DoubleConversion', :podspec => '../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec'
-	pod 'glog', :podspec => '../node_modules/react-native/third-party-podspecs/glog.podspec'
-	pod 'RCT-Folly', :podspec => '../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec'
 
 	# 三方包
 	pod 'SDWebImage', '5.20.0', :modular_headers => true
@@ -89,23 +39,186 @@ target 'XRNTemplate' do
 	pod 'SDWebImageSVGCoder', '1.7.0', :modular_headers => true
 	pod 'libavif/libdav1d', '0.11.1', :modular_headers => true
 	pod 'MBProgressHUD', '1.2.0', :modular_headers => true
-	
+
 	pod 'RNCAsyncStorage', :path => '../node_modules/@react-native-async-storage/async-storage', :modular_headers => true
 	pod 'RNDeviceInfo', :path => '../node_modules/react-native-device-info', :modular_headers => true
-	pod 'RNFS', :path => '../node_modules/react-native-fs'
-	pod 'react-native-config', :path => '../node_modules/react-native-config'
-	
+
 	pod 'SnapKit', '5.7.1'
 	pod 'JRSwizzle'
 	pod 'YYCache', '1.0.4'
 	pod 'swiftScan', '1.2.1', :configurations => ['Debug']
-	
+  pod 'JWT', '3.0.0-beta.12', :modular_headers => true
+	pod 'Base64', '1.1.2', :modular_headers => true
+
 	# 二方包
-	pod 'CodePush', :path => '../node_modules/@xrnjs/react-native-code-push'
-	pod 'react-native-xrn-app-utils', :path => '../node_modules/@xrnjs/app-utils'
 	pod 'react-native-xrn-multi-bundle', :path => '../node_modules/@xrnjs/multi-bundle', :modular_headers => true
+	pod 'react-native-xrn-bundle', :path => '../node_modules/@xrnjs/bundle', :modular_headers => true
 	pod 'react-native-xrn-navigation', :path => '../node_modules/@xrnjs/navigation', :modular_headers => true
-	
+	pod 'CodePush', :path => '../node_modules/@xrnjs/react-native-code-push',:modular_headers => true
+
+
+  post_install do |installer|
+    # https://github.com/facebook/react-native/blob/main/packages/react-native/scripts/react_native_pods.rb#L197-L202
+    react_native_post_install(
+      installer,
+      config[:reactNativePath],
+      :mac_catalyst_enabled => false,
+      # :ccache_enabled => true
+    )
+#    __apply_Xcode_12_5_M1_post_install_workaround(installer)
+
+    # 修复 RCTAppSetupUtils.h 中 USE_HERMES 宏未定义导致走到 JSCExecutorFactory 分支的问题
+    rct_setup_path = "../node_modules/react-native/Libraries/AppDelegate/RCTAppSetupUtils.h"
+    if File.exist?(rct_setup_path)
+      content = File.read(rct_setup_path)
+      unless content.include?('#define USE_HERMES')
+        modified = content.sub('#if USE_HERMES', "#define USE_HERMES 1\n\n#if USE_HERMES")
+        if content != modified
+          File.write(rct_setup_path, modified)
+          puts "[PATCH-RCTAppSetupUtils] >>>添加 #define USE_HERMES 1"
+        end
+      else
+        puts "[PATCH-RCTAppSetupUtils] >>>已添加过"
+      end
+    end
+
+    ## Fix for XCode 12.5
+    find_and_replace(
+      "../node_modules/react-native/React/CxxBridge/RCTCxxBridge.mm",
+      "_initializeModules:(NSArray<id<RCTBridgeModule>> *)modules",
+      "_initializeModules:(NSArray<Class> *)modules")
+
+    find_and_replace(
+      "../node_modules/react-native/ReactCommon/turbomodule/core/platform/ios/RCTTurboModuleManager.mm",
+      "RCTBridgeModuleNameForClass(module))",
+      "RCTBridgeModuleNameForClass(Class(module)))")
+
+    # Fix Sentry 8.x 在 Xcode 26 libc++ 下 std::allocator<const T> 编译失败
+    # (vector<const ThreadHandleMetadataPair> -> vector<ThreadHandleMetadataPair>)
+    find_and_replace(
+      "Pods/Sentry/Sources/Sentry/include/SentryThreadMetadataCache.hpp",
+      "std::vector<const ThreadHandleMetadataPair>",
+      "std::vector<ThreadHandleMetadataPair>")
+
+    ## 解决Hermes bitcode 问题
+    bitcode_strip_path = `xcrun --find bitcode_strip`.chop!
+     def strip_bitcode_from_framework(bitcode_strip_path, framework_relative_path)
+       framework_path = File.join(Dir.pwd, framework_relative_path)
+       command = "#{bitcode_strip_path} #{framework_path} -r -o #{framework_path}"
+       puts "Stripping bitcode: #{command}"
+       system(command)
+     end
+
+     framework_paths = [
+       "Pods/hermes-engine/destroot/Library/Frameworks/macosx/hermes.framework/hermes",
+       "Pods/hermes-engine/destroot/Library/Frameworks/macosx/hermes.framework/Versions/Current/hermes",
+       "Pods/hermes-engine/destroot/Library/Frameworks/universal/hermes.xcframework/ios-arm64/hermes.framework/hermes",
+       "Pods/hermes-engine/destroot/Library/Frameworks/universal/hermes.xcframework/ios-arm64_x86_64-maccatalyst/hermes.framework/hermes"
+     ]
+
+     framework_paths.each do |framework_relative_path|
+       strip_bitcode_from_framework(bitcode_strip_path, framework_relative_path)
+     end
+
+    # 兼容Xcode16.2 Flipper报错
+    installer.pods_project.targets.each do |target|
+      if target.name == 'Flipper'
+        file_path = 'Pods/Flipper/xplat/Flipper/FlipperTransportTypes.h'
+        if File.exist?(file_path)
+          contents = File.read(file_path)
+          unless contents.include?('#include <functional>')
+            File.chmod(0755, file_path)
+            File.open(file_path, 'w') do |file|
+              file.puts('#include <functional>')
+              file.puts(contents)
+            end
+          end
+        end
+      end
+    end
+
+    # 适配xcode15报错`No template named 'unary_function' in namespace 'std'; did you mean '__unary_function'?`
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)', '_LIBCPP_ENABLE_CXX17_REMOVED_UNARY_BINARY_FUNCTION']
+      end
+    end
+
+    # 解决 glog 在 iOS 15+ 上编译报错（config.h 未生成 GOOGLE_NAMESPACE 等）
+    installer.pods_project.targets.each do |target|
+      if target.name == 'glog'
+        config_path = "Pods/glog/src/config.h"
+        patch_file_path = File.join(__dir__, "ios_patches", "fixed_glog_config.h")
+        if File.exist?(patch_file_path)
+          fixed_config = File.read(patch_file_path)
+          File.open(config_path, "w") { |f| f.puts fixed_config }
+          puts "[PATCH-glog] >>>成功"
+        else
+          puts "[PATCH-glog] >>>跳过：ios_patches目录不存在"
+        end
+      end
+    end
+
+    # 解决 Xcode 26 编译 fmt 报错：Apple Clang consteval 与 fmt 11.0.2 不兼容
+    installer.pods_project.targets.each do |target|
+      if target.name == 'fmt'
+        target.build_configurations.each do |config|
+          config.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++17'
+        end
+      end
+    end
+
+    fmt_base = File.join(__dir__, 'Pods/fmt/include/fmt/base.h')
+    if File.exist?(fmt_base)
+      contents = File.read(fmt_base)
+      old = "#elif defined(__apple_build_version__) && __apple_build_version__ < 14000029L\n#  define FMT_USE_CONSTEVAL 0  // consteval is broken in Apple clang < 14."
+      new = "#elif defined(__apple_build_version__)\n#  define FMT_USE_CONSTEVAL 0  // consteval is broken in Apple clang (incl. Xcode 26)."
+      if contents.include?(old)
+        File.chmod(0644, fmt_base)
+        File.write(fmt_base, contents.sub(old, new))
+        puts "[PATCH-fmt] >>>成功：关闭 Apple Clang consteval"
+      else
+        puts "[PATCH-fmt] >>>跳过：已修复或源码不匹配"
+      end
+    end
+
+    installer.pods_project.targets.each do |target|
+      if target.respond_to?(:product_type) and target.product_type == "com.apple.product-type.bundle"
+        target.build_configurations.each do |config|
+            config.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'
+        end
+      end
+    end
+
+    # 键盘适配：用自定义版 IQKeyboardManagerSwift（支持 viewSoftInputMode / clearViewPositionInfo）
+    installer.pods_project.targets.each do |target|
+      if target.name == 'IQKeyboardManagerSwift'
+        config_path1 = "Pods/IQKeyboardManagerSwift/IQKeyboardManagerSwift/IQKeyboardManager.swift"
+        patch_file_path1 = File.join(__dir__, "ios_patches", "xt_IQKeyboardManager.swift")
+        if File.exist?(patch_file_path1)
+          fixed_config1 = File.read(patch_file_path1)
+          File.chmod(0755, config_path1)
+          File.open(config_path1, "w") { |f| f.puts fixed_config1 }
+          puts "[PATCH-IQKeyboardManagerSwift] >>>成功"
+        else
+          puts "[PATCH-IQKeyboardManagerSwift] >>>跳过：ios_patches目录不存在"
+        end
+
+        config_path2 = "Pods/IQKeyboardManagerSwift/IQKeyboardManagerSwift/IQKeyboardManager+Position.swift"
+        patch_file_path2 = File.join(__dir__, "ios_patches", "xt_IQKeyboardManager+Position.swift")
+        if File.exist?(patch_file_path2)
+          fixed_config2 = File.read(patch_file_path2)
+          File.chmod(0755, config_path2)
+          File.open(config_path2, "w") { |f| f.puts fixed_config2 }
+          puts "[PATCH-IQKeyboardManager+Position] >>>成功"
+        else
+          puts "[PATCH-IQKeyboardManager+Position] >>>跳过：ios_patches目录不存在"
+        end
+      end
+    end
+
+  end
+
 	setup_permissions([
 	 'AppTrackingTransparency',
 	# 'Bluetooth',
@@ -133,89 +246,59 @@ target 'XRNTemplate' do
 		inherit! :complete
 		# Pods for testing
 	end
+end
 
-	post_install do |installer|
-		react_native_post_install(
-			installer,
-			config[:reactNativePath],
-			:mac_catalyst_enabled => false
-		)
-		__apply_Xcode_12_5_M1_post_install_workaround(installer)
-	
-		# 兼容Xcode16.2 Flipper报错
-		installer.pods_project.targets.each do |target|
-			if target.name == 'Flipper'
-				file_path = 'Pods/Flipper/xplat/Flipper/FlipperTransportTypes.h'
-				contents = File.read(file_path)
-				unless contents.include?('#include <functional>')
-					File.chmod(0755, file_path)
-					File.open(file_path, 'w') do |file|
-						file.puts('#include <functional>')
-						file.puts(contents)
-					end
-				end
-			end
-		end
-		
-		# 兼容Xcode16.2 Sentry报错（https://github.com/getsentry/sentry-cocoa/pull/4051）
-		installer.pods_project.targets.each do |target|
-			if target.name == 'Sentry'
-				file_path = 'Pods/Sentry/Sources/SentryCrash/Recording/Monitors/SentryCrashMonitor_CPPException.cpp'
-				contents = File.read(file_path)
-				unless contents.include?('#include <exception>')
-					File.chmod(0755, file_path)
-					File.open(file_path, 'w') do |file|
-						file.puts('#include <exception>')
-						file.puts(contents)
-					end
-				end
-			end
-		end
-		
-		# 兼容Xcode16.2 Sentry报错 (https://github.com/getsentry/sentry-dart/issues/2222)
-		installer.pods_project.targets.each do |target|
-			if target.name == 'Sentry'
-				file_path = 'Pods/Sentry/Sources/SentryCrash/Recording/Tools/SentryCrashMachineContext.c'
-				if File.exist?(file_path)
-					contents = File.read(file_path)
+# Keep the app's own `XRNTemplate/PrivacyInfo.xcprivacy`.
+# Must run in post_integrate: post_install filters the lists, then CocoaPods
+# "Integrating client project" regenerates the xcfilelists and the conflict returns.
+def patch_xrngo_privacy_info_copy_conflict
+  privacy_src = "IQKeyboardManagerSwift/IQKeyboardManagerSwift/PrivacyInfo.xcprivacy"
+  privacy_dst = "${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/PrivacyInfo.xcprivacy"
 
-					# 检查是否已经插入过
-					unless contents.include?('#include <sys/_types/_ucontext64.h>')
-						# 查找 "#ifdef __arm64__" 并插入下一行
-						lines = contents.lines
-						index = lines.find_index { |line| line.include?('#ifdef __arm64__') }
+  support_files = [
+    "Pods/Target Support Files/Pods-XRNTemplate/Pods-XRNTemplate-resources.sh",
+    "Pods/Target Support Files/Pods-XRNTemplate/Pods-XRNTemplate-resources-Debug-input-files.xcfilelist",
+    "Pods/Target Support Files/Pods-XRNTemplate/Pods-XRNTemplate-resources-Release-input-files.xcfilelist",
+    "Pods/Target Support Files/Pods-XRNTemplate/Pods-XRNTemplate-resources-Debug-output-files.xcfilelist",
+    "Pods/Target Support Files/Pods-XRNTemplate/Pods-XRNTemplate-resources-Release-output-files.xcfilelist",
+    "Pods/Target Support Files/Pods-XRNTemplate-XRNTemplateTests/Pods-XRNTemplate-XRNTemplateTests-resources.sh",
+    "Pods/Target Support Files/Pods-XRNTemplate-XRNTemplateTests/Pods-XRNTemplate-XRNTemplateTests-resources-Debug-input-files.xcfilelist",
+    "Pods/Target Support Files/Pods-XRNTemplate-XRNTemplateTests/Pods-XRNTemplate-XRNTemplateTests-resources-Release-input-files.xcfilelist",
+    "Pods/Target Support Files/Pods-XRNTemplate-XRNTemplateTests/Pods-XRNTemplate-XRNTemplateTests-resources-Debug-output-files.xcfilelist",
+    "Pods/Target Support Files/Pods-XRNTemplate-XRNTemplateTests/Pods-XRNTemplate-XRNTemplateTests-resources-Release-output-files.xcfilelist",
+  ]
 
-						if index
-							lines.insert(index + 1, "#include <sys/_types/_ucontext64.h>\n")
-							File.write(file_path, lines.join)
-							puts "[PATCH] >>>成功"
-						else
-							puts "[PATCH] >>>失败：'#ifdef __arm64__' 不存在"
-						end
-					else
-						puts "[PATCH] >>>失败：已存在patch"
-					end
-				else
-					puts "[PATCH] >>>失败：SentryCrashMachineContext文件不存在"
-				end
-			end
-		end
-		
-		# 适配xcode15报错`No template named 'unary_function' in namespace 'std'; did you mean '__unary_function'?`
-		installer.pods_project.targets.each do |target|
-			target.build_configurations.each do |config|
-				config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)', '_LIBCPP_ENABLE_CXX17_REMOVED_UNARY_BINARY_FUNCTION']
-			end
-		end
+  support_files.each do |relative_path|
+    file_path = File.join(__dir__, relative_path)
+    next unless File.exist?(file_path)
 
-		installer.pods_project.targets.each do |target|
-		if target.respond_to?(:product_type) and target.product_type == "com.apple.product-type.bundle"
-			target.build_configurations.each do |config|
-					config.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'
-				end
-			end
-		end
-		
-		
-	end
+    contents = File.read(file_path)
+    filtered = contents.lines.reject do |line|
+      line.include?(privacy_src) || line.include?(privacy_dst)
+    end.join
+
+    if filtered != contents
+      File.write(file_path, filtered)
+      puts "[PATCH-PrivacyInfo] filtered: #{relative_path}"
+    end
+  end
+end
+
+post_integrate do |_installer|
+  patch_xrngo_privacy_info_copy_conflict
+end
+
+
+##fix for xcode 12.5
+def find_and_replace(dir, findstr, replacestr)
+  Dir[dir].each do |name|
+      text = File.read(name)
+      replace = text.gsub(findstr,replacestr)
+      if text != replace
+          puts "Fix: " + name
+          File.open(name, "w") { |file| file.puts replace }
+          STDOUT.flush
+      end
+  end
+  Dir[dir + '*/'].each(&method(:find_and_replace))
 end

@@ -32,7 +32,7 @@ import { RTNPdfView, PDF_VIEW_TYPE } from '@react-native-oh-tpl/react-native-pdf
 import { WebView, WEB_VIEW } from "@react-native-oh-tpl/react-native-webview"
 import { RNCVideo, RNC_VIDEO_TYPE } from "@react-native-oh-tpl/react-native-video"
 import { VisionCameraView } from "@react-native-oh-tpl/react-native-vision-camera";
-import { XRNNativeStoragePackage } from 'xrn-native-storage'
+import { XRNNativeStoragePackage } from '@xrnjs/native-storage'
 
 
 import {
@@ -41,13 +41,13 @@ import {
   RNPackageContext,
   WrappedCustomRNComponentBuilder } from "@rnoh/react-native-openharmony/src/main/ets/RNOH";
 import { RNInstance, RNInstanceOptions } from "@rnoh/react-native-openharmony/src/main/ets/RNOH/RNInstance";
-import { BundleInfo, RNContainerOptions, XRNMultiBundlePackage } from "xrn-multi-bundle";
-import { XRNLoadingPackage } from "xrn-loading";
+import { BundleInfo, RNContainerOptions, XRNMultiBundlePackage } from "@xrnjs/multi-bundle";
+import { XRNLoadingPackage } from "@xrnjs/loading";
 import { SmartRefreshPackage } from "@react-native-oh-tpl/react-native-smartrefreshlayout";
-import { XRNBundlePackage } from "xrn-bundle";
-import { XRNNavigationPackage } from "xrn-navigation";
-import { XRNAppUtilsPackage, XRNFilePackage, XRNToastPackage } from "xrn-app-utils";
-import  { XRNDebugToolsPackage } from  'xrn-debug-tools';
+import { XRNBundlePackage } from "@xrnjs/bundle";
+import { XRNNavigationPackage } from "@xrnjs/navigation";
+import { XRNAppUtilsPackage, XRNFilePackage, XRNToastPackage } from "@xrnjs/app-utils";
+import  { XRNDebugToolsPackage } from  '@xrnjs/debug-tools';
 
 export function getRNContainerOptions(): RNContainerOptions {
 	return {

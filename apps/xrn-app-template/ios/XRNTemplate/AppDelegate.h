@@ -1,8 +1,8 @@
-#import <React/RCTBridgeDelegate.h>
+#import <RCTAppDelegate.h>
 #import <UIKit/UIKit.h>
 
-@interface AppDelegate : UIResponder <UIApplicationDelegate>
+@interface AppDelegate : RCTAppDelegate
 
 @property (nonatomic, copy) NSDictionary *launchOpptions;
-@property (nonatomic, strong) UIWindow *window;
+
 @end

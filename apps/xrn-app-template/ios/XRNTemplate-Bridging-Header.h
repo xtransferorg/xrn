@@ -16,6 +16,7 @@
 
 #import "RNCConfig.h"
 #import "XTJSBundleTool.h"
+#import <Sentry/Sentry.h>
 #import "BundleNavigation.h"
 #import "XTNativeRouterManager.h"
 #import "XTMainBundleViewController.h"
@@ -23,7 +24,7 @@
 #import "XTPluginManage.h"
 #import <RNDeviceInfo/DeviceUID.h>
 #import "XRNToastView.h"
-#import "RCTBridge+XTExtension.h"
 #import "XTMultiBundleManager.h"
+#import <react-native-xrn-multi-bundle/XTJSRuntimeContext.h>
 
 #endif /* XRNTemplate_Bridging_Header__h */
