@@ -29,7 +29,7 @@ export async function buildBundle(options) {
       temp: tempBase,
       version: appVersion,
       platform: platform,
-      project: "XTransfer",
+      project: "xrn",
       buildType: dev ? BuildType.DEBUG : BuildType.RELEASE,
       buildEnv: BuildEnv.dev,
     });

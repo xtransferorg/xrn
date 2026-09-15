@@ -46,7 +46,7 @@ function finishBundle(): void {
  * @param params - 启动参数。
  * @throws {Error} 如果未提供 bundleName。
  *
- * @deprecated 请使用 `navigation.navigate()`。参考文档修改代码：https://alidocs.dingtalk.com/i/nodes/r1R7q3QmWe7OEgkziOy0qY7aJxkXOEP2
+ * @deprecated 请使用 `navigation.navigate()`。
  */
 function navigateBundle(
   bundleName: string,
@@ -77,7 +77,7 @@ function navigateBundle(
  * @param params - 启动参数。
  * @throws {Error} 如果未提供 bundleName。
  *
- * @deprecated 请使用 `navigation.replace()`。参考文档修改代码：https://alidocs.dingtalk.com/i/nodes/r1R7q3QmWe7OEgkziOy0qY7aJxkXOEP2
+ * @deprecated 请使用 `navigation.replace()`。
  */
 function replaceBundle(
   bundleName: string,

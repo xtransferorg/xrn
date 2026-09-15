@@ -48,9 +48,8 @@ export interface PageProps {
   onBack?: (navigation: StackNavigationProp) => boolean;
   /** 是否需要沉浸式导航栏，true：表示Page内的视图会顶到屏幕最顶端，paddingTop的值会被置为0 */
   translucent?: boolean,
-  /** @deprecated 之后不再需要设置此属性，统一使用onBack来处理返回拦截逻辑
-   * https://alidocs.dingtalk.com/i/nodes/G1DKw2zgV2R0OlqmcRK99o1RVB5r9YAn
-   * Page页面是否支持侧滑返回，默认值为true 
+  /** @deprecated 请使用 onBack 处理返回拦截逻辑。
+   * Page 页面是否支持侧滑返回，默认值为 true。
    */
   gestureEnabled?: boolean,
 }

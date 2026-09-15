@@ -37,7 +37,7 @@ const AppLinking: React.FC = (props: any) => {
 
   const _copyUrl = useCallback(() => {
     Clipboard.setString(
-      "xtransfer://xtransfer/v1/xt-app-fund/Exchange/FxRate?where=widget_trend_medium&baseCurrency=USD&targetCurrency=CNY&type=DAY"
+      "xrn://xrn/v1/main/Example/Screen?param=value"
     );
     nativeToast("复制成功！");
     sensorsFundClick({
@@ -47,11 +47,11 @@ const AppLinking: React.FC = (props: any) => {
   }, []);
 
   const _linkingUrl = () => {
-    if (value.includes("xtransfer://xtransfer/v1")) {
+    if (value.includes("xrn://xrn/v1")) {
       _saveUrlToStorage(value);
 
       const { query } = URLParse(value, true);
-      const [bundleName, moduleName, pageName] = parseXTransferURL(value) ?? [];
+      const [bundleName, moduleName, pageName] = parseXRNURL(value) ?? [];
       navigateBundle(bundleName, moduleName, {
         initialRouteName: pageName,
         initialRouteParams: query,
@@ -65,8 +65,8 @@ const AppLinking: React.FC = (props: any) => {
     }
   };
 
-  const parseXTransferURL = useCallback((url: string) => {
-    const regex = /xtransfer:\/\/xtransfer\/v1\/([^\/]+)\/([^\/]+)\/([^\/?]+)/;
+  const parseXRNURL = useCallback((url: string) => {
+    const regex = /xrn:\/\/xrn\/v1\/([^\/]+)\/([^\/]+)\/([^\/?]+)/;
     const match = url.match(regex);
     if (match) {
       return [match[1], match[2], match[3]];
@@ -75,7 +75,7 @@ const AppLinking: React.FC = (props: any) => {
   }, []);
 
   const _formatBrowsingHistoryObj = useCallback((url: string) => {
-    const parseObj = parseXTransferURL(url);
+    const parseObj = parseXRNURL(url);
     if (parseObj) {
       const [bundleName, moduleName, pageName] = parseObj;
       const newHistory: BrowsingHistory = {
@@ -146,12 +146,12 @@ const AppLinking: React.FC = (props: any) => {
               </Text>
               <Text style={styles.urlRule}>scheme url拼接规则：</Text>
               <Text style={styles.urlStr}>
-                xtransfer://xtransfer/v1/bundleName/moduleName/pageName?params
+                xrn://xrn/v1/bundleName/moduleName/pageName?params
               </Text>
               <Text style={styles.exampleUrl}>url示例 (点击可复制)：</Text>
               <TouchableOpacity onPress={() => _copyUrl()}>
                 <Text style={styles.urlStr}>
-                  xtransfer://xtransfer/v1/xt-app-fund/Exchange/FxRate?where=widget_trend_medium&baseCurrency=USD&targetCurrency=CNY&type=DAY
+                  xrn://xrn/v1/main/Example/Screen?param=value
                 </Text>
               </TouchableOpacity>
               <TextInput

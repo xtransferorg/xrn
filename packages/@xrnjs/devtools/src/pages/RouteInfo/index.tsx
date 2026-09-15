@@ -106,9 +106,9 @@ const RouteInfo: React.FC = () => {
     const queryString = new URLSearchParams(
       params as Record<string, string>,
     ).toString();
-    let schemeUrl = `xtransfer://xtransfer/v1/${bundleName}/${moduleName}/${pageName}`;
+    let schemeUrl = `xrn://xrn/v1/${bundleName}/${moduleName}/${pageName}`;
     if (queryString) {
-      schemeUrl = `xtransfer://xtransfer/v1/${bundleName}/${moduleName}/${pageName}?${queryString}`;
+      schemeUrl = `xrn://xrn/v1/${bundleName}/${moduleName}/${pageName}?${queryString}`;
     }
     return schemeUrl;
   }, []);

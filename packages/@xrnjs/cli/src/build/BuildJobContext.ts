@@ -158,7 +158,7 @@ export class BuildJobContext {
     env: BuildEnv,
     options: BuildCommandOptions
   ): void {
-    this.project = project || "XTransfer";
+    this.project = project || "xrn";
     this.platform = platform;
     this.buildEnv = env;
     this.syncTargetEnv = (options.syncTargetEnv as BuildEnv) || undefined;

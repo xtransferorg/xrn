@@ -2,6 +2,10 @@ harmony/entry/src/main/resources/rawfile/*.bundle
 harmony/entry/src/main/resources/rawfile/assets/
 harmony/entry/src/main/resources/rawfile/packages/
 *.hap
+.xcode.env.local
+harmony/*.cer
+harmony/*.p12
+harmony/*.p7b
 .baseline
 iOS_Out_*/
 android/app/src/main/res/raw/*.svg

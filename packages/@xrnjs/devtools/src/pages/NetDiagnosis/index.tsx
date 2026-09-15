@@ -47,7 +47,7 @@ const defaultNetDiagnosisInfo: NetDiagnosisInfo = {
     },
   },
   DNS: {
-    host: "www.xtransfer.cn",
+    host: "example.com",
     ip: "未知",
   },
 };
@@ -84,8 +84,8 @@ const NetworkDiagnosis: React.FC = (props: any) => {
       "www.aliyun.com"
     )) as PingItem) || { host: "www.aliyun.com", time: "0" };
     const ndsResult = ((await XRNDebugTools?.dnsStart?.(
-      "www.xtransfer.cn"
-    )) as DNSItem) || { host: "www.xtransfer.cn", ip: "未知" };
+      "example.com"
+    )) as DNSItem) || { host: "example.com", ip: "未知" };
 
     setIsDiagnosing(false);
     const result: NetDiagnosisInfo = {

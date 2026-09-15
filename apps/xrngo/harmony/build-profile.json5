@@ -1,24 +1,8 @@
 {
   app: {
-    signingConfigs: [
-      {
-        "name": "xrngo",
-        "type": "HarmonyOS",
-        "material": {
-          "storePassword": "000000197A67A9F6AED2AD612989494CC1611A4258B05738E470F2DC79EFA2B69EB3CC2803BC5A103A",
-          "certpath": "./xrngo.cer",
-          "keyAlias": "xrngo",
-          "keyPassword": "00000019A7A4A2BCF9899297CB47CBC8BCB2E097FF3BAFE035CF588C756B23405207ADC87E8B8E9AD1",
-          "profile": "./xrngoDebug.p7b",
-          "signAlg": "SHA256withECDSA",
-          "storeFile": "./xrngo.p12"
-        }
-      }
-    ],
     products: [
       {
         name: 'default',
-        signingConfig: 'xrngo',
         compatibleSdkVersion: '5.0.1(13)',
         runtimeOS: 'HarmonyOS',
         buildOption: {
@@ -30,7 +14,6 @@
       },
       {
         name: 'dev',
-        signingConfig: 'xrngo',
         compatibleSdkVersion: '5.0.1(13)',
         runtimeOS: 'HarmonyOS',
         buildOption: {
@@ -42,7 +25,6 @@
       },
       {
         name: 'prod',
-        signingConfig: 'xrngo',
         compatibleSdkVersion: '5.0.1(13)',
         runtimeOS: 'HarmonyOS',
         buildOption: {

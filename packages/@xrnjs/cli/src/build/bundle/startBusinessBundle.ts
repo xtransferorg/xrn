@@ -95,7 +95,7 @@ function makeBusinessConfigFactory({
         version,
         platform,
         buildEnv: BuildEnv.dev,
-        project: project || "XTransfer",
+        project: project || "xrn",
       };
 
       let metaJson: MetaConfig = { modules: {}, id: 0, hash: "", useOldApp: true };

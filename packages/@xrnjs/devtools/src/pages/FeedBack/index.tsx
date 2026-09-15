@@ -7,7 +7,6 @@ import {
   TextInput,
 } from "react-native";
 import { Page } from "../../components/Page";
-import { useNavRightButton } from "../../hooks/navigation";
 import styles from "./style";
 import StarRating from "react-native-star-rating-widget";
 import { nativeToast } from "../../utils/toast";
@@ -16,7 +15,6 @@ import {
   sensorsFundPageView,
 } from "../../utils/sensorsTrack";
 import { ROUTES } from "../..";
-import openURLInBrowser from 'react-native/Libraries/Core/Devtools/openURLInBrowser';
 
 const reasons = [
   "设计风格不美观",
@@ -106,25 +104,8 @@ const FeedBack: React.FC = (props: any) => {
     navigation?.goBack();
   };
 
-  const _doc = () => {
-    const docUrl =
-      "https://alidocs.dingtalk.com/i/nodes/mExel2BLV542xqERsXXRdB04Wgk9rpMq?iframeQuery=utm_source%3Dportal%26utm_medium%3Dportal_recent&rnd=0.8873220246798134";
-    openURLInBrowser(docUrl);
-  };
-
-  const renderRightButton = () => {
-    return (
-      __DEV__ ? 
-      <TouchableOpacity style={styles.rightBtnBox} onPress={() => _doc()}>
-        <Text style={styles.rightBtnText}>反馈文档</Text>
-      </TouchableOpacity> : <View></View>
-    );
-  };
-
-  const rightButton = useNavRightButton(renderRightButton);
-
   return (
-    <Page title="功能反馈" rightButton={rightButton}>
+    <Page title="功能反馈">
       <ScrollView style={styles.container}>
         <View style={styles.rateBox}>
           <Text style={styles.rateTitle}>

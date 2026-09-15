@@ -46,8 +46,8 @@ export enum Platform {
 export enum BuildEnv {
   dev = "dev", // 没用
   staging = "staging", // 没用
-  prod = "prod", // 环境 hotupdate.xtransfer.com
-  preProd = "pre-prod", // 环境 pre-cp.xtransfer.cn
+  prod = "prod",
+  preProd = "pre-prod",
 }
 
 export enum BuildType {

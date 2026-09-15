@@ -1,4 +1,4 @@
-import { View, Image, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { XRNLoading } from '@xrnjs/loading'
 import { XRNBundle } from '@xrnjs/bundle'
 import { useEffect } from 'react';
@@ -83,14 +83,6 @@ export default () => {
 	}
   return (
 		<View style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1, backgroundColor: '#fff' }}>
-			{/* <ErrorBlock status="notFound" fullPage image="https://static.xtransfer.com/boss/static/system_error_80ee06bfc837bc5e.png" title="网络加载异常，请重试" /> */}
-			<Image
-				source={{
-					uri: 'https://static.xtransfer.com/boss/static/system_error_80ee06bfc837bc5e.png',
-					width: 134,
-					height: 134,
-				}}
-			/>
 			<Text style={{ fontSize: 16, color: '#181721', marginTop: 16 }}>
 				{languageSource[getDefaultSettingLanguage()].title}
 			</Text>
@@ -116,4 +108,3 @@ export default () => {
 		</View>
 	)
 }
-

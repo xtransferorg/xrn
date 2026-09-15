@@ -219,8 +219,12 @@
 }
 
 - (void)preloadBundleList:(BundleListBlock)completion {
-	
-	NSString *url = [NSString stringWithFormat:@"%@apps/getBundleList", [self getCodepushServerUrl]];
+	NSString *serverURL = [self getCodepushServerUrl];
+	if (serverURL.length == 0) {
+		completion(@(-1), @{}, [NSError errorWithDomain:@"XRNCodePush" code:-1 userInfo:@{NSLocalizedDescriptionKey: @"CodePushServerURL is not configured"}]);
+		return;
+	}
+	NSString *url = [NSString stringWithFormat:@"%@apps/getBundleList", serverURL];
 	
 	NSDictionary *params = @{@"platform": @"ios",
 													 @"env": [self getEnvName],
@@ -308,11 +312,15 @@
 	CPLog(@"clientUniqueId：%@", clientUniqueId);
 	CPLog(@"items：%@", items);
     
-    if (items.count == 0) {
-        return;
-    }
-	
-	NSString *url = [NSString stringWithFormat:@"%@batchUpdateCheck", [self getCodepushServerUrl]];
+	if (items.count == 0) {
+		return;
+	}
+	NSString *serverURL = [self getCodepushServerUrl];
+	if (serverURL.length == 0) {
+		completion(@(-1), nil, [NSError errorWithDomain:@"XRNCodePush" code:-1 userInfo:@{NSLocalizedDescriptionKey: @"CodePushServerURL is not configured"}]);
+		return;
+	}
+	NSString *url = [NSString stringWithFormat:@"%@batchUpdateCheck", serverURL];
 	CPLog(@"url：%@", url);
 	
 	NSDictionary *params = @{@"appVersion": appVersion,
@@ -488,8 +496,12 @@
 }
 
 - (void)navigateFetchBundleInfo:(NSString *)bundleName completion:(nonnull BundleInfoBlock)completion {
-	
-	NSString *url = [NSString stringWithFormat:@"%@apps/getBundleInfo", [self getCodepushServerUrl]];
+	NSString *serverURL = [self getCodepushServerUrl];
+	if (serverURL.length == 0) {
+		completion(NO, @(-1), @{}, [NSError errorWithDomain:@"XRNCodePush" code:-1 userInfo:@{NSLocalizedDescriptionKey: @"CodePushServerURL is not configured"}]);
+		return;
+	}
+	NSString *url = [NSString stringWithFormat:@"%@apps/getBundleInfo", serverURL];
 	
 	NSDictionary *params = @{@"platform": @"ios",
 													 @"env": [self getEnvName],
@@ -589,7 +601,10 @@
 
 - (NSString *)getCodepushServerUrl {
 	NSDictionary *infoDictionary = [[NSBundle mainBundle] infoDictionary];
-	NSString *serverURL = [infoDictionary objectForKey:@"CodePushServerURL"] ?: @"https://hotupdate.xtransfer.com/";
+	NSString *serverURL = [infoDictionary objectForKey:@"CodePushServerURL"];
+	if (serverURL.length == 0 || [serverURL isEqualToString:@"undefined"]) {
+		return nil;
+	}
 	
 	if ([serverURL hasSuffix:@"/"]) {
 		return serverURL;

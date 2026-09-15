@@ -682,7 +682,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = cn.xtransfer.www.xtappapp;
+				PRODUCT_BUNDLE_IDENTIFIER = org.xrn.xrngo;
 				PRODUCT_NAME = xrngo;
 				REACT_NATIVE_PATH = "${PODS_ROOT}/node_modules/react-native";
 				SWIFT_OBJC_BRIDGING_HEADER = "xrngo-Bridging-Header.h";

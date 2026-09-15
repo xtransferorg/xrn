@@ -156,7 +156,7 @@ program
 
 program
   .command('codepush')
-  .argument('<app>', 'XDeal or XTransfer')
+  .argument('<app>', '应用名称')
   .argument('<platform>', '打包平台')
   .argument('<appVersion>', 'APP版本号')
   .argument('<env>', '设置打包环境 sitxt1-sitxt82 staging prod')
@@ -285,7 +285,7 @@ startCommand.options.map((option) => {
 
 start
 .description('app 启动工具')
-.option('--project [project]', '设置XTransfer还是其它APP')
+.option('--project [project]', '设置项目名称')
 .option(
   '--local [local]',
   '是否本地启动，用于本地打包debug时使用（一般原生同学在修改依赖后需要使用，调试完成后给业务需要打debug包，不能把本地的debug包给业务）',
@@ -297,8 +297,8 @@ start
 .option('--verbose [verbose]', '调试模式', false)
 .option('-d --device-type [deviceType]', '设置设备类型')
 .option('--branch [branch]', '从哪个分支拉取app包', '')
-.option('--project [project]', '设置XTransfer还是其它APP', 'XTransfer')
-.option('--package-name [packageName]', 'app 包名', 'com.xtapp.xtransfer.debug')
+.option('--project [project]', '设置项目名称', 'xrn')
+.option('--package-name [packageName]', 'app 包名', 'com.xrn.app.debug')
 .option('--nativeRoot [nativeRoot]', '原生工程目录，支持相对当前目录的路径', '.')
 .option('--native-root [nativeRoot]', '原生工程目录（--nativeRoot 的 kebab-case 别名）')
 .option('--app-version [version]', '设置app版本号，设置为select时开启命令行交互选择版本号', 'latest')

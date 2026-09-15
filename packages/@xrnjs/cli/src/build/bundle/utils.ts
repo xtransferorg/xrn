@@ -301,7 +301,7 @@ const getBaseJson: {
 export async function getMetaJson({
   version,
   platform,
-  project = "XTransfer",
+  project = "xrn",
   buildType = BuildType.DEBUG,
   buildEnv,
   temp = "",
@@ -326,7 +326,7 @@ export async function getMetaJson({
 export async function getDependenciesJson({
   version,
   platform,
-  project = "XTransfer",
+  project = "xrn",
   buildType = BuildType.DEBUG,
   buildEnv,
   temp = "",
