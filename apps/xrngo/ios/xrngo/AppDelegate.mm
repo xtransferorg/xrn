@@ -1,15 +1,15 @@
 #import "AppDelegate.h"
 
 #import <React/RCTBridge.h>
-#import <React/RCTBundleURLProvider.h>
-#import <React/RCTRootView.h>
-#import <React/RCTDevSettings.h>
+#import <React/RCTUtils.h>
+#import <ReactAppDependencyProvider/RCTAppDependencyProvider.h>
+#import <React/RCTComponentViewFactory.h>
+#import <React/RCTColorSpaceUtils.h>
+#import <react/featureflags/ReactNativeFeatureFlags.h>
+#import <react/featureflags/ReactNativeFeatureFlagsDefaults.h>
 
 #import "xrngo-Swift.h"
-#import "XTMultiBundleManager.h"
 #import "XTPluginManage.h"
-#import <CodePush/CodePush.h>
-#import "XTBundleViewController.h"
 #import "XTJSBundleTool.h"
 #import "XTMainBundleViewController.h"
 #import "XTNavigationViewController.h"
@@ -18,26 +18,18 @@
 #import "XTBundleProvider.h"
 #import "XTBundleViewControllerFactory.h"
 
-#if RCT_NEW_ARCH_ENABLED
-#import <React/CoreModulesPlugins.h>
-#import <React/RCTCxxBridgeDelegate.h>
-#import <React/RCTFabricSurfaceHostingProxyRootView.h>
-#import <React/RCTSurfacePresenter.h>
-#import <React/RCTSurfacePresenterBridgeAdapter.h>
-#import <ReactCommon/RCTTurboModuleManager.h>
+namespace {
 
-#import <react/config/ReactNativeConfig.h>
+class XTBridgelessFeatureFlags : public facebook::react::ReactNativeFeatureFlagsDefaults {
+ public:
+  bool enableBridgelessArchitecture() override { return true; }
+  bool enableFabricRenderer() override { return true; }
+  bool useTurboModules() override { return true; }
+  bool useNativeViewConfigsInBridgelessMode() override { return true; }
+  bool enableFixForViewCommandRace() override { return true; }
+};
 
-static NSString *const kRNConcurrentRoot = @"concurrentRoot";
-
-@interface AppDelegate () <RCTCxxBridgeDelegate, RCTTurboModuleManagerDelegate> {
-    RCTTurboModuleManager *_turboModuleManager;
-    RCTSurfacePresenterBridgeAdapter *_bridgeAdapter;
-    std::shared_ptr<const facebook::react::ReactNativeConfig> _reactNativeConfig;
-    facebook::react::ContextContainer::Shared _contextContainer;
-}
-@end
-#endif
+} // namespace
 
 @interface AppDelegate ()<XTMultiBundleDataSource>
 
@@ -48,40 +40,37 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    //  RCTAppSetupPrepareApp(application);
-    
+    self.automaticallyLoadReactNativeWindow = NO;
+    RCTEnableTurboModule(YES);
+    RCTSetNewArchEnabled(YES);
+    // Host 路径未走 RCTAppDelegate._setUpFeatureFlags，须手动开启 ViewConfig interop，
+    // 否则 BridgelessUIManager.getViewManagerConfig 不可用（gesture-handler / navigation 等报错）。
+    facebook::react::ReactNativeFeatureFlags::override(std::make_unique<XTBridgelessFeatureFlags>());
+    self.initialProps = @{};
+    self.dependencyProvider = [RCTAppDependencyProvider new];
+    [RCTColorSpaceUtils applyDefaultColorSpace:self.defaultColorSpace];
+    [RCTComponentViewFactory currentComponentViewFactory].thirdPartyFabricComponentsProvider = (id)self;
+
     self.launchOpptions = launchOptions;
-    
+
     [XTMultiBundleManager shared].dataSource = self;
     [[XTMultiBundleManager shared] startUp];
-    
+
     [self loadMainVC];
-    
+
     [[XTPluginManage shareInstance] addSuspendBallToWindow];
     return YES;
 }
 
--(void)loadMainVC {
-    
-    RCTBridge *mainBridge = [XTMultiBundleManager.shared.pool fetchJSBridgeWithJSBundleName:[[XTJSBundleTool shared] getMainBundleName]];
-    RCTDevSettings *decSetting = [mainBridge moduleForClass:[RCTDevSettings class]];
-    decSetting.isShakeToShowDevMenuEnabled = NO;
-    
+- (void)loadMainVC {
+    XTJSRuntimeContext *mainContext = [XTMultiBundleManager.shared.pool fetchContextWithJSBundleName:[[XTJSBundleTool shared] getMainBundleName]];
     NSString *mainModuleName = [XTMultiBundleManager.shared.pool fetchDefaultModuleNameWithJSBundleName:[[XTJSBundleTool shared] getMainBundleName]];
-    
-#if RCT_NEW_ARCH_ENABLED
-    _contextContainer = std::make_shared<facebook::react::ContextContainer const>();
-    _reactNativeConfig = std::make_shared<facebook::react::EmptyReactNativeConfig const>();
-    _contextContainer->insert("ReactNativeConfig", _reactNativeConfig);
-    _bridgeAdapter = [[RCTSurfacePresenterBridgeAdapter alloc] initWithBridge:bridge contextContainer:_contextContainer];
-    bridge.surfacePresenter = _bridgeAdapter.surfacePresenter;
-#endif
-    
+
     XTBundleViewControllerFactory *bundleVCfactory = [[XTBundleViewControllerFactory alloc] init];
     [XTNativeRouterManager shared].bundleVCFactory = bundleVCfactory;
-    XTMainBundleViewController *rootViewController = [[XTMainBundleViewController alloc] initWithBridge:mainBridge moduleName:mainModuleName initialProperties:self.launchOption];
+    XTMainBundleViewController *rootViewController = [[XTMainBundleViewController alloc] initWithRuntimeContext:mainContext moduleName:mainModuleName initialProperties:self.launchOption];
     rootViewController.view.backgroundColor = [UIColor whiteColor];
-    
+
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     XTNavigationViewController *nav = [[XTNavigationViewController alloc] initWithRootViewController:rootViewController];
     self.window.rootViewController = nav;
@@ -89,80 +78,29 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
 }
 
 - (NSArray <XTBundleData *>*_Nonnull)multiBundleForBundleModelArray {
-    
+
     NSMutableArray <XTBundleData *>*bundleDataArray = [NSMutableArray arrayWithCapacity:10];
-    
+
     NSString *mainDeploymentKey = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CodePushDeploymentKey"];
     NSString *mainBundleName = [XTJSBundleTool.shared getMainBundleName];
     NSString *mainModuleName = mainBundleName;
-    
+
     XTBundleProvider *mainBundleProvider = [[XTBundleProvider alloc] init];
     XTBundleData *mainBundleData = [[XTBundleData alloc] initWithJSBundleName:mainBundleName moduleName:mainModuleName codePushKey:mainDeploymentKey portNum:[XTJSBundleTool.shared getMainBundlePort] isMain:YES provider:mainBundleProvider];
     [bundleDataArray addObject:mainBundleData];
-    
+
     NSArray *xtBundlesArray = [XTJSBundleTool.shared getAllSubBundles];
     for (NSDictionary *obj in xtBundlesArray) {
         XTBundleProvider *bundleProvider = [[XTBundleProvider alloc] init];
         XTBundleData *bundleData = [[XTBundleData alloc] initWithJSBundleName:obj[@"jsBundleName"] moduleName:obj[@"jsBundleName"] codePushKey:obj[@"codePushKey"] portNum:obj[@"port"] isMain:NO provider:bundleProvider];
         [bundleDataArray addObject:bundleData];
     }
-    
+
     return bundleDataArray;
 }
 
 - (NSDictionary *_Nullable)multiBundleForLaunchOptions {
     return self.launchOption;
 }
-
-/// This method controls whether the `concurrentRoot`feature of React18 is turned on or off.
-///
-/// @see: https://reactjs.org/blog/2022/03/29/react-v18.html
-/// @note: This requires to be rendering on Fabric (i.e. on the New Architecture).
-/// @return: `true` if the `concurrentRoot` feture is enabled. Otherwise, it returns `false`.
-- (BOOL)concurrentRootEnabled
-{
-    // Switch this bool to turn on and off the concurrent root
-    return true;
-}
-
-#if RCT_NEW_ARCH_ENABLED
-
-#pragma mark - RCTCxxBridgeDelegate
-
-- (std::unique_ptr<facebook::react::JSExecutorFactory>)jsExecutorFactoryForBridge:(RCTBridge *)bridge
-{
-    _turboModuleManager = [[RCTTurboModuleManager alloc] initWithBridge:bridge
-                                                               delegate:self
-                                                              jsInvoker:bridge.jsCallInvoker];
-    return RCTAppSetupDefaultJsExecutorFactory(bridge, _turboModuleManager);
-}
-
-#pragma mark RCTTurboModuleManagerDelegate
-
-- (Class)getModuleClassFromName:(const char *)name
-{
-    return RCTCoreModulesClassProvider(name);
-}
-
-- (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:(const std::string &)name
-jsInvoker:(std::shared_ptr<facebook::react::CallInvoker>)jsInvoker
-{
-    return nullptr;
-}
-
-- (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:(const std::string &)name
-initParams:
-(const facebook::react::ObjCTurboModule::InitParams &)params
-{
-    return nullptr;
-}
-
-- (id<RCTTurboModule>)getModuleInstanceFromClass:(Class)moduleClass
-{
-    return RCTAppSetupDefaultModuleFromClass(moduleClass);
-}
-
-#endif
-
 
 @end

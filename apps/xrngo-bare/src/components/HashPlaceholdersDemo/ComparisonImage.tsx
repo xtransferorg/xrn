@@ -1,4 +1,4 @@
-import { Image, ImageSource } from 'xrn-image';
+import { Image, ImageSource } from '@xrnjs/image';
 import * as React from 'react';
 import { ImageBackground, StyleSheet, View } from 'react-native';
 

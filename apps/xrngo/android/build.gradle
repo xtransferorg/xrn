@@ -2,47 +2,41 @@
 
 buildscript {
     ext {
-        buildToolsVersion = "34.0.0"
-        minSdkVersion = 21
-        compileSdkVersion = 34
-        targetSdkVersion = 34
+        buildToolsVersion = "35.0.0"
+        minSdkVersion = 24
+        compileSdkVersion = 35
+        targetSdkVersion = 35
         supportLibVersion = "29.0.0"
 
-        kotlin_version = '1.8.20'
-
-        // We use NDK 23 which has both M1 support and is the side-by-side NDK version from AGP.
-        ndkVersion = "23.1.7779620"
         androidXCore = "1.0.2"
-        glideVersion = "4.16.0"
+        glideVersion = "5.0.5"
         excludeAppGlideModule = true
+
         // gradle,AGP,kotlin 版本必须按照以下文档配置
         // https://kotlinlang.org/docs/gradle-configure-project.html#apply-the-plugin
-        AGPVersion = '7.4.2'
-        kotlin_version = '1.8.20'
+        AGPVersion = '8.7.2'
+        kotlin_version = '2.0.21'
         // 有些第三方库读取的这个配置，比如：async-storage
-        kotlinVersion = '1.8.20'
+        kotlinVersion = "2.0.21"
         // 协程和 kotlin 版本必须按照以下文档配置
         // https://github.com/Kotlin/kotlinx.coroutines/tree/1.7.3
-        kotlin_coroutines_version = '1.7.3'
+        kotlin_coroutines_version = '1.9.0'
 
-        // REACT_NATIVE_NODE_MODULES_DIR = "../node_modules/react-native"
+        ndkVersion = "27.1.12297006"
     }
     repositories {
         // google
         maven { url 'https://maven.aliyun.com/repository/google' }
         // central & jcenter
         maven { url 'https://maven.aliyun.com/repository/public' }
+        google()
         mavenCentral()
-        mavenLocal()
         maven { url 'https://developer.huawei.com/repo/' }
     }
     dependencies {
         classpath("com.android.tools.build:gradle:$AGPVersion")
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath("com.facebook.react:react-native-gradle-plugin")
-        classpath("de.undercouch:gradle-download-task:5.0.1")
-        classpath 'com.huawei.agconnect:agcp:1.6.0.300'
-        classpath "org.jetbrains.kotlin:kotlin-serialization:1.8.0"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 
@@ -57,30 +51,33 @@ allprojects {
         maven { url 'https://maven.aliyun.com/repository/public' }
         mavenCentral()
         mavenLocal()
-        maven {
-            // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
-            url("$rootDir/../node_modules/react-native/android")
-        }
-        maven {
-            // Android JSC is installed from npm
-            url("$rootDir/../node_modules/jsc-android/dist")
-        }
-
-        // central & jcenter
-        maven {
-            url 'https://maven.aliyun.com/repository/public'
-            content {
-                excludeGroup "com.facebook.react"
-            }
-        }
-
-        mavenCentral {
-            // We don't want to fetch react-native from Maven Central as there are
-            // older versions over there.
-            content {
-                excludeGroup "com.facebook.react"
-            }
-        }
         maven { url 'https://developer.huawei.com/repo/' }
+    }
+}
+
+apply plugin: "com.facebook.react.rootproject"
+
+// 去除 ReactModalHostView / ReactModalHostManager 的 final 修饰符
+// 使 XTModalHostView / XTModalHostViewManager 可以继承
+// Part 1 (编译期): 仅对需要继承目标类的模块 apply
+// Part 2 (打包期): 对 app 模块 apply，通过 InstrumentationScope.ALL 确保 APK 中类也是 non-final
+project(':xrnjs_keyboard') {
+    apply plugin: com.xtapp.RemoveFinalPlugin
+}
+
+// App 声明了 flavorDimensions "env"、"channel"，但多数第三方 / 二方库的 android
+// 模块没有声明这两个维度，变体匹配会因 "No matching variant" 失败。
+// 给所有非 app 子项目补上 missingDimensionStrategy，让它们回退到 dev/china 默认变体。
+// 用 withId 监听 com.android.library 插件应用时机，确保在 android 扩展就绪后再配置。
+subprojects { subproject ->
+    if (subproject.name != 'app') {
+        subproject.plugins.withId('com.android.library') {
+            subproject.android {
+                defaultConfig {
+                    missingDimensionStrategy 'env', 'dev'
+                    missingDimensionStrategy 'channel', 'china'
+                }
+            }
+        }
     }
 }

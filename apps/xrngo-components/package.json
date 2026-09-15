@@ -1,0 +1,60 @@
+{
+  "name": "xrngo-components",
+  "version": "0.0.1",
+  "scripts": {
+    "start": "xrn start --project xrngo --nativeRoot ../xrngo",
+    "bundle:ios": "xrn build-bundle ios",
+    "bundle:android": "xrn build-bundle android",
+    "bundle:harmony": "xrn build-bundle harmony",
+    "postinstall": "xrn postinstall bundle"
+  },
+  "devDependencies": {
+    "@hookform/resolvers": "2.8.10",
+    "@types/highlight-words-core": "^1.2.2",
+    "@types/lodash": "^4.14.186",
+    "@types/react": "18.2.0",
+    "@types/react-native": "0.72.5",
+    "@types/react-test-renderer": "^18.0.0",
+    "@xrnjs/cli": "0.1.0",
+    "@xrnjs/core": "0.1.0",
+    "@xrnjs/ui": "0.1.0",
+    "ahooks": "^3.7.7",
+    "axios": "1.6.3",
+    "big.js": "^6.2.1",
+    "constate": "^3.3.2",
+    "cross-env": "^7.0.3",
+    "eslint": "^8.19.0",
+    "fbjs": "^3.0.4",
+    "highlight-words-core": "^1.2.2",
+    "immer": "^9.0.6",
+    "intl-pluralrules": "^2.0.1",
+    "jest": "^29.3.1",
+    "lodash": "^4.17.21",
+    "metro-react-native-babel-preset": "0.76.8",
+    "mime": "^4.0.7",
+    "numeral": "2.0.6",
+    "patch-package": "^8.0.0",
+    "postinstall-postinstall": "^2.1.0",
+    "prettier": "^2.4.1",
+    "rc-field-form": "^1.27.3",
+    "react": "18.2.0",
+    "react-hook-form": "^7.87.0",
+    "react-native-image-zoom-viewer": "^3.0.1",
+    "react-query": "^3.39.3",
+    "reactotron-redux": "^3.1.3",
+    "recyclerlistview": "4.0.0",
+    "typescript": "^4.8.4",
+    "use-immer": "^0.9.0",
+    "webpack-chain": "^6.5.1",
+    "xdate": "^0.8.2",
+    "yup": "^1.3.2"
+  },
+  "jest": {
+    "preset": "react-native"
+  },
+  "resolutions": {
+    "react-native": "0.77.1",
+    "react-native-view-shot": "4.0.3",
+    "react-native-popover-view": "6.1.0"
+  }
+}

@@ -1,29 +1,7 @@
 [
-  {
-    "name": "XrnBundle",
-    "title": "Bundle 管理",
-    "showName": "Bundle 管理",
-    "group": "资源管理",
-    "description": "提供 Bundle 资源加载和版本管理功能",
-    "packageName": "@xrnjs/bundle",
-    "sdkPath": "resource-management/xrn-bundle"
-  },
-  {
-    "name": "XrnNavigation",
-    "title": "导航",
-    "showName": "导航",
-    "group": "路由与导航",
-    "description": "提供应用内导航管理，支持多种路由方式",
-    "packageName": "@xrnjs/navigation",
-    "sdkPath": "routing-navigation/xrn-navigation"
-  },
-  {
-    "name": "XrnAppUpdate",
-    "title": "更新",
-    "showName": "更新",
-    "group": "资源管理",
-    "description": "提供应用内更新管理，支持多种更新方式",
-    "packageName": "@xrnjs/app-update",
-    "sdkPath": "resource-management/xrn-app-update"
-  }
+  {"name":"XrnBundle","title":"Bundle 管理","showName":"Bundle 管理","group":"资源管理","description":"提供 Bundle 资源加载和版本管理功能","packageName":"xrn-bundle","sdkPath":"resource-management/xrn-bundle"},
+  {"name":"XrnAppUtils","title":"应用工具集","showName":"应用工具集","group":"工具函数","description":"提供常用的应用级工具函数，提升开发效率","packageName":"xrn-app-utils","sdkPath":"tools/xrn-app-utils"},
+  {"name":"XrnLoading","title":"加载动画","showName":"加载动画","group":"界面组件","description":"提供标准化的加载动画，提升用户体验","packageName":"xrn-loading","sdkPath":"interface-ui/xrn-loading"},
+  {"name":"XrnNativeStorage","title":"本地存储","showName":"本地存储","group":"数据存储","description":"提供本地数据存储方案，支持持久化存储","packageName":"xrn-native-storage","sdkPath":"storage/xrn-native-storage"},
+  {"name":"XrnNavigation","title":"导航","showName":"导航","group":"路由与导航","description":"提供应用内导航管理，支持多种路由方式","packageName":"xrn-navigation","sdkPath":"routing-navigation/xrn-navigation"}
 ]

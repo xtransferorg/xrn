@@ -1,9 +1,3 @@
-const path = require('path');
-
-module.exports = {
-  // dependencies: {
-  //   'xrn-test': {
-  //     root: path.join(__dirname, '../../packages/xrn-test'),
-  //   },
-  // },
-};
+/** @format */
+const config = require("@xrnjs/core/app-config/react-native.config.js");
+module.exports = config;

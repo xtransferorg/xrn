@@ -65,14 +65,15 @@ function CodePushUpdate() {
   );
 }
 
-let codePushOptions = {checkFrequency: CodePush.CheckFrequency.MANUAL};
+// let codePushOptions = {checkFrequency: CodePush.CheckFrequency.MANUAL};
 
-const ICodePush = CodePush(codePushOptions)(CodePushUpdate);
+// const ICodePush = CodePush(codePushOptions)(CodePushUpdate);
 
 export default function XrnLoadingScreen() {
   return (
     <Page>
-      <ICodePush />
+      <CodePushUpdate />
+      {/* <ICodePush /> */}
     </Page>
   );
 }

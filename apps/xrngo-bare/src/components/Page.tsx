@@ -26,10 +26,12 @@ const Page = ({
       return true;
     };
 
-    BackHandler.addEventListener('hardwareBackPress', handleBackPress);
+    const backHandlerSubscription = BackHandler.addEventListener(
+      'hardwareBackPress',
+      handleBackPress,
+    );
 
-    return () =>
-      BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
+    return () => backHandlerSubscription.remove();
   }, [navigation]);
 
   useEffect(() => {

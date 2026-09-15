@@ -3,7 +3,6 @@ import { NavPath, replaceToMain } from "xrn-navigation"
 @Component
 export struct Splash {
   @Consume('navigation') navigation: NavPathStack
-
   aboutToAppear(): void {
     // 特殊场景处理
     if (this.navigation.getAllPathName().indexOf(NavPath.Main) >= 0) {
@@ -35,4 +34,3 @@ export struct Splash {
     .hideToolBar(true)
   }
 }
-

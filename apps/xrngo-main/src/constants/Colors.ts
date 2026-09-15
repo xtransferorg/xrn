@@ -8,7 +8,7 @@ export default {
   secondaryText: '#666666',
   disabled: '#bbbbbb',
   border: '#cccccc',
-  highlightColor: '#1E6fff',
+  highlightColor: '#FF8533',
   tabIconDefault: '#595959',
   tabIconSelected: tintColor,
   tabBar: '#ffffff',

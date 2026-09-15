@@ -1,7 +1,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="com.xrngo">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <queries><provider android:authorities="com.facebook.katana.provider.PlatformProvider" /></queries>
+
+    <!--TradeLink 引入的两个 aar 最低版本是29，这里忽略-->
+    <uses-sdk tools:overrideLibrary="bg.bozho.emrtdreader, com.kernal.facedetection" />
 
     <application
       android:name=".MainApplication"
@@ -9,10 +14,12 @@
       android:icon="@mipmap/ic_launcher"
       android:roundIcon="@mipmap/ic_launcher_round"
       android:allowBackup="false"
-      android:theme="@style/AppTheme">
+      android:theme="@style/AppTheme"
+        android:supportsRtl="true">
 
       <activity
         android:name=".MainActivity"
+        android:label="@string/app_name"
         android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
         android:launchMode="singleTask"
         android:windowSoftInputMode="adjustResize"
@@ -22,23 +29,15 @@
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
       </activity>
-
         <activity
             android:name=".navigation.XGoMainActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
-            android:windowSoftInputMode="adjustResize"
-            android:exported="false"/>
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".navigation.XGoBundleActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
-            android:windowSoftInputMode="adjustResize"
-            android:exported="false"/>
-
-        <activity
-            android:name=".demo.MultiBundleActivity"
-            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
-            android:windowSoftInputMode="adjustResize"
-            android:exported="false"/>
+            android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".demo.MultiBundleActivity"/>
 
     </application>
 </manifest>

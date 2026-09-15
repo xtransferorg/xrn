@@ -8,7 +8,15 @@
 		<key>jsBundleName</key>
 		<string>xrngo-bare</string>
 		<key>codePushKey</key>
-		<string>N3yq1OnHur9bkP7sCkuK9mvYxKz04ksvOXqog</string>
+		<string></string>
+	</dict>
+	<dict>
+		<key>port</key>
+		<string>18083</string>
+		<key>jsBundleName</key>
+		<string>xrngo-components</string>
+		<key>codePushKey</key>
+		<string></string>
 	</dict>
 	<dict>
 		<key>port</key>
@@ -16,7 +24,7 @@
 		<key>jsBundleName</key>
 		<string>xrngo-multi-bundle-1</string>
 		<key>codePushKey</key>
-		<string>ikX5wWo1XxqhGPBjwrmfXKaOlc4y4ksvOXqog</string>
+		<string></string>
 	</dict>
 	<dict>
 		<key>port</key>
@@ -24,7 +32,7 @@
 		<key>jsBundleName</key>
 		<string>xrngo-multi-bundle-2</string>
 		<key>codePushKey</key>
-		<string>cosfNMnE3ZmG7UK6YS84n6nvfpRe4ksvOXqog</string>
+		<string></string>
 	</dict>
 	<dict>
 		<key>port</key>
@@ -32,15 +40,7 @@
 		<key>jsBundleName</key>
 		<string>xrngo-multi-bundle-3</string>
 		<key>codePushKey</key>
-		<string>E1JFzgUFUGZnugAjc4MrBhaPEVHM4ksvOXqog</string>
+		<string></string>
 	</dict>
-  <dict>
-    <key>port</key>
-    <string>8101</string>
-    <key>jsBundleName</key>
-    <string>xt-package-xrn</string>
-    <key>codePushKey</key>
-    <string>E1JFzgUFUGZnugAjc4MrBhaPEVHM4ksvOXqog</string>
-  </dict>
 </array>
 </plist>

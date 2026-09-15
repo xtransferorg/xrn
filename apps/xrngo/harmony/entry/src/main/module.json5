@@ -63,6 +63,11 @@
         "name": "ohos.permission.ACCESS_BIOMETRIC",
         "reason": "$string:biometric_reason",
       },
+//      {
+//        "name": "ohos.permission.READ_PASTEBOARD",
+//        "reason": "$string:clipboard_reason",
+//        "usedScene": {"abilities": ["EntryAbility"], "when": "inuse"}
+//      }
     ],
   },
 }

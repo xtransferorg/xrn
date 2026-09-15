@@ -5,70 +5,32 @@
   "main": "index.ts",
   "scripts": {
     "codegen": "react-native codegen-harmony --cpp-output-path ./harmony/entry/src/main/cpp/generated --rnoh-module-path ./harmony/entry/oh_modules/@rnoh/react-native-openharmony",
-    "build:harmony": "xrn build xrngo harmony '' sitxt1 --type debug --bundleBranch github/main --sec false --appFormat hap",
-    "publish:harmony": "xrn app-publish xrngo harmony '' sitxt1 --type debug --channel AppGallery --bundleBranch github/main --sec false --appFormat hap --notOnlyApplyVersion '' --updateType Force --isBackwardCompatible false --changeLog xrngo --dsym false --shouldFirstCodePush false",
-    "build:android": "xrn build xrngo android --type debug --appFormat apk --bundleBranch github/main",
-    "build:android:release": "xrn build xrngo android --type release --appFormat apk --bundleBranch github/main",
-    "build:ios": "xrn build xrngo ios --type debug --appFormat ipa --bundleBranch github/main",
-    "postinstall": "node ./scripts/postinstall.js && patch-package && xrn-native-postinstall"
+    "bundle:common": "xrn build-common-bundle ios",
+    "build:harmony": "xrn build xrngo harmony --type debug --appFormat hap",
+    "build:android": "xrn build xrngo android --type debug --appFormat apk",
+    "build:android:release": "xrn build xrngo android --type release --appFormat apk",
+    "build:ios": "xrn build xrngo ios --type debug --appFormat ipa",
+    "build:ios:sim": "xrn build xrngo ios --type debug --appFormat app",
+    "postinstall": "npx xrn postinstall android ios harmony"
   },
   "installConfig": {
     "hoistingLimits": "workspaces"
   },
   "dependencies": {
-    "@bam.tech/react-native-image-resizer": "3.0.9",
-    "@react-native-async-storage/async-storage": "1.21.0",
-    "@react-native-camera-roll/camera-roll": "7.8.3",
-    "@react-native-clipboard/clipboard": "1.13.2",
-    "@react-native-community/netinfo": "11.3.2",
-    "@react-native-community/push-notification-ios": "1.11.0",
-    "@react-native-cookies/cookies": "6.2.1",
-    "@react-native-oh/react-native-harmony": "0.72.38",
-    "@react-native-picker/picker": "2.6.1",
-    "@sdcx/pull-to-refresh": "0.21.0",
-    "@sentry/react-native": "4.15.2",
-    "@xrnjs/core": "0.0.5",
-    "lottie-react-native": "6.4.1",
-    "react": "18.2.0",
-    "react-native": "0.72.5",
-    "react-native-blob-util": "0.19.11",
-    "react-native-config": "1.5.3",
-    "react-native-device-info": "11.1.0",
-    "react-native-document-picker": "9.2.0",
-    "react-native-fast-image": "8.6.3",
-    "react-native-fs": "2.20.0",
-    "react-native-gesture-handler": "2.14.1",
-    "react-native-get-random-values": "1.11.0",
-    "react-native-image-picker": "7.0.3",
-    "react-native-keyboard-manager": "6.5.16-0",
-    "react-native-keychain": "8.1.2",
-    "react-native-linear-gradient": "3.0.0-alpha.1",
-    "react-native-localize": "3.1.0",
-    "react-native-modpow": "1.1.1-0",
-    "react-native-orientation-locker": "1.7.0",
-    "react-native-pdf": "6.7.4",
-    "react-native-permissions": "4.1.2",
-    "react-native-reanimated": "3.6.0",
-    "react-native-safe-area-context": "4.7.4",
-    "react-native-screens": "3.33.0",
-    "react-native-svg": "15.0.0",
-    "react-native-touch-id": "4.4.1",
-    "react-native-video": "6.0.0-alpha.9",
-    "react-native-vision-camera": "4.0.1",
-    "react-native-webview": "13.10.2"
+    "@xrnjs/cli": "0.1.0",
+    "@xrnjs/core": "0.1.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.12.9",
-    "@babel/runtime": "^7.12.5",
-    "@react-native-community/eslint-config": "^2.0.0",
-    "@react-native/metro-config": "^0.72.9",
-    "@types/lodash": "^4.17.12",
-    "@types/react": "18.0.25",
-    "@types/react-native": "0.72.8",
-    "@xrnjs/cli": "0.0.6",
-    "eslint": "^7.32.0",
-    "metro-react-native-babel-preset": "0.72.4",
-    "patch-package": "^8.0.0"
+    "@react-native-oh/react-native-harmony-cli": "0.77.33-1",
+    "@react-native/metro-config": "0.77.1"
+  },
+  "resolutions": {
+    "react-native": "0.77.1",
+    "react-native-view-shot": "4.0.3",
+    "@xrnjs/bundle": "0.1.0",
+    "@xrnjs/debug-tools": "0.1.0",
+    "@xrnjs/image": "0.1.0",
+    "@xrnjs/navigation": "0.1.0"
   },
   "harmony": {
     "codegenConfig": {
@@ -77,8 +39,15 @@
       ]
     }
   },
-  "resolutions": {
-    "react-native-reanimated": "3.6.0",
-    "@react-native-community/cli": "9.3.3"
+  "codegenConfig": {
+    "name": "XrnAppSpec",
+    "type": "all",
+    "jsSrcsDir": "./src",
+    "android": {
+      "javaPackageName": "com.xrn"
+    },
+    "ios": {
+      "componentProvider": {}
+    }
   }
 }

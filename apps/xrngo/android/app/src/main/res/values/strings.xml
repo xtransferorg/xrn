@@ -1,3 +1,7 @@
 <resources>
-    <string name="app_name">XRNGo</string>
+    <string name="app_name">xrngo</string>
+
+    <!-- facebook 分享-->
+    <string name="facebook_app_id">1023244862344164</string>
+    <string name="facebook_client_token">92551570164faa87583fb4386eda91eb</string>
 </resources>

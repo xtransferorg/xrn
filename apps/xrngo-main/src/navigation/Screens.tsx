@@ -14,8 +14,8 @@ export const Screens: ScreenConfig[] = [
     showName: 'Bundle 管理',
     description: '提供 Bundle 资源加载和版本管理功能',
     group: '资源管理',
-    packageName: 'xrn-bundle',
-    sdkPath: 'resource-management/xrn-bundle',
+    packageName: '@xrnjs/bundle',
+    sdkPath: 'resource-management/@xrnjs/bundle',
   },
   {
     getComponent() {
@@ -28,7 +28,7 @@ export const Screens: ScreenConfig[] = [
     showName: '导航',
     description: '提供应用内导航管理，支持多种路由方式',
     group: '路由与导航',
-    packageName: 'xrn-navigation',
-    sdkPath: 'routing-navigation/xrn-navigation',
+    packageName: '@xrnjs/navigation',
+    sdkPath: 'routing-navigation/@xrnjs/navigation',
   },
 ];

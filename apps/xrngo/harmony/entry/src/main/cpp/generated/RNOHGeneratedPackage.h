@@ -12,37 +12,21 @@
 #include "RNOH/Package.h"
 #include "RNOH/ArkTSTurboModule.h"
 #include "generated/XRNGODemoModule.h"
-#include "generated/RNCCameraRoll.h"
-#include "generated/RNCCameraRollPermission.h"
-#include "generated/ReactNativeBlobUtil.h"
-#include "generated/ConfigNativeModule.h"
-#include "generated/RNDeviceInfo.h"
-#include "generated/RNDocumentPicker.h"
-#include "generated/RNGestureHandlerModule.h"
-#include "generated/GetRandomValuesNativeModule.h"
-#include "generated/ImageResizer.h"
-#include "generated/RNLocalize.h"
-#include "generated/OreitationLockerNativeModule.h"
-#include "generated/NativeHarmonyTouchId.h"
-#include "generated/RNCWebViewModule.h"
-#include "generated/XRNFileModule.h"
+#include "generated/RTNCodePush.h"
 #include "generated/XRNAppUtilsModule.h"
 #include "generated/XRNToastModule.h"
-#include "generated/XRNAssetLoaderModule.h"
 #include "generated/XRNBundleModule.h"
 #include "generated/XRNDebugToolsModule.h"
+#include "generated/XRNImageView.h"
+#include "generated/XRNKeyboard.h"
 #include "generated/XRNLoadingModule.h"
 #include "generated/XRNMultiBundleModule.h"
 #include "generated/XRNNativeStorageModule.h"
 #include "generated/BundleNavigation.h"
 #include "generated/XRNNavigation.h"
-#include "generated/RTNCodePush.h"
-#include "generated/RNGestureHandlerButtonComponentDescriptor.h"
-#include "generated/RNGestureHandlerRootViewComponentDescriptor.h"
-#include "generated/RNCWebViewComponentDescriptor.h"
-#include "generated/RNGestureHandlerButtonJSIBinder.h"
-#include "generated/RNGestureHandlerRootViewJSIBinder.h"
-#include "generated/RNCWebViewJSIBinder.h"
+#include "generated/XRNNetworkModule.h"
+#include "generated/XRNImageViewComponentDescriptor.h"
+#include "generated/XRNImageViewJSIBinder.h"
 
 namespace rnoh {
 
@@ -52,47 +36,8 @@ class RNOHGeneratedPackageTurboModuleFactoryDelegate : public TurboModuleFactory
         if (name == "XRNGODemoModule") {
             return std::make_shared<XRNGODemoModule>(ctx, name);
         }
-        if (name == "RNCCameraRoll") {
-            return std::make_shared<RNCCameraRoll>(ctx, name);
-        }
-        if (name == "RNCCameraRollPermission") {
-            return std::make_shared<RNCCameraRollPermission>(ctx, name);
-        }
-        if (name == "ReactNativeBlobUtil") {
-            return std::make_shared<ReactNativeBlobUtil>(ctx, name);
-        }
-        if (name == "ConfigNativeModule") {
-            return std::make_shared<ConfigNativeModule>(ctx, name);
-        }
-        if (name == "RNDeviceInfo") {
-            return std::make_shared<RNDeviceInfo>(ctx, name);
-        }
-        if (name == "RNDocumentPicker") {
-            return std::make_shared<RNDocumentPicker>(ctx, name);
-        }
-        if (name == "RNGestureHandlerModule") {
-            return std::make_shared<RNGestureHandlerModule>(ctx, name);
-        }
-        if (name == "GetRandomValuesNativeModule") {
-            return std::make_shared<GetRandomValuesNativeModule>(ctx, name);
-        }
-        if (name == "ImageResizer") {
-            return std::make_shared<ImageResizer>(ctx, name);
-        }
-        if (name == "RNLocalize") {
-            return std::make_shared<RNLocalize>(ctx, name);
-        }
-        if (name == "OreitationLockerNativeModule") {
-            return std::make_shared<OreitationLockerNativeModule>(ctx, name);
-        }
-        if (name == "NativeHarmonyTouchId") {
-            return std::make_shared<NativeHarmonyTouchId>(ctx, name);
-        }
-        if (name == "RNCWebViewModule") {
-            return std::make_shared<RNCWebViewModule>(ctx, name);
-        }
-        if (name == "XRNFileModule") {
-            return std::make_shared<XRNFileModule>(ctx, name);
+        if (name == "RTNCodePush") {
+            return std::make_shared<RTNCodePush>(ctx, name);
         }
         if (name == "XRNAppUtilsModule") {
             return std::make_shared<XRNAppUtilsModule>(ctx, name);
@@ -100,14 +45,17 @@ class RNOHGeneratedPackageTurboModuleFactoryDelegate : public TurboModuleFactory
         if (name == "XRNToastModule") {
             return std::make_shared<XRNToastModule>(ctx, name);
         }
-        if (name == "XRNAssetLoaderModule") {
-            return std::make_shared<XRNAssetLoaderModule>(ctx, name);
-        }
         if (name == "XRNBundleModule") {
             return std::make_shared<XRNBundleModule>(ctx, name);
         }
         if (name == "XRNDebugToolsModule") {
             return std::make_shared<XRNDebugToolsModule>(ctx, name);
+        }
+        if (name == "XRNImageView") {
+            return std::make_shared<XRNImageView>(ctx, name);
+        }
+        if (name == "XRNKeyboard") {
+            return std::make_shared<XRNKeyboard>(ctx, name);
         }
         if (name == "XRNLoadingModule") {
             return std::make_shared<XRNLoadingModule>(ctx, name);
@@ -124,8 +72,8 @@ class RNOHGeneratedPackageTurboModuleFactoryDelegate : public TurboModuleFactory
         if (name == "XRNNavigation") {
             return std::make_shared<XRNNavigation>(ctx, name);
         }
-        if (name == "RTNCodePush") {
-            return std::make_shared<RTNCodePush>(ctx, name);
+        if (name == "XRNNetworkModule") {
+            return std::make_shared<XRNNetworkModule>(ctx, name);
         }
         return nullptr;
     };
@@ -135,27 +83,27 @@ class GeneratedEventEmitRequestHandler : public EventEmitRequestHandler {
   public:
     void handleEvent(Context const &ctx) override {
         auto eventEmitter = ctx.shadowViewRegistry->getEventEmitter<facebook::react::EventEmitter>(ctx.tag);
+        auto componentName = ctx.shadowViewRegistry->getComponentName(ctx.tag);
+
         if (eventEmitter == nullptr) {
             return;
         }
 
-        std::vector<std::string> supportedEventNames = {
-            "contentSizeChange",
-            "renderProcessGone",
-            "contentProcessDidTerminate",
-            "customMenuSelection",
-            "fileDownload",
-            "loadingError",
-            "loadingFinish",
-            "loadingProgress",
-            "loadingStart",
-            "httpError",
-            "message",
-            "openWindow",
-            "scroll",
-            "shouldStartLoadWithRequest",
+        std::vector<std::string> supportedComponentNames = {
+            "XRNImageView",
         };
-        if (std::find(supportedEventNames.begin(), supportedEventNames.end(), ctx.eventName) != supportedEventNames.end()) {
+
+        std::vector<std::string> supportedEventNames = {
+            "load",
+            "loadStart",
+            "loadEnd",
+            "progress",
+            "display",
+            "error",
+        };
+
+        if (std::find(supportedComponentNames.begin(), supportedComponentNames.end(), componentName) != supportedComponentNames.end() &&
+            std::find(supportedEventNames.begin(), supportedEventNames.end(), ctx.eventName) != supportedEventNames.end()) {
             eventEmitter->dispatchEvent(ctx.eventName, ArkJS(ctx.env).getDynamic(ctx.payload));
         }    
     }
@@ -171,17 +119,13 @@ class RNOHGeneratedPackage : public Package {
 
     std::vector<facebook::react::ComponentDescriptorProvider> createComponentDescriptorProviders() override {
         return {
-            facebook::react::concreteComponentDescriptorProvider<facebook::react::RNGestureHandlerButtonComponentDescriptor>(),
-            facebook::react::concreteComponentDescriptorProvider<facebook::react::RNGestureHandlerRootViewComponentDescriptor>(),
-            facebook::react::concreteComponentDescriptorProvider<facebook::react::RNCWebViewComponentDescriptor>(),
+            facebook::react::concreteComponentDescriptorProvider<facebook::react::XRNImageViewComponentDescriptor>(),
         };
     }
 
     ComponentJSIBinderByString createComponentJSIBinderByName() override {
         return {
-            {"RNGestureHandlerButton", std::make_shared<RNGestureHandlerButtonJSIBinder>()},
-            {"RNGestureHandlerRootView", std::make_shared<RNGestureHandlerRootViewJSIBinder>()},
-            {"RNCWebView", std::make_shared<RNCWebViewJSIBinder>()},
+            {"XRNImageView", std::make_shared<XRNImageViewJSIBinder>()},
         };
     };
 

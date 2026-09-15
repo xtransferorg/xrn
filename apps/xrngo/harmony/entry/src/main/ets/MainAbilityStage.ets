@@ -3,29 +3,47 @@ import { preInit, InternalPlugin, setLogEnabled, init } from '@umeng/analytics';
 import { ApmPlugin } from '@umeng/apm';
 import {
   APP_RNOH_RNOHCoreContext,
-  BundleInfo, BundleInfoManager, initRNContainerOptions, RNInstanceManager } from "xrn-multi-bundle";
+  BundleInfo, BundleInfoManager, initRNContainerOptions, RNInstanceManager, PreferencesStore } from "xrn-multi-bundle";
 import { getRNContainerOptions, getRNInstanceOptions } from "./BundleHelper";
+import { XrnPerformance } from './performance'
 import {
   AnyJSBundleProvider,
   JSBundleProvider, MetroJSBundleProvider,
   ResourceJSBundleProvider,
   RNOHCoreContext,
   TraceJSBundleProviderDecorator} from "@rnoh/react-native-openharmony";
-import { CodePushJSBundleProvider } from "xrn-code-push";
+import { CodePushJSBundleProvider } from "@xrnjs/react-native-code-push";
+import BuildProfile from "BuildProfile";
+import { PreferencesUtil } from "@pura/harmony-utils";
 
 setLogEnabled(true);
 export default class MainAbilityStage extends AbilityStage {
+  protected performance: XrnPerformance
 
   constructor() {
     super()
+    this.performance = XrnPerformance.getInstance()
   }
 
   onCreate(): void {
     initRNContainerOptions(getRNContainerOptions())
-    BundleInfoManager.initWithRawFile(this.context, "xrngo_bundle_config.json5", undefined)
+    const preferenceStore: PreferencesStore = {
+      put(key: string, value: string, name?: string): void {
+        PreferencesUtil.putSync(key, value, name)
+      },
+      get(key: string, name?: string): string {
+        return PreferencesUtil.getSync(key, "", name) as string
+      }
+    }
+    BundleInfoManager.initWithRawFile(this.context, "xrngo_bundle_config.json5", preferenceStore, undefined)
     RNInstanceManager.init({
       getRNInstanceOptions: getRNInstanceOptions,
       createJSBundleProvider: createJSBundleProvider,
+      getSplitBundleOptions: () => ({
+        getCommonBundleName: () => "oh.xt-app-common.bundle",
+        isSplitMode: (_bundleInfo: BundleInfo) => true,
+      }),
+      isMemoryPressured: () => false,
     })
 
     // 友盟预加载
@@ -37,6 +55,7 @@ export default class MainAbilityStage extends AbilityStage {
     // 在用户同意隐私政策后再调用此方法
     init();
 
+    this.performance.markStartupTime()
   }
 
   onDestroy(): void {
@@ -55,7 +74,7 @@ function createJSBundleProvider(bundleInfo: BundleInfo): JSBundleProvider | unde
   //本地服务，TODO：Dev 环境
   jsBundleProviderArray.push(new MetroJSBundleProvider(bundleInfo.getLocalServerUrl(), bundleInfo.getModuleNames()))
   // //热更新
-  jsBundleProviderArray.push(CodePushJSBundleProvider.loadCodePushBundle(rnohCoreContext?.uiAbilityContext, bundleInfo.getJSBundleName(), bundleInfo.getCodePushKey()))
+  jsBundleProviderArray.push(CodePushJSBundleProvider.loadCodePushBundle(rnohCoreContext?.uiAbilityContext, bundleInfo, bundleInfo.getCodePushKey(), "", "", false))
   // NOTE: to load the bundle from file, place it in
   // `/data/app/el2/100/base/com.rnoh.tester/files/bundle.harmony.js`
   // on your device. The path mismatch is due to app sandboxing on HarmonyOS

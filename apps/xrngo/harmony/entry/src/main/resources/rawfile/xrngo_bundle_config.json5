@@ -8,7 +8,7 @@
       defaultModuleName: "xrngo-main",
       moduleNames: ["xrngo-main"],
       codePushKey:'u3V6ID9LbDrExkZhcpKQ2ty2NfRs4ksvOXqog',
-      port: 8081,
+      port: 18081,
       bundleType: "main"
     },
     {
@@ -26,7 +26,7 @@
     {
       bundleName: "xrngo-multi-bundle-2",
       moduleNames: ["xrngo-multi-bundle-2"],
-      codePushKey:'tObukXGyAV88Dv6Vo4nmb62XYJ2M4ksvOXqog',
+      codePushKey:'Il4WER9TBZdLuQ4F3iwS8lfvgmdh4ksvOXqog',
       port: 7072,
     },
     {

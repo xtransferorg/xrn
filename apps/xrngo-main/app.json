@@ -11,5 +11,5 @@
   "ios": {
     "bundleIdentifier": "com.xdeal.ai"
   },
-  "port": 8081
+  "port": 18081
 }

@@ -1,23 +1,15 @@
-// const path = require('path');
-// const monorepoRoot = path.join(__dirname, '../..');
-// const blacklist = require('metro-config/src/defaults/exclusionList');
-
 const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
 const {
   createHarmonyMetroConfig,
 } = require('@react-native-oh/react-native-harmony/metro.config');
 
 const config = {
-  // watchFolders: [
-  //   __dirname, // Allow Metro to resolve all files within this project
-  //   // path.join(monorepoRoot, 'packages'), // Allow Metro to resolve all workspace files of the monorepo
-  //   // path.join(monorepoRoot, 'node_modules'), // Allow Metro to resolve "shared" `node_modules` of the monorepo
-  // ],
-  // resolver: {
-  //   unstable_enableSymlinks: true, // Turn on symlink support
-  //   nodeModulesPaths: [path.resolve(__dirname, 'node_modules')],
-  // },
   transformer: {
+    // @xrnjs/cli currently invokes Metro 0.72, which requires this transformer
+    // hook even when the React Native 0.77 default config is in use.
+    unstable_collectDependenciesPath: require.resolve(
+      'metro/src/ModuleGraph/worker/collectDependencies',
+    ),
     getTransformOptions: async () => ({
       transform: {
         experimentalImportSupport: false,

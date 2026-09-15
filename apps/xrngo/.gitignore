@@ -2,8 +2,12 @@ harmony/entry/src/main/resources/rawfile/*.bundle
 harmony/entry/src/main/resources/rawfile/assets/
 harmony/entry/src/main/resources/rawfile/packages/
 *.hap
-
-yalc.lock
+.baseline
+iOS_Out_*/
+android/app/src/main/res/raw/*.svg
+android/app/src/main/res/drawable-*
+android/app/src/main/assets/*.bundle
+android/app/src/main/assets/xrn-manifest.json
 
 # Yarn
 .yarn/*
