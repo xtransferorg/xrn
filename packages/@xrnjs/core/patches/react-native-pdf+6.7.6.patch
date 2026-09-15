@@ -1,0 +1,231 @@
+diff --git a/node_modules/react-native-pdf/android/build.gradle b/node_modules/react-native-pdf/android/build.gradle
+index 6aacccb..34da324 100644
+--- a/node_modules/react-native-pdf/android/build.gradle
++++ b/node_modules/react-native-pdf/android/build.gradle
+@@ -30,6 +30,19 @@ repositories {
+ 
+ apply plugin: 'com.android.library'
+ 
++def supportsNamespace() {
++  def parsed = com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION.tokenize('.')
++  def major = parsed[0].toInteger()
++  def minor = parsed[1].toInteger()
++
++  // Namespace support was added in 7.3.0
++  if (major == 7 && minor >= 3) {
++    return true
++  }
++
++  return major >= 8
++}
++
+ def resolveReactNativeDirectory() {
+     def reactNativeLocation = safeExtGet("REACT_NATIVE_NODE_MODULES_DIR", null)
+     if (reactNativeLocation != null) {
+@@ -80,9 +93,13 @@ if (isNewArchitectureEnabled()) {
+ }
+ 
+ android {
+-    def agpVersion = com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION
+-    if (agpVersion.tokenize('.')[0].toInteger() >= 7) {
++    if (supportsNamespace()) {
+         namespace "org.wonday.pdf"
++         sourceSets {
++          main {
++            manifest.srcFile "src/main/AndroidManifestNew.xml"
++          }
++        }
+     }
+     compileSdkVersion safeExtGet('compileSdkVersion', 31)
+ 
+@@ -126,6 +143,6 @@ dependencies {
+     // The repo from zacharee is based on PdfiumAndroidKt, a much newer fork of PdfiumAndroid, with better maintenance and updated native libraries.
+     implementation 'com.github.zacharee:AndroidPdfViewer:4.0.1'
+     // Depend on PdfiumAndroidKt directly so this can be updated independently of AndroidPdfViewer as updates are provided.
+-    implementation 'io.legere:pdfiumandroid:1.0.19'
+-    implementation 'com.google.code.gson:gson:2.8.5'
++    implementation 'io.legere:pdfiumandroid:1.0.32'
++    implementation 'com.google.code.gson:gson:2.13.2'
+ }
+diff --git a/node_modules/react-native-pdf/android/src/main/AndroidManifestNew.xml b/node_modules/react-native-pdf/android/src/main/AndroidManifestNew.xml
+new file mode 100644
+index 0000000..2a14e6b
+--- /dev/null
++++ b/node_modules/react-native-pdf/android/src/main/AndroidManifestNew.xml
+@@ -0,0 +1,4 @@
++<manifest xmlns:android="http://schemas.android.com/apk/res/android">
++
++
++</manifest>
+diff --git a/node_modules/react-native-pdf/android/src/main/java/org/wonday/pdf/PdfManager.java b/node_modules/react-native-pdf/android/src/main/java/org/wonday/pdf/PdfManager.java
+index 4186f17..03e6de2 100644
+--- a/node_modules/react-native-pdf/android/src/main/java/org/wonday/pdf/PdfManager.java
++++ b/node_modules/react-native-pdf/android/src/main/java/org/wonday/pdf/PdfManager.java
+@@ -99,11 +99,16 @@ public class PdfManager extends SimpleViewManager<PdfView> implements RNPDFPdfVi
+         // NOOP on Android
+     }
+ 
+-    @Override
++	@Override
+     public void setShowsVerticalScrollIndicator(PdfView view, boolean value) {
+         // NOOP on Android
+     }
+ 
++    @ReactProp(name = "enableRTL")
++    public void setEnableRTL(PdfView view, boolean enableRTL) {
++        pdfView.setEnableRTL(enableRTL);
++    }
++
+     @ReactProp(name = "scrollEnabled")
+     public void setScrollEnabled(PdfView view, boolean scrollEnabled) {
+         pdfView.setScrollEnabled(scrollEnabled);
+@@ -139,11 +144,6 @@ public class PdfManager extends SimpleViewManager<PdfView> implements RNPDFPdfVi
+         pdfView.setEnablePaging(enablePaging);
+     }
+ 
+-    @Override
+-    public void setEnableRTL(PdfView view, boolean value) {
+-        // NOOP on Android
+-    }
+-
+     @ReactProp(name = "fitPolicy")
+     public void setFitPolicy(PdfView pdfView, int fitPolicy) {
+         pdfView.setFitPolicy(fitPolicy);
+diff --git a/node_modules/react-native-pdf/android/src/main/java/org/wonday/pdf/PdfView.java b/node_modules/react-native-pdf/android/src/main/java/org/wonday/pdf/PdfView.java
+index 7b7a125..908e23c 100644
+--- a/node_modules/react-native-pdf/android/src/main/java/org/wonday/pdf/PdfView.java
++++ b/node_modules/react-native-pdf/android/src/main/java/org/wonday/pdf/PdfView.java
+@@ -9,9 +9,13 @@
+ package org.wonday.pdf;
+ 
+ import java.io.File;
++import java.io.IOException;
+ 
+ import android.content.ContentResolver;
+ import android.content.Context;
++import android.os.Handler;
++import android.os.Looper;
++import android.os.ParcelFileDescriptor;
+ import android.util.SizeF;
+ import android.view.View;
+ import android.view.ViewGroup;
+@@ -20,7 +24,7 @@ import android.net.Uri;
+ import android.util.AttributeSet;
+ import android.view.MotionEvent;
+ import android.graphics.Canvas;
+-
++import android.graphics.pdf.PdfRenderer;
+ 
+ import com.facebook.react.uimanager.ThemedReactContext;
+ import com.facebook.react.uimanager.UIManagerHelper;
+@@ -55,6 +59,11 @@ import com.google.gson.Gson;
+ 
+ import org.wonday.pdf.events.TopChangeEvent;
+ 
++import io.legere.pdfiumandroid.DefaultLogger;
++import io.legere.pdfiumandroid.util.AlreadyClosedBehavior;
++import io.legere.pdfiumandroid.util.Config;
++import io.legere.pdfiumandroid.util.ConfigKt;
++
+ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompleteListener,OnErrorListener,OnTapListener,OnDrawListener,OnPageScrollListener, LinkHandler {
+     private int page = 1;               // start from 1
+     private boolean horizontal = false;
+@@ -75,6 +84,7 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
+     private FitPolicy fitPolicy = FitPolicy.WIDTH;
+     private boolean singlePage = false;
+     private boolean scrollEnabled = true;
++    private boolean enableRTL = false;
+ 
+     private float originalWidth = 0;
+     private float lastPageWidth = 0;
+@@ -86,6 +96,7 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
+ 
+     public PdfView(Context context, AttributeSet set){
+         super(context, set);
++        ConfigKt.setPdfiumConfig(new Config(new DefaultLogger(), AlreadyClosedBehavior.IGNORE));
+     }
+ 
+     @Override
+@@ -105,7 +116,7 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
+         TopChangeEvent tce = new TopChangeEvent(surfaceId, getId(), event);
+ 
+         if (dispatcher != null) {
+-            dispatcher.dispatchEvent(tce);
++            new Handler(Looper.getMainLooper()).postDelayed(() -> dispatcher.dispatchEvent(tce), 10);
+         }
+ 
+ //        ReactContext reactContext = (ReactContext)this.getContext();
+@@ -278,6 +289,16 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
+             this.drawPdf();
+     }
+ 
++    private int getPdfPageCount(File pdfFile) throws IOException {
++        ParcelFileDescriptor fileDescriptor =
++                ParcelFileDescriptor.open(pdfFile, ParcelFileDescriptor.MODE_READ_ONLY);
++        PdfRenderer renderer = new PdfRenderer(fileDescriptor);
++        int pageCount = renderer.getPageCount();
++        renderer.close();
++        fileDescriptor.close();
++        return pageCount;
++    }
++
+     public void drawPdf() {
+         showLog(format("drawPdf path:%s %s", this.path, this.page));
+ 
+@@ -323,7 +344,24 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
+                 .enableSwipe(!this.singlePage && this.scrollEnabled)
+                 .enableDoubletap(!this.singlePage && this.enableDoubleTapZoom)
+                 .enableAnnotationRendering(this.enableAnnotationRendering)
+-                .linkHandler(this);
++                .linkHandler(this)
++            ;
++
++            if (enableRTL) {
++                try {
++                    int pageCount = getPdfPageCount(new File(this.path));
++                    int[] reversedPages = new int[pageCount];
++                    for (int i=0; i<pageCount; i++) {
++                        reversedPages[i] = pageCount-1 - i;
++                    }
++                    configurator.pages(reversedPages);
++                    if(this.page != 1){
++                        this.page = pageCount;
++                    }
++                } catch (IOException e) {
++                    Log.e("error", "error while reading PDF", e);
++                }
++            }
+ 
+             if (this.singlePage) {
+                 configurator.pages(this.page-1);
+@@ -346,7 +384,12 @@ public class PdfView extends PDFView implements OnPageChangeListener,OnLoadCompl
+ 
+     // page start from 1
+     public void setPage(int page) {
+-        this.page = page>1?page:1;
++        this.page = Math.max(page, 1);
++        this.handlePage(this.page - 1);
++    }
++
++    public void setEnableRTL(boolean enableRTL) {
++        this.enableRTL = enableRTL;
+     }
+ 
+     public void setScale(float scale) {
+diff --git a/node_modules/react-native-pdf/android/src/paper/java/com/facebook/react/viewmanagers/RNPDFPdfViewManagerDelegate.java b/node_modules/react-native-pdf/android/src/paper/java/com/facebook/react/viewmanagers/RNPDFPdfViewManagerDelegate.java
+index b011bc8..43848d9 100644
+--- a/node_modules/react-native-pdf/android/src/paper/java/com/facebook/react/viewmanagers/RNPDFPdfViewManagerDelegate.java
++++ b/node_modules/react-native-pdf/android/src/paper/java/com/facebook/react/viewmanagers/RNPDFPdfViewManagerDelegate.java
+@@ -13,9 +13,10 @@ import android.view.View;
+ import androidx.annotation.Nullable;
+ import com.facebook.react.bridge.ReadableArray;
+ import com.facebook.react.uimanager.BaseViewManagerDelegate;
+-import com.facebook.react.uimanager.BaseViewManagerInterface;
++import com.facebook.react.uimanager.BaseViewManager;
++import com.facebook.react.uimanager.LayoutShadowNode;
+ 
+-public class RNPDFPdfViewManagerDelegate<T extends View, U extends BaseViewManagerInterface<T> & RNPDFPdfViewManagerInterface<T>> extends BaseViewManagerDelegate<T, U> {
++public class RNPDFPdfViewManagerDelegate<T extends View, U extends BaseViewManager<T, ? extends LayoutShadowNode> & RNPDFPdfViewManagerInterface<T>> extends BaseViewManagerDelegate<T, U> {
+   public RNPDFPdfViewManagerDelegate(U viewManager) {
+     super(viewManager);
+   }

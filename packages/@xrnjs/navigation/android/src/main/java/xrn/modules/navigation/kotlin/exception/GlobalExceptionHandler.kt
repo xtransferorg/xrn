@@ -2,6 +2,7 @@ package xrn.modules.navigation.kotlin.exception
 
 import android.app.Activity
 import com.blankj.utilcode.util.GsonUtils
+import xrn.modules.navigation.kotlin.NavHelper
 import xrn.modules.navigation.kotlin.NavHelper.InitialProps
 
 typealias NavigationExceptionHandler = (NavigationException) -> Unit
@@ -42,6 +43,10 @@ internal object GlobalExceptionHandler {
                 initialPropsObj
             )
         )
+    }
+
+    fun onMainBundleNotInStack() {
+        handleException(MainBundleNotInStackException())
     }
 
 }

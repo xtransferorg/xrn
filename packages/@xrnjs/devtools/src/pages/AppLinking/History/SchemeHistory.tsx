@@ -16,13 +16,20 @@ import styles from "./HistoryStyle";
 import { BrowsingHistory } from "../type";
 import StorageUtil from "../../../utils/StorageUtil";
 import StorageKeys from "../../../constants/StorageKeys";
+import {
+  sensorsFundClick,
+  sensorsFundPageView,
+} from "../../../utils/sensorsTrack";
 import { ROUTES } from "../../..";
 import { navigateBundle } from "../../../core/navigate";
-import { nativeToast } from "../../../utils/toast";
 
 const SchemeHistory: React.FC = () => {
   const infoList: BrowsingHistory[] = [];
   const [history, setHistory] = useState<BrowsingHistory[]>(infoList);
+
+  useEffect(() => {
+    sensorsFundPageView({ module_name: `devtools_${ROUTES.SchemeHistory}` });
+  }, []);
 
   useEffect(() => {
     _fetchHistoryList();
@@ -42,12 +49,18 @@ const SchemeHistory: React.FC = () => {
   const _cleanHistory = async () => {
     await StorageUtil.removeItem(StorageKeys.BROWSING_HISTORY);
     setHistory([]);
+    sensorsFundClick({
+      button_name: "devtools_btn_click",
+      devtools_click_btn_name: "任意门历史搜索列表 清空列表",
+    });
   };
 
   const _copyUrl = useCallback((url: string) => {
     Clipboard.setString(url);
-    // Share.share({ message: url });
-    nativeToast("复制成功");
+    sensorsFundClick({
+      button_name: "devtools_btn_click",
+      devtools_click_btn_name: "任意门历史搜索列表 复制url",
+    });
   }, []);
 
   const _openUrl = useCallback((item: BrowsingHistory) => {
@@ -55,6 +68,11 @@ const SchemeHistory: React.FC = () => {
     navigateBundle(item.bundleName, item.moduleName, {
       initialRouteName: item.pageName,
       initialRouteParams: query,
+    });
+
+    sensorsFundClick({
+      button_name: "devtools_btn_click",
+      devtools_click_btn_name: "任意门历史搜索列表 openUrl",
     });
   }, []);
 
@@ -115,7 +133,7 @@ const SchemeHistory: React.FC = () => {
   };
 
   return (
-    <Page title="任意门查询历史" rightButton={rightButton} hideHeader>
+    <Page title="任意门查询历史" rightButton={rightButton}>
       <View style={styles.containerStyle}>
         <FlatList
           data={history}

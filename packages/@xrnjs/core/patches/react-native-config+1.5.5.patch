@@ -1,0 +1,53 @@
+diff --git a/node_modules/react-native-config/android/src/main/java/com/lugg/RNCConfig/RNCConfigModule.java b/node_modules/react-native-config/android/src/main/java/com/lugg/RNCConfig/RNCConfigModule.java
+index 55b853b..2caa21e 100644
+--- a/node_modules/react-native-config/android/src/main/java/com/lugg/RNCConfig/RNCConfigModule.java
++++ b/node_modules/react-native-config/android/src/main/java/com/lugg/RNCConfig/RNCConfigModule.java
+@@ -1,6 +1,7 @@
+ package com.lugg.RNCConfig;
+ 
+ import android.content.Context;
++import android.content.SharedPreferences;
+ import android.content.res.Resources;
+ import android.util.Log;
+ import com.facebook.react.bridge.ReactApplicationContext;
+@@ -43,6 +44,11 @@ public class RNCConfigModule extends ReactContextBaseJavaModule {
+                     Log.d("ReactNative", "ReactConfig: Could not access BuildConfig field " + f.getName());
+                 }
+             }
++            SharedPreferences sp = context.getSharedPreferences("spUtils", 0);
++            String localEnvHost = sp.getString("DEV_ENV_NAME", null);
++            if (localEnvHost != null) {
++                constants.put("ENV_NAME", localEnvHost);
++            }
+         } catch (ClassNotFoundException e) {
+             Log.d("ReactNative", "ReactConfig: Could not find BuildConfig class");
+         }
+diff --git a/node_modules/react-native-config/ios/ReactNativeConfig/RNCConfigModule.m b/node_modules/react-native-config/ios/ReactNativeConfig/RNCConfigModule.m
+index 5365d4c..32d115e 100644
+--- a/node_modules/react-native-config/ios/ReactNativeConfig/RNCConfigModule.m
++++ b/node_modules/react-native-config/ios/ReactNativeConfig/RNCConfigModule.m
+@@ -19,7 +19,23 @@ + (NSString *)envFor: (NSString *)key {
+ }
+ 
+ - (NSDictionary *)constantsToExport {
+-    return RNCConfig.env;
++    NSDictionary *configDic = RNCConfig.env;
++    NSMutableDictionary *mutDic = [NSMutableDictionary dictionaryWithDictionary:configDic];
++    NSString *baseEnvName = [[NSUserDefaults standardUserDefaults] objectForKey:@"DEV_ENV_NAME"];
++    BOOL isProd = [[RNCConfig envFor:@"ENV_NAME"] isEqualToString:@"prod"];
++    
++    // 新增逻辑：适配生产包切换sitxt68环境
++    if (isProd && baseEnvName && [baseEnvName isEqualToString:@"sitxt68"]) {
++        [mutDic setObject:baseEnvName forKey:@"ENV_NAME"];
++        return [mutDic copy];
++    }
++    
++    // 本地有修改env，并且非prod环境，就修改ENV_NAME
++    if (baseEnvName && !isProd) {
++        [mutDic setObject:baseEnvName forKey:@"ENV_NAME"];
++    }
++    NSLog(@"DEV_ENV_NAME:%@", baseEnvName);
++    return [mutDic copy];
+ }
+ 
+ @end

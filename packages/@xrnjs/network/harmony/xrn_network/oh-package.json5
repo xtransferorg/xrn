@@ -1,0 +1,14 @@
+{
+  "name": "xrn-network",
+  "version": "1.0.0",
+  "description": "Please describe the basic information.",
+  "main": "index.ets",
+  "author": "",
+  "license": "Apache-2.0",
+  "dependencies": {
+//"@rnoh/react-native-openharmony": "file:../react_native_openharmony",
+  "@rnoh/react-native-openharmony": "../../node_modules/@react-native-oh/react-native-harmony/react_native_openharmony.har",
+  "xrn-navigation": "file:../../../xrn-navigation/harmony/xrn_navigation",
+  "xrn-multi-bundle": "file:../../../xrn-multi-bundle/harmony/xrn_multi_bundle"
+  }
+}

@@ -1,26 +1,17 @@
 import fs from "fs-extra";
 import * as path from "path";
-import simpleGit, { SimpleGit } from "simple-git";
-import gitclone from "git-clone/promise";
 import logger from "../../utlis/logger";
-// import { timingTracker } from "../TimingTracker";
-// import { TimingTrackerStage } from "../typing";
 import { execShellCommand } from "./shell";
-import { isProd } from ".";
-import { buildJobContext } from "../BuildJobContext";
 
-// const isJenkinsEnv = !!process.env.JENKINS_HOME;
 const WORKSPACE_DIR = process.cwd();
-// const WORKSPACE_DIR = isJenkinsEnv
-//   ? process.cwd()
-//   : path.join(process.cwd(), "..");
+// 环境变量控制：如果仓库目录已存在，是否跳过重新 clone
+const SKIP_CLONE_IF_EXISTS = process.env.SKIP_CLONE_IF_EXISTS === "true";
 
 export class GitRepository {
   repositoryUrl: string;
   repositoryName: string;
   branchName: string;
   gitRepoPath: string;
-  git: SimpleGit;
   latestCommitId: string = "";
 
   constructor({
@@ -33,7 +24,6 @@ export class GitRepository {
     repositoryName?: string
   }) {
     this.repositoryUrl = repositoryUrl;
-    // this.repositoryName = path.basename(repositoryUrl, ".git");
     this.repositoryName = repositoryName || path.basename(repositoryUrl, ".git");
     this.branchName = branchName;
     this.gitRepoPath = path.join(WORKSPACE_DIR, this.repositoryName);
@@ -44,34 +34,36 @@ export class GitRepository {
       fs.mkdirSync(WORKSPACE_DIR, { recursive: true });
     }
 
-    if (!fs.existsSync(this.gitRepoPath)) {
-      logger.info(`Cloning repository ${this.repositoryUrl}...`);
-      // TODO 为了防止老脚本的问题，这里暂时不使用 shallow
-      await gitclone(this.repositoryUrl, this.gitRepoPath, {
-        checkout: this.branchName,
-        shallow: false,
-      });
+    const repoExists = fs.existsSync(this.gitRepoPath);
+
+    // 如果设置了 SKIP_CLONE_IF_EXISTS 且目录已存在，跳过克隆
+    if (SKIP_CLONE_IF_EXISTS && repoExists) {
+      logger.info(`Repository ${this.repositoryName} already exists, skipping clone (SKIP_CLONE_IF_EXISTS=true)`);
       const commitId = await execShellCommand(
-        `git rev-parse origin/${this.branchName}^{commit}`,
+        `git rev-parse HEAD`,
         { cwd: this.gitRepoPath }
       );
       this.latestCommitId = commitId.trim().replace("\n", "");
     } else {
-      this.git = simpleGit(this.gitRepoPath);
+      // 如果目录已存在，先删除
+      if (repoExists) {
+        logger.info(`Removing existing repository ${this.repositoryName}...`);
+        fs.removeSync(this.gitRepoPath);
+      }
 
-      await execShellCommand(`git fetch --depth=1 origin ${this.branchName}`, {
-        cwd: this.gitRepoPath,
-      });
+      // 只克隆指定分支的最新一个 commit
+      logger.info(`Cloning repository ${this.repositoryUrl} (branch: ${this.branchName}, depth: 1)...`);
+      await execShellCommand(
+        `git clone --depth 20 --branch ${this.branchName} --single-branch ${this.repositoryUrl} ${this.gitRepoPath}`,
+        { cwd: WORKSPACE_DIR }
+      );
 
-      const commitId = await execShellCommand(`git rev-parse FETCH_HEAD`, {
-        cwd: this.gitRepoPath,
-      });
+      const commitId = await execShellCommand(
+        `git rev-parse HEAD`,
+        { cwd: this.gitRepoPath }
+      );
+      logger.info(`Repository ${this.repositoryName} commit id: ${commitId}`);
       this.latestCommitId = commitId.trim().replace("\n", "");
-
-      const gitCheckoutCommand = `git checkout -f ${this.latestCommitId}`;
-      await execShellCommand(gitCheckoutCommand, { cwd: this.gitRepoPath });
-
-      await this.cleanRepository();
     }
 
     if (!this.latestCommitId) {
@@ -81,43 +73,6 @@ export class GitRepository {
     }
 
     logger.info(`Repository ${this.repositoryName} is ready.`);
-  }
-
-  public async cleanRepository(): Promise<void> {
-    try {
-      //   删除 release_android 和 release_ios 目录
-
-      fs.removeSync(`${this.gitRepoPath}/release_android`);
-      fs.removeSync(`${this.gitRepoPath}/release_ios`);
-
-      //   await this.git.checkout(".");
-      //   await this.git.reset(ResetMode.HARD);
-      await this.cleanUntrackedFiles();
-      // 生产环境下，删除 node_modules 缓存
-      if (isProd(buildJobContext.buildEnv)) {
-        fs.removeSync(`${this.gitRepoPath}/node_modules`);
-      }
-      logger.info("Repository changes have been discarded.");
-    } catch (err) {
-      console.error("Error discarding repository changes:", err);
-    }
-  }
-
-  private async cleanUntrackedFiles(): Promise<void> {
-    try {
-      const status = await this.git.status();
-      const untrackedFiles = status.not_added;
-
-      for (const file of untrackedFiles) {
-        const filePath = path.resolve(this.gitRepoPath, file);
-        if (await fs.pathExists(filePath)) {
-          await fs.remove(filePath);
-        //   logger.info(`Deleted untracked file: ${file}`);
-        }
-      }
-    } catch (error) {
-      console.error("Failed to clean untracked files:", error);
-    }
   }
 
   public getLatestCommitId() {

@@ -14,8 +14,8 @@ import { useThemedStyles, Theme } from '../theme';
 import ResultItem from './ResultItem';
 import Header from './Header';
 import Button from './Button';
+import { sensorsFundClick } from '../../../../utils/sensorsTrack';
 import Clipboard from "@react-native-clipboard/clipboard";
-import { nativeToast } from '../../../../utils/toast';
 
 interface Props {
   request: NetworkRequestInfo;
@@ -117,14 +117,15 @@ const RequestDetails: React.FC<Props> = ({ request }) => {
         <LargeText>{requestBody}</LargeText>
         <Headers title="Response Header" headers={request.responseHeaders} />
         <Header shareContent={responseBody}>Response Body</Header>
-        <LargeText>{responseBody}</LargeText>
+        {
+          responseBody.length > 2 ? <LargeText>{responseBody}</LargeText> : <LargeText> </LargeText>
+        }
         <Header>More</Header>
         <TouchableOpacity style={styles.fullBox} onPress={() => {
-          // Share.share({ message: getFullRequest() });
-          nativeToast("复制成功")
           Clipboard.setString(getFullRequest());
+          sensorsFundClick({ button_name: 'devtools_btn_click', devtools_click_btn_name: '网络日志 分享FullRequest' });
         }}>
-          <Text style={styles.shareText}>复制完整Request</Text>
+          <Text style={styles.shareText}>分享完整Request</Text>
         </TouchableOpacity>
       </ScrollView>
     </View>

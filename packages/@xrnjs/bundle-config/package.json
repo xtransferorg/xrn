@@ -1,0 +1,20 @@
+{
+  "name": "@xrnjs/bundle-config",
+  "version": "0.1.0",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "xrn 业务 bundle 通用配置",
+  "dependencies": {
+    "@react-native/babel-preset": "0.77.1",
+    "babel-plugin-istanbul": "^6.1.1",
+    "babel-plugin-transform-define": "2.1.4",
+    "babel-plugin-transform-remove-console": "6.9.4",
+    "babel-preset-const-enum": "^1.0.0"
+  },
+  "peerDependencies": {
+    "@react-native-oh/react-native-harmony": "*",
+    "@react-native/metro-config": "*"
+  }
+}

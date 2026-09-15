@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="updating">Actualizando, por favor espere un segundo…</string>
+    <string name="loading">Cargando…</string>
+    <string name="error_boundary_page_not_found">Lo sentimos, la página que intentas visitar no existe.</string>
+    <string name="error_boundary_network_error">¡Vaya! Algo salió mal. Por favor, inténtalo de nuevo.</string>
+    <string name="error_boundary_retry">Reintentar</string>
+</resources>

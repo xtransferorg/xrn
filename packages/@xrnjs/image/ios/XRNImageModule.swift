@@ -126,8 +126,8 @@ public final class XRNImageViewManager: RCTViewManager {
     
   @objc(startAnimating:)
   public func startAnimating(_ reactTag: NSNumber) {
-      self.bridge.uiManager.addUIBlock { uiManager, viewRegistry in
-          guard let view = viewRegistry?[reactTag] as? ImageView else {
+      self.viewRegistry_DEPRECATED?.addUIBlock { viewRegistry in
+          guard let view = viewRegistry?.view(forReactTag: reactTag) as? ImageView else {
               if (RCT_DEBUG == 1) {
                   print("Invalid view returned from registry, expecting ImageView")
               }
@@ -140,8 +140,8 @@ public final class XRNImageViewManager: RCTViewManager {
   
   @objc(stopAnimating:)
   public func stopAnimating(_ reactTag: NSNumber) {
-      self.bridge.uiManager.addUIBlock { uiManager, viewRegistry in
-          guard let view = viewRegistry?[reactTag] as? ImageView else {
+      self.viewRegistry_DEPRECATED?.addUIBlock { viewRegistry in
+          guard let view = viewRegistry?.view(forReactTag: reactTag) as? ImageView else {
               if (RCT_DEBUG == 1) {
                   print("Invalid view returned from registry, expecting ImageView")
               }

@@ -1,1 +1,2 @@
-// @xrnjs/multi-bundle is a purely native library used to unify the management of multi-bundle frameworks across Android, iOS, and HarmonyOS, without involving any JS/TS code.
+export { default as XRNMultiBundleModule, Spec as XRNMultiBundleModuleSpec } from "./NativeXRNMultiBundleModule";
+

@@ -3,15 +3,20 @@ package xrn.modules.loading.internal
 import android.annotation.SuppressLint
 import android.app.Activity
 import androidx.appcompat.app.AppCompatActivity
+import java.lang.ref.WeakReference
 
 internal object LoadingDialogMgr {
 
     private const val TAG = "LoadingDialog"
 
+    private var lastAttachedActivityRef: WeakReference<Activity>? = null
+
     fun show(activity: Activity?) {
         if (activity == null) {
             return
         }
+
+        lastAttachedActivityRef = WeakReference(activity)
 
         ThreadUtils.runOnUiThread {
             var dialogFragment = requireDialogFragment(activity)
@@ -29,24 +34,24 @@ internal object LoadingDialogMgr {
     }
 
     fun dismiss(activity: Activity?) {
-        if (activity == null) {
-            return
-        }
-
         ThreadUtils.runOnUiThread {
-            requireDialogFragment(activity)?.dismissAllowingStateLoss()
+            val lastAttachedActivity = lastAttachedActivityRef?.get() ?: return@runOnUiThread
+            requireDialogFragment(lastAttachedActivity)?.dismissAllowingStateLoss()
+            lastAttachedActivityRef = null
         }
     }
 
     @SuppressLint("SetTextI18n")
-    fun updateProgress(activity: Activity?, progress: Int) {
+    fun updateProgress(activity: Activity?, progress: Int): Boolean {
         if (activity == null) {
-            return
+            return false
         }
 
+        val fragment = requireDialogFragment(activity) ?: return false
         ThreadUtils.runOnUiThread {
-            requireDialogFragment(activity)?.updateProgress(progress)
+            fragment.updateProgress(progress)
         }
+        return true
     }
 
     private fun requireDialogFragment(activity: Activity): LoadingDialogFragment? {

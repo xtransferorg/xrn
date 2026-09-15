@@ -13,7 +13,9 @@ import {
 } from "react-native";
 import { Platform } from "@xrnjs/modules-core";
 import { Page } from "../../components/Page";
+import { useNavRightButton } from "../../hooks/navigation";
 import { navigateBundle } from "../../core/navigate";
+import { sensorsFundPageView, sensorsFundClick } from "../../utils/sensorsTrack";
 import styles from "./style";
 import { DebugCenterDataSource, DebugCenterSectionItem } from "./type";
 import { ROUTES } from "../..";
@@ -31,6 +33,13 @@ const dataSource: DebugCenterDataSource[] = [
     title: "快捷入口",
     data: [
       [
+        // {
+        //   text: "devtools文档",
+        //   entryType: "devtoolsDoc",
+        //   debugEnable: true,
+        //   icon: require("../../../assets/doraemon_time_profiler.png"),
+        //   url: "https://xtransferorg.github.io/guides/debugging/debug-panel/debug-panel",
+        // },
         {
           text: "设备信息",
           entryType: "deviceInfo",
@@ -88,20 +97,14 @@ const dataSource: DebugCenterDataSource[] = [
           text: "网络诊断",
           entryType: "networkDiagnosis",
           routeName: "NetworkDiagnosis",
-          icon: require("../../../assets/doraemon_weaknet.png"),
           platforms: ["ios"],
+          icon: require("../../../assets/doraemon_weaknet.png"),
         },
         {
           text: "接口抓包",
           entryType: "networkInfo",
           routeName: "NetworkInfo",
           icon: require("../../../assets/doraemon_net.png"),
-        },
-        {
-          text: "功能反馈",
-          entryType: "feedBack",
-          routeName: "FeedBack",
-          icon: require("../../../assets/doraemon_mock.png"),
         },
       ],
     ],
@@ -111,7 +114,7 @@ const dataSource: DebugCenterDataSource[] = [
     data: [
       [
         {
-          text: "动态调试",
+          text: "Bundle 调试",
           entryType: "debugBundle",
           routeName: "DebugBundle",
           debugEnable: true,
@@ -142,9 +145,81 @@ const dataSource: DebugCenterDataSource[] = [
           debugEnable: true,
           icon: require("../../../assets/doraemon_fps.png"),
         },
+        {
+          text: "MemoryLeak",
+          entryType: "toggleMemoryLeak",
+          debugEnable: true,
+          icon: require("../../../assets/doraemon_memory_leak.png"),
+        },
+        // {
+        //   text: "取色器",
+        //   routeName: 'D',
+        //   icon: require('./assets/doraemon_straw.png')
+        // },
+        // {
+        //   text: "对齐标尺",
+        //   routeName: 'D',
+        //   icon: require('./assets/doraemon_align.png')
+        // },
+        // {
+        //   text: "布局边框",
+        //   routeName: 'D',
+        //   icon: require('./assets/doraemon_viewmetrics.png')
+        // }
       ],
     ],
   },
+  // {
+  //   title: "内存",
+  //   data: [
+  //     [
+  //       {
+  //         text: "内存测试信息",
+  //         entryType: "memoryTest",
+  //         icon: require("../../../assets/doraemon_memory.png"),
+  //         platforms: ["ios"],
+  //       },
+  //       {
+  //         text: "加500M内存",
+  //         entryType: "memoryAdd",
+  //         icon: require("../../../assets/doraemon_memory_leak.png"),
+  //         platforms: ["ios"],
+  //       },
+  //     ],
+  //   ],
+  // },
+  // {
+  //   title: "性能检测",
+  //   data: [
+  //     [
+  //       {
+  //         text: "帧率",
+  //         routeName: 'C',
+  //         icon: require('./assets/doraemon_fps.png')
+  //       },
+  //       {
+  //         text: "CPU",
+  //         routeName: 'C',
+  //         icon: require('./assets/doraemon_cpu.png')
+  //       },
+  //       {
+  //         text: "内存",
+  //         routeName: 'C',
+  //         icon: require('./assets/doraemon_crash.png')
+  //       },
+  //       {
+  //         text: "网络",
+  //         routeName: 'C',
+  //         icon: require('./assets/doraemon_net.png')
+  //       },
+  //       {
+  //         text: "模拟弱网",
+  //         routeName: 'C',
+  //         icon: require('./assets/doraemon_weaknet.png')
+  //       },
+  //     ]
+  //   ]
+  // },
 ];
 
 const DebugCenter: React.FC = (props: any) => {
@@ -152,17 +227,30 @@ const DebugCenter: React.FC = (props: any) => {
   const [listArr, setListArr] = useState(dataSource);
 
   useEffect(() => {
+    sensorsFundPageView({ module_name: `devtools_${ROUTES.DebugCenter}` });
+  }, []);
+
+  useEffect(() => {
     async function fetchInspectorStatus() {
       try {
+        // 获取当前Inspector状态，然后刷新文案
         const inspectorIsShown =
           (await XRNDebugTools?.getInspectorIsShown?.()) || false;
+        // 获取当前PerfMonitor选中状态
         const inPerfMonitorIsShown =
           (await XRNDebugTools?.getPerfMonitorIsShown?.()) || false;
+        // 获取当前MemoryLeak选中状态
+        const memoryLeakIsShown =
+          (await (XRNDebugTools as any)?.getMemoryLeakIsShown?.()) || false;
         const updatedDataSource = dataSource.map((section) => ({
           ...section,
           data: section.data.map((group) =>
             group.map((item) => {
-              if (item.text === "Inspector" || item.text === "PerfMonitor") {
+              if (
+                item.text === "Inspector" ||
+                item.text === "PerfMonitor" ||
+                item.text === "MemoryLeak"
+              ) {
                 return {
                   ...item,
                   text:
@@ -170,9 +258,13 @@ const DebugCenter: React.FC = (props: any) => {
                       ? inspectorIsShown
                         ? "HideInspector"
                         : "ShowInspector"
-                      : inPerfMonitorIsShown
-                        ? "HidePMonitor"
-                        : "ShowPMonitor",
+                      : item.text === "PerfMonitor"
+                        ? inPerfMonitorIsShown
+                          ? "HidePMonitor"
+                          : "ShowPMonitor"
+                        : memoryLeakIsShown
+                          ? "EndMemLeak"
+                          : "StartMemLeak",
                 };
               } else {
                 return item;
@@ -191,14 +283,16 @@ const DebugCenter: React.FC = (props: any) => {
 
   const _itemClick = (item: DebugCenterSectionItem) => {
     const entryType = item.entryType;
+    // devtools功能入口埋点
+    sensorsFundClick({ button_name: 'devtools_btn_click', devtools_click_btn_name: `debugCenter ${item.text} 功能入口点击` });
 
+    // 存在二级页面，则直接navigation跳转到二级页面
     if (item.routeName) {
       navigation?.navigate(item.routeName);
       return;
     }
 
     if (entryType === "cleanCache") {
-      nativeToast("清理成功");
       XRNDebugTools?.cleanAppCache();
     }
 
@@ -212,6 +306,15 @@ const DebugCenter: React.FC = (props: any) => {
 
     if (entryType === "reloadBundle") {
       XRNDebugTools.reloadBundle();
+    }
+
+    if (entryType === "memoryTest") {
+      // XRNDebugTools?.memoryTest();
+    }
+
+    if (entryType === "memoryAdd") {
+      nativeToast("添加成功");
+      // DebugPanelModule?.memoryAdd();
     }
 
     if (entryType === "toggleInspector") {
@@ -228,6 +331,31 @@ const DebugCenter: React.FC = (props: any) => {
       if (!result) {
         nativeToast("请使用最新的native代码打包");
       }
+    }
+
+    if (entryType === "toggleMemoryLeak") {
+      const result = XRNDebugTools?.toggleMemoryLeak?.();
+      console.log('toggleMemoryLeak', result);
+      navigation?.goBack?.();
+      if (!result) {
+        nativeToast("请使用最新的native代码打包");
+      }
+    }
+
+    if (entryType === "mockCrash") {
+      XRNDebugTools?.nativeCrash?.();
+    }
+
+    if (entryType === "xtdBundle") {
+      navigateBundle("xt-package-xrn", "Main");
+    }
+
+    if (entryType === "businessBundle") {
+      navigateBundle("@xrnjs/ui-business-example", "BusinessComponent");
+    }
+
+    if (entryType === "devtoolsDoc") {
+      openURLInBrowser(item.url);
     }
   };
 
@@ -296,8 +424,26 @@ const DebugCenter: React.FC = (props: any) => {
     return <View style={styles.footer} />;
   };
 
+  const _pushFeedBack = useCallback(() => {
+    navigation.navigate("FeedBack");
+    sensorsFundClick({ button_name: 'devtools_btn_click', devtools_click_btn_name: `debugCenter 反馈按钮点击` });
+  }, []);
+
+  const renderRightButton = () => {
+    return (
+      <TouchableOpacity
+        style={styles.rightBtnBox}
+        onPress={() => _pushFeedBack()}
+      >
+        <Text style={styles.rightBtnText}>反馈</Text>
+      </TouchableOpacity>
+    );
+  };
+
+  const rightButton = useNavRightButton(renderRightButton);
+
   return (
-    <Page title="devtools调试工具" hideHeader translucent>
+    <Page title="@xrnjs/devtools" rightButton={rightButton}>
       <View style={styles.container}>
         <SectionList
           sections={listArr}

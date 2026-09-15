@@ -1,8 +1,9 @@
 import { requireNativeModule } from "@xrnjs/modules-core";
 
 import { NativeStorageStatic } from "./types";
+import { Spec } from "../NativeXRNNativeStorageModule";
 
-const RTNNativeStorageModule = requireNativeModule("XRNNativeStorageModule");
+const RTNNativeStorageModule = requireNativeModule<Spec>("XRNNativeStorageModule");
 
 const XRNNativeStorage: NativeStorageStatic = {
   /**

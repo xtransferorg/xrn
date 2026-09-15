@@ -6,17 +6,7 @@
 //
 
 #import "XTBundleData.h"
-
-@interface XTBundleData ()
-
-@property (nonatomic, copy) NSString *jsBundleName;
-@property (nonatomic, copy) NSString *moduleName;
-@property (nonatomic, copy) NSString *codePushKey;
-@property (nonatomic, copy) NSString *portNum;
-@property (nonatomic, assign) BOOL isMain;
-@property (nonatomic, strong, nonnull) id<XTBundleProvider> provider;
-
-@end
+#import "XTJSBridgePool.h"
 
 @implementation XTBundleData
 
@@ -36,6 +26,10 @@
       self.provider = provider;
   }
   return self;
+}
+
+- (void)dealloc {
+	CPLog2(@"🔴 XTBundleData dealloc: %@ (provider: %@)", self, self.provider);
 }
 
 @end

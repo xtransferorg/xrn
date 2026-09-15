@@ -15,6 +15,7 @@ import { useNavRightButton } from "../../hooks/navigation";
 import styles from "./style";
 import { DeviceInfoItem } from "./type";
 import { nativeToast } from "../../utils/toast";
+import { sensorsFundClick, sensorsFundPageView } from "../../utils/sensorsTrack";
 import { ROUTES } from "../..";
 
 const packageJson = require("../../../package.json");
@@ -22,6 +23,10 @@ const packageJson = require("../../../package.json");
 const AppInfo: React.FC = () => {
   const infoList: DeviceInfoItem[] = [];
   const [data, setData] = useState<DeviceInfoItem[]>(infoList);
+
+  useEffect(() => {
+    sensorsFundPageView({ module_name: `devtools_${ROUTES.AppInfo}` });
+  }, []);
 
   useEffect(() => {
     if (DeviceInfoModule?.getApplicationName) {
@@ -94,12 +99,14 @@ const AppInfo: React.FC = () => {
   const _copyClick = (value: string) => {
     Clipboard.setString(value);
     nativeToast("复制成功");
+    sensorsFundClick({ button_name: 'devtools_btn_click', devtools_click_btn_name: 'App信息页 复制信息' });
   };
 
   const _copyAll = () => {
     const str = _formatCopyStr(data);
     Clipboard.setString(str);
     nativeToast("一键复制成功");
+    sensorsFundClick({ button_name: 'devtools_btn_click', devtools_click_btn_name: 'App信息页 一键复制' });
   };
 
   const _formatCopyStr = (data: DeviceInfoItem[]): string => {
@@ -142,7 +149,7 @@ const AppInfo: React.FC = () => {
   });
 
   return (
-    <Page title="App信息" rightButton={rightButton} hideHeader translucent>
+    <Page title="App信息" rightButton={rightButton}>
       <View style={styles.container}>
         <FlatList
           data={data}

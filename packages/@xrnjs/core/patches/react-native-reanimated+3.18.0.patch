@@ -1,0 +1,27 @@
+diff --git a/node_modules/react-native-reanimated/apple/reanimated/apple/REAModule.mm b/node_modules/react-native-reanimated/apple/reanimated/apple/REAModule.mm
+index 4d667e4..9508719 100644
+--- a/node_modules/react-native-reanimated/apple/reanimated/apple/REAModule.mm
++++ b/node_modules/react-native-reanimated/apple/reanimated/apple/REAModule.mm
+@@ -257,11 +257,18 @@ - (BOOL)hasReactNativeFailedReload
+   jsi::Runtime &rnRuntime = *jsiRuntime;
+   WorkletRuntimeCollector::install(rnRuntime);
+   RNRuntimeDecorator::decorate(rnRuntime, reanimatedModuleProxy);
++	
+ #ifdef RCT_NEW_ARCH_ENABLED
+-  [self attachReactEventListener:reanimatedModuleProxy];
+-  const auto &uiManager = [self getUIManager];
+-  react_native_assert(uiManager.get() != nil);
+-  reanimatedModuleProxy->initializeFabric(uiManager);
++	if (_surfacePresenter == nil) {
++		_surfacePresenter = self.bridge.surfacePresenter;
++	}
++	
++	if (_surfacePresenter != nil) {
++		[self attachReactEventListener:reanimatedModuleProxy];
++		const auto &uiManager = [self getUIManager];
++		react_native_assert(uiManager.get() != nil);
++		reanimatedModuleProxy->initializeFabric(uiManager);
++	}
+ #endif // RCT_NEW_ARCH_ENABLED
+ 
+   return @YES;

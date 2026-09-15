@@ -1,5 +1,4 @@
 import { requireNativeModule, Platform } from "@xrnjs/modules-core";
-
 import { Spec } from "../NativeXRNToastModule";
 import { DurationMode, NativeToastStatic } from "./types";
 
@@ -12,7 +11,7 @@ if (Platform.OS === 'harmony' || Platform.OS === 'ios') {
 // const XRNToastModule = requireNativeModule<Spec>("XRNToastModule");
 
 export const XRNNativeToast: NativeToastStatic = {
-  showToast: (message: string, duration: DurationMode = 'SHORT') => {
+  showToast: (message: string, duration: DurationMode = DurationMode.SHORT) => {
     return new Promise<boolean>((resolve, reject) => {
       XRNToastModule?.showToast?.(message, duration)
         .then((res: boolean) => {

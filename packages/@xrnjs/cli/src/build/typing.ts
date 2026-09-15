@@ -1,315 +1,208 @@
-/**
- * TypeScript type definitions for the build system
- * Defines interfaces, enums, and types used throughout the build process
- */
-
-/**
- * Repository information model for bundle management
- * Contains metadata about Git repositories and bundle configuration
- */
+// 仓库信息模型
 export interface RepInfo {
-  /** Repository name */
   name: string;
-  /** Git branch name */
   branchName: string;
-  /** Git repository URL */
   gitUrl?: string;
-  /** Type of bundle (main, sub, or example) */
   bundleType: BundleType;
-  /** Resource paths for the bundle */
   resPath?: Array<string>;
-  /** CodePush key for the bundle */
   codePushKey?: string;
-  /** Whether to use common bundle */
   useCommonBundle?: boolean;
-  /** Whether to check native dependencies */
   checkNativeDep?: boolean;
-  /** Whether to write locale languages */
-  writeLocaleLangs?: boolean;
-  /** Relative path to bundle package */
   bundlePackageRelativePath?: string;
-  /** Whether to enable caching */
-  enableCache?: boolean;
-  /** Command to run before bundle preparation */
   prepareCommand?: string;
 }
 
-/**
- * Job parameters for build execution
- * Contains all configuration needed for a build job
- */
 export interface JobParams {
-  /** Project name */
   project: string;
-  /** Build environment */
   buildEnv: BuildEnv;
-  /** Build type (debug or release) */
   buildType: BuildType;
-  /** App version */
   version: string;
-  /** Target platform */
   platform: Platform;
-  /** Git branch name */
   branchName: string;
-  /** Distribution channel */
   channel: string;
-  /** App package format */
   appFormat: AppFormat;
-  /** Sub-bundles configuration */
+  // projectName: string;
+  // nativeResInfo: RepInfo;
   subBundle: Array<RepInfo>;
-  /** Whether to enable security features */
   isSec: boolean;
-  /** Whether to enable debug symbols */
   enableDsym: boolean;
-  /** Whether to build for iOS simulator */
   iosSimulator: boolean;
-  /** Native project target name */
-  nativeProjectName: string;
-  /** Whether to enable verbose logging */
+  nativeProjectName: string; // native 工程的 target
   verbose: boolean;
-  /** Whether to skip build */
   skip: boolean;
 }
 
-/**
- * Bundle resource information
- * Contains paths for bundle and resources
- */
 export interface BundleRes {
-  /** Path to the bundle file */
   bundlePath: string;
-  /** Path to resources */
   resPath: string;
 }
 
-/**
- * Supported platforms for building
- */
 export enum Platform {
   iOS = "ios",
   Android = "android",
   Harmony = "harmony",
 }
 
-/**
- * Build environments
- */
 export enum BuildEnv {
-  dev = "dev", // Not used
-  staging = "staging", // Not used
-  prod = "prod", // Environment: hotupdate.xtransfer.com
-  preProd = "pre-prod", // Environment: pre-cp.xtransfer.cn
+  dev = "dev", // 没用
+  staging = "staging", // 没用
+  prod = "prod", // 环境 hotupdate.xtransfer.com
+  preProd = "pre-prod", // 环境 pre-cp.xtransfer.cn
 }
 
-/**
- * Build types
- */
 export enum BuildType {
   DEBUG = "debug",
   RELEASE = "release",
 }
 
-/**
- * App package formats
- */
 export enum AppFormat {
   apk = "apk",
   aab = "aab",
   ipa = "ipa",
   app = "app",
+  hap = "hap",
 }
 
-/**
- * Bundle types for different purposes
- */
+// bundle类型
 export enum BundleType {
-  main = "main", // Main bundle
-  sub = "sub", // Sub bundle
-  example = "example", // Example bundle
+  main = "main", // 主 bundle
+  sub = "sub", // 子 bundle
+  example = "example", // 示例 bundle
 }
 
-/**
- * XRN configuration type from xrn.config.json
- * Contains app configuration and update keys
- */
+export enum TimingTrackerStage {
+  DIFF_REPO_FETCH = "基线仓库下载",
+
+  // bundle 处理
+  PROCESS_COMMON_BUNDLE = "处理 common bundle",
+  //   REPO_FETCH = "仓库拉取",
+  REPO_INITIALIZE = "仓库初始化，并行拉取仓库、安装依赖等",
+  //   DEPENDENCY_INSTALL = "依赖安装",
+  BUNDLE_BUILDING = "仓库打包",
+  PROCESS_BUNDLE_RESULTS = "处理 bundle 产物",
+  PROCESS_SUB_BUNDLES = "处理所有子 bundle",
+  //   BUNDLE_PREPARE = "准备 bundle",
+
+  // 原生打包
+  ANDROID_BUILD = "安卓 app 打包",
+  IOS_BUILD = "ios app 打包",
+  HARMONY_BUILD = "鸿蒙 app 打包",
+  APP_UPLOAD = "app 上传",
+  REINFORCE_APP= "App 加固",
+
+  // 上传第一次热更新
+  FIRST_CODE_PUSH = "第一次热更新",
+
+  TOTAL = "总耗时",
+}
+
+export interface CommonBundleConfig {
+  excludeDependencies?: string[];
+}
+
+// xrn.config.json
 export interface XRNConfigType {
-  /** Harmony OS update app key */
   harmonyUpdateAppKey: IOSUpdateAppKey;
-  /** Whether to use local bundle configuration */
   useLocalBundleConfig: boolean;
-  /** App name */
   appName: string;
-  /** App version */
   appVersion: string;
-  /** CLI version */
   cliVersion: string;
-  /** Whether unpacking is enabled */
   unpacking: boolean;
-  /** Bundle configuration */
   bundleConfig: BundleConfig;
-  /** iOS update app key */
   iosUpdateAppKey?: IOSUpdateAppKey;
-  /** Android update app key */
   androidUpdateAppKey?: AndroidUpdateAppKey;
+  commonBundleConfig?: CommonBundleConfig;
+  enableHermesCompiler?: boolean;
 }
 
-/**
- * iOS update app key configuration
- */
 export interface IOSUpdateAppKey {
-  /** Debug build key */
   debug: string;
-  /** Release build key */
   release: string;
 }
 
-/**
- * Android update app key configuration
- */
 export interface AndroidUpdateAppKey {
-  /** Debug build keys by channel */
   debug: ChannelAppKeyInfo;
-  /** Release build keys by channel */
   release: ChannelAppKeyInfo;
 }
 
-/**
- * Channel-specific app key information
- */
 export interface ChannelAppKeyInfo {
-  /** China channel key */
   china: string;
-  /** Default channel key */
   default: string;
 }
 
-/**
- * Bundle configuration structure
- */
 export interface BundleConfig {
-  /** Default options for all bundles */
   defaultOptions: DefaultOptions;
-  /** Individual bundle configurations */
   bundles: BundleConfigItem[];
 }
 
-/**
- * Individual bundle configuration item
- */
 export interface BundleConfigItem {
-  /** Bundle name */
   name: string;
-  /** Git repository URL */
   gitUrl?: string;
-  /** Development server port */
   port: number;
-  /** Bundle type */
   bundleType?: BundleType;
-  /** Preparation command */
   prepareCommand?: string;
-  /** Whether to use common bundle */
   useCommonBundle?: boolean;
-  /** Whether to check native dependencies */
   checkNativeDep?: boolean;
-  /** Whether to write locale languages */
-  writeLocaleLangs?: boolean;
-  /** Bundle package relative path */
   bundlePackageRelativePath?: string;
-  /** Whether to enable caching */
-  enableCache?: boolean;
 }
 
-/**
- * Default options for bundle configuration
- */
 export interface DefaultOptions {
-  /** Default bundle type */
   bundleType: BundleType;
-  /** Default preparation command */
   prepareCommand?: string;
 }
 
-// Build script options
+// build 脚本 options
 
 type Channel = "china";
-type BooleanString = "false" | "true" | boolean;
+type BooleanString = "false" | "true";
 
-/**
- * Build command options interface
- * Defines all available options for the build command
- */
 export interface BuildCommandOptions {
-  /** Build environment */
-  env?: BuildEnv;
-  /** Build type */
   type: BuildType;
-  /** Bundle branch */
+  /** 同步目标环境，通过 CLI 传参（dev / pre-prod / staging），默认空 */
+  syncTargetEnv?: BuildEnv;
   bundleBranch: string;
-  /** Distribution channel */
   channel: Channel;
-  /** App format */
   appFormat: AppFormat;
-  /** Security features flag */
   sec: BooleanString;
-  /** Debug symbols flag */
   dsym: BooleanString;
-  /** iOS simulator flag */
   iosSimulator: BooleanString;
-  /** Verbose logging flag */
   verbose: BooleanString;
-  /** Skip build flag */
   skip: BooleanString;
-  /** Skip bundle flag */
-  skipBundle: boolean;
-  /** App path */
   appPath?: string;
-  /** First CodePush flag */
+  nativeRoot?: string;
   shouldFirstCodePush: BooleanString;
-  /** Clean Watchman flag */
-  cleanWatchMan: BooleanString;
-  /** Private key path */
   privateKey: string;
+  minSupportedVersion?: string;
+  /** 用逗号分割的bundle名称列表，默认为all表示所有 */
+  bundles?: string;
+  /** 是否启用 Hermes 编译，传入字符串 true 或 false，默认 true */
+  hermes?: BooleanString;
+  /** 是否启用 deep-import Babel 插件，传入字符串 true 或 false，默认 true */
+  enableDeepImport?: BooleanString;
 }
 
-/**
- * Redirected Harmony dependency information
- */
 export interface RedirectedHarDep {
-  /** Dependency name */
   name: string;
-  /** Dependency version */
   version: string;
-  /** Source directory */
   sourceDir: string;
-  /** Whether to redirect internal imports */
   redirectInternalImports: boolean;
 }
 
-/**
- * Dependency information for native platforms
- */
 export interface DepInfo {
-  /** Dependency name */
   name: string;
-  /** Dependency version */
   version: string;
-  /** Dependency root path */
-  root: string;
-  /** Platform-specific configurations */
+  root?: string;
   platforms: {
-    /** Android-specific configuration */
     android?: {
-      sourceDir: string;
+      sourceDir?: string;
       [key: string]: any;
     };
-    /** iOS-specific configuration */
     ios?: {
-      sourceDir: string;
+      sourceDir?: string;
       [key: string]: any;
     };
-    /** Harmony OS-specific configuration */
     harmony?: {
-      sourceDir: string;
+      sourceDir?: string;
       alias?: string;
       [key: string]: any;
     };

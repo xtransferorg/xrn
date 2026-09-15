@@ -1,12 +1,11 @@
-import path from "path";
+
 
 import { AppStarter } from "./AppStarter";
 import logger from "../../utlis/logger";
 import { getPlatformIdentifier } from "../../utlis/readAppJsonFile";
 import { IOSDeviceManager } from "../deviceManager/IOSDeviceManager";
-import { AppInfo, DeviceType } from "../types";
+import { DeviceType } from "../types";
 import { assertToolsInstalled } from "../utils/check";
-import { getAppList, getLocalAppList } from "../utils/getVersionList";
 
 /**
  * iOS device app starter implementation
@@ -31,31 +30,10 @@ export class IOSAppStarter extends AppStarter {
   }
   
   /**
-   * Get the list of available remote iOS app versions
-   * @returns Promise resolving to an array of AppInfo objects
-   */
-  protected async getAppList() {
-    return await getAppList(DeviceType.IOS, this.options.branch);
-  }
-
-  /**
-   * Get the list of available local iOS app versions
-   * Searches in current directory and parent directory for iOS apps
-   * @returns Promise resolving to an array of AppInfo objects
-   */
-  protected async getLocalAppList() {
-    return await getLocalAppList(DeviceType.IOS, [
-      process.cwd(),
-      path.join(process.cwd(), ".."),
-    ]);
-  }
-
-  /**
    * Get the iOS bundle identifier for the app
-   * @param _app - App information (unused in this implementation)
    * @returns The iOS bundle identifier string
    */
-  protected getPackageName(_app: AppInfo) {
+  protected getPackageName() {
     return getPlatformIdentifier(DeviceType.IOS, this.config);
   }
   
@@ -63,9 +41,10 @@ export class IOSAppStarter extends AppStarter {
    * Perform post-installation tasks for iOS apps
    * iOS apps cannot be automatically launched, so we inform the user to launch manually
    * @param _deviceManager - Device manager instance (unused)
-   * @param _app - App information (unused)
    */
-  protected async postInstall(_deviceManager: any, _app: AppInfo) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected async postInstall(_deviceManager: any) {
     logger.info("iOS App 无法自动打开，请手动打开");
+    return Promise.resolve();
   }
 }

@@ -19,12 +19,12 @@ export type ImageSource = {
    * Can be specified if known at build time, in which case the value
    * will be used to set the default `<Image/>` component dimension.
    */
-  width?: number;
+  width?: number | null;
   /**
    * Can be specified if known at build time, in which case the value
    * will be used to set the default `<Image/>` component dimension.
    */
-  height?: number;
+  height?: number | null;
 
   /**
    * A string used to generate the image [`placeholder`](#placeholder). For example,
@@ -89,7 +89,7 @@ export type ImageDecodeFormat = 'argb' | 'rgb';
  * Some props are from React Native Image that Expo Image supports (more or less) for easier migration,
  * but all of them are deprecated and might be removed in the future.
  */
-export interface ImageProps extends Omit<ViewProps, 'style'> {
+export interface ImageProps extends Omit<ViewProps, 'style' | 'children'> {
   /** @hidden */
   style?: StyleProp<RNImageStyle>;
 
@@ -102,6 +102,10 @@ export interface ImageProps extends Omit<ViewProps, 'style'> {
 
   /**
    * An image to display while loading the proper image and no image has been displayed yet or the source is unset.
+   *
+   * > **Note**: The default value for placeholder's content fit is 'scale-down', which differs from the source image's default value.
+   * > Using a lower-resolution placeholder may cause flickering due to scaling differences between it and the final image.
+   * > To prevent this, you can set the [`placeholderContentFit`](#placeholdercontentfit) to match the [`contentFit`](#contentfit) value.
    */
   placeholder?:
     | ImageSource
@@ -161,7 +165,7 @@ export interface ImageProps extends Omit<ViewProps, 'style'> {
 
   /**
    * A color used to tint template images (a bitmap image where only the opacity matters).
-   * The color is applied to every non-transparent pixel, causing the image’s shape to adopt that color.
+   * The color is applied to every non-transparent pixel, causing the image's shape to adopt that color.
    * This effect is not applied to placeholders.
    * @default null
    */
@@ -277,7 +281,7 @@ export interface ImageProps extends Omit<ViewProps, 'style'> {
    * Note that `"repeat"` option is not supported at all.
    * Use the more powerful [`contentFit`](#contentfit) and [`contentPosition`](#contentposition) props instead.
    */
-  resizeMode?: 'cover' | 'contain' | 'stretch' | 'repeat' | 'center';
+  resizeMode?: 'cover' | 'contain' | 'stretch' | 'repeat' | 'center' | 'none';
 
   /**
    * @deprecated Provides compatibility for [`fadeDuration` from React Native Image](https://reactnative.dev/docs/image#fadeduration-android).
@@ -305,13 +309,13 @@ export interface ImageProps extends Omit<ViewProps, 'style'> {
   accessible?: boolean;
 
   /**
-   * The text that's read by the screen reader when the user interacts with the image. Sets the the `alt` tag on web which is used for web crawlers and link traversal.
+   * The text that's read by the screen reader when the user interacts with the image. Sets the `alt` tag on web which is used for web crawlers and link traversal.
    * @default undefined
    */
   accessibilityLabel?: string;
 
   /**
-   * The text that's read by the screen reader when the user interacts with the image. Sets the the `alt` tag on web which is used for web crawlers and link traversal. Is an alias for `accessibilityLabel`.
+   * The text that's read by the screen reader when the user interacts with the image. Sets the `alt` tag on web which is used for web crawlers and link traversal. Is an alias for `accessibilityLabel`.
    *
    * @alias accessibilityLabel
    * @default undefined
@@ -347,6 +351,45 @@ export interface ImageProps extends Omit<ViewProps, 'style'> {
    * @platform android
    */
   decodeFormat?: ImageDecodeFormat;
+
+  /**
+   * Whether to use the Apple's default WebP codec.
+   *
+   * Set this prop to `false` to use the official standard-compliant [libwebp](https://github.com/webmproject/libwebp) codec for WebP images.
+   * The default implementation from Apple is faster and uses less memory but may render animated images with incorrect blending or play them at the wrong framerate.
+   * @see https://github.com/SDWebImage/SDWebImage/wiki/Advanced-Usage#awebp-coder
+   *
+   * @default true
+   * @platform ios
+   */
+  useAppleWebpCodec?: boolean;
+
+  /**
+   * Force early resizing of the image to match the container size.
+   * This option helps to reduce the memory usage of the image view, especially when the image is larger than the container.
+   * It may affect the `resizeType` and `contentPosition` properties when the image view is resized dynamically.
+   *
+   * @default false
+   * @platform ios
+   */
+  enforceEarlyResizing?: boolean;
+
+  /**
+   * Controls whether the image view can leverage the extended dynamic range (EDR). Use this prop if you want to support high dynamic range (HDR) images,
+   * otherwise all images are rendered as standard dynamic range (SDR).
+   *
+   * @default false
+   * @platform ios 17.0+
+   * @platform tvos 17.0+
+   */
+  preferHighDynamicRange?: boolean;
+
+  /**
+   * Whether the `img` element is draggable on web.
+   * @default undefined
+   * @platform web
+   */
+  draggable?: boolean;
 }
 
 /**
@@ -360,8 +403,8 @@ export interface ImageNativeProps extends ImageProps {
   contentPosition?: ImageContentPositionObject;
   transition?: ImageTransition | null;
   autoplay?: boolean;
-  nativeViewRef?: React.RefObject<ExpoImage>;
-  containerViewRef?: React.RefObject<View>;
+  nativeViewRef?: React.RefObject<ExpoImage | null>;
+  containerViewRef?: React.RefObject<View | null>;
 }
 
 /**
@@ -414,10 +457,14 @@ export type ImageContentPosition =
     }
   | ImageContentPositionString;
 
+/**
+ * It allows you to use an image as a background while rendering other content on top of it.
+ * It extends all `Image` props but provides separate styling controls for the container and the background image itself.
+ */
 export interface ImageBackgroundProps extends Omit<ImageProps, 'style'> {
-  /** The style of the image container */
+  /** The style of the image container. */
   style?: StyleProp<ViewStyle> | undefined;
-  /** Style object for the image */
+  /** Style object for the image. */
   imageStyle?: StyleProp<RNImageStyle> | undefined;
   /** @hidden */
   children?: React.ReactNode | undefined;
@@ -560,8 +607,23 @@ export declare class ImageNativeModule extends NativeModule {
   // TODO: Add missing function declarations
   Image: typeof ImageRef;
 
-  // TODO: Support
-  // loadAsync(source: ImageSource, options?: ImageLoadOptions): Promise<ImageRef>;
+  loadAsync(source: ImageSource, options?: ImageLoadOptions): Promise<ImageRef>;
+
+  prefetch(
+    urls: string[],
+    cachePolicy: ImagePrefetchOptions['cachePolicy'],
+    headers?: Record<string, string>
+  ): Promise<boolean>;
+
+  clearMemoryCache(): Promise<boolean>;
+  clearDiskCache(): Promise<boolean>;
+
+  getCachePathAsync(cacheKey: string): Promise<string | null>;
+
+  generateBlurhashAsync(
+    source: string | ImageRef,
+    numberOfComponents: [number, number] | { width: number; height: number }
+  ): Promise<string | null>;
 }
 
 /**
@@ -570,13 +632,11 @@ export declare class ImageNativeModule extends NativeModule {
 export type ImageLoadOptions = {
   /**
    * If provided, the image will be automatically resized to not exceed this width in pixels, preserving its aspect ratio.
-   * @platform ios
    */
   maxWidth?: number;
 
   /**
    * If provided, the image will be automatically resized to not exceed this height in pixels, preserving its aspect ratio.
-   * @platform ios
    */
   maxHeight?: number;
 
@@ -584,4 +644,30 @@ export type ImageLoadOptions = {
    * Function to call when the image has failed to load. In addition to the error, it also provides a function that retries loading the image.
    */
   onError?(error: Error, retry: () => void): void;
+};
+
+/**
+ * An object containing options for the [`configureCache`](#configurecacheconfig) function.
+ * See [`SDImageCacheConfig`](https://sdwebimage.github.io/documentation/sdwebimage/sdimagecacheconfig) for more information.
+ * @platform ios
+ */
+export type ImageCacheConfig = {
+  /**
+   * The maximum size of the disk cache, in bytes.
+   * Defaults to 0, which means there is no cache size limit.
+   */
+  maxDiskSize?: number;
+
+  /**
+   * The maximum "total cost" of the in-memory image cache. The cost function is the bytes size held in memory,
+   * not simply the pixel count. For example, a typical ARGB8888 image uses 4 bytes (32 bits) per pixel.
+   * Defaults to 0, which means there is no memory cost limit.
+   */
+  maxMemoryCost?: number;
+
+  /**
+   * The maximum number of objects the in-memory image cache should hold.
+   * Defaults to 0, which means there is no memory count limit.
+   */
+  maxMemoryCount?: number;
 };

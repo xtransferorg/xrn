@@ -1,9 +1,9 @@
-import { PublishCommandOptions } from "./publishTypes";
-import { BuildJobContext } from "../build/BuildJobContext";
-import { BuildEnv } from "../build/typing";
 import logger from "../utlis/logger";
+import { BuildJobContext } from "../build/BuildJobContext";
+import { PublishCommandOptions } from "./publishTypes";
+import { BuildEnv } from "../build/typing";
 
-export class PublishJobContext extends BuildJobContext {
+export class PublishJobContext {
   /** Changelog of the release */
   changeLog: string;
 
@@ -11,7 +11,7 @@ export class PublishJobContext extends BuildJobContext {
   isBackwardCompatible: boolean;
 
   /** Update type of the release. force or silent */
-  updateType: "force" | "silent";
+  updateType: "Force" | "Silent";
 
   /** Only apply the release to the specified version */
   onlyApplyVersion: string;
@@ -21,31 +21,47 @@ export class PublishJobContext extends BuildJobContext {
   /** 如果设置了此参数，表示除了此版的App都能收到本次更新 */
   notOnlyApplyVersion: string;
 
-  initPublish({
-    changeLog,
-    isBackwardCompatible,
-    updateType,
-    onlyApplyVersion,
-    uploadToOSS = this.buildEnv === BuildEnv.prod ? "true" : "false",
-    notOnlyApplyVersion,
-  }: PublishCommandOptions) {
+  buildContext: BuildJobContext;
+
+  /** 是否构建测试环境生产稳定版本app */
+  initPublish(
+    buildContext: BuildJobContext,
+    {
+      changeLog,
+      isBackwardCompatible,
+      updateType,
+      onlyApplyVersion,
+      uploadToOSS = buildContext.buildEnv === BuildEnv.prod ? "true" : "false",
+      notOnlyApplyVersion,
+    }: PublishCommandOptions
+  ) {
+    this.buildContext = buildContext;
     this.changeLog = changeLog;
     this.isBackwardCompatible = isBackwardCompatible === "true";
     this.updateType = updateType;
     this.onlyApplyVersion = onlyApplyVersion;
     this.notOnlyApplyVersion = notOnlyApplyVersion;
     this.uploadToOSS = uploadToOSS === "true";
+
     return this;
   }
 
   getPublishContextReport() {
-    return [
-      this.getBuildContextReport(),
+    const baseReport = [
+      this.buildContext.getBuildContextReport(),
       `changeLog: ${this.changeLog}`,
       `isBackwardCompatible: ${this.isBackwardCompatible}`,
       `updateType: ${this.updateType}`,
       `onlyApplyVersion: ${this.onlyApplyVersion}`,
-    ].join("\n");
+    ];
+
+    if (this.buildContext.minSupportedVersion) {
+      baseReport.push(
+        `minSupportedVersion: ${this.buildContext.minSupportedVersion}`
+      );
+    }
+
+    return baseReport.join("\n");
   }
 
   logInfo() {

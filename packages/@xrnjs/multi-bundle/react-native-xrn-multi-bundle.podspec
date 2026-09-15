@@ -15,9 +15,18 @@ Pod::Spec.new do |s|
   s.source       = { git: "https://github.com/xtransferorg/xrn" }
 
   s.source_files = "ios/**/*.{h,m,mm,swift}"
-    
-  s.dependency 'JRSwizzle'
+  s.dependency 'JRSwizzle', '2.0.0'
   s.dependency 'YYCache', '1.0.4'
-  s.dependency 'React'
+  
+	if ENV['RCT_NEW_ARCH_ENABLED'] == '1'
+		install_modules_dependencies(s)
+		hash = s.to_hash
+		current_config = hash["pod_target_xcconfig"] || {}
+		current_headers = current_config["HEADER_SEARCH_PATHS"] || ""
+		current_config["HEADER_SEARCH_PATHS"] = "#{current_headers} \"$(PODS_ROOT)/Headers/Private/React-Core\""
+		s.pod_target_xcconfig = current_config
+	else
+		s.dependency 'React-Core'
+	end
 
 end

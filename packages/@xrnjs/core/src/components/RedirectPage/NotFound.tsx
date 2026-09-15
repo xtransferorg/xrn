@@ -3,7 +3,7 @@ import { checkRNUpdate } from "../../utils/codePushUtils";
 import { useMount } from "ahooks";
 import { Button, Text, View } from "react-native";
 // import * as Sentry from '@sentry/react-native';
-// import { getCurrentModuleInfo } from '@xrnjs/navigation';
+// import { getCurrentModuleInfo } from '@xrn/navigation';
 
 interface CodePushResult {
   loading: boolean;

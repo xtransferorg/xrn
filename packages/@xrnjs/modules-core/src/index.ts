@@ -5,8 +5,8 @@ import SharedRef from "./SharedRef";
 import { CodedError } from "./errors/CodedError";
 import { UnavailabilityError } from "./errors/UnavailabilityError";
 import {
+  isNativeModuleMethodAvailable,
   requireNativeModule,
-  requireOptionalNativeModule,
 } from "./requireNativeModule";
 
 export {
@@ -16,7 +16,7 @@ export {
   CodedError,
   UnavailabilityError,
   requireNativeModule,
-  requireOptionalNativeModule,
+  isNativeModuleMethodAvailable,
   requireNativeViewManager,
 };
 

@@ -5,7 +5,11 @@ import android.content.Intent
 import android.os.Bundle
 import com.blankj.utilcode.util.GsonUtils
 import com.blankj.utilcode.util.LogUtils
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import xrn.modules.multibundle.bundle.BundleInfoManager
+import xrn.modules.multibundle.bundle.BundleType
 import xrn.modules.multibundle.view.RNContainerActivity
 import xrn.modules.navigation.kotlin.exception.GlobalExceptionHandler
 
@@ -45,26 +49,14 @@ object NavHelper {
         }
 
         val bundleInfo = BundleInfoManager.getBundleInfo(bundleName)
-
-        if (bundleInfo == null) {
-            GlobalExceptionHandler.onBundle404(
-                activity,
-                bundleName,
-                moduleName,
-                initialProps
-            )
-
-            return null
-        }
-
-        val clazz = activityClazzFactory!!.get(bundleInfo.bundleType)
-
+        val bundleType = bundleInfo?.bundleType ?: BundleType.DEFAULT
+        val clazz = activityClazzFactory!!.get(bundleType)
         val intent = Intent(activity, clazz)
-
+        if (bundleType == BundleType.MAIN) {
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        }
         val moduleParams = buildModuleParams(bundleName, moduleName, initialProps)
-
         intent.putExtra(RNContainerActivity.BUNDLE_PARAMS, moduleParams)
-
         return intent
     }
 
@@ -77,7 +69,6 @@ object NavHelper {
         val initialPropsObj = initialProps?.let {
             GsonUtils.toJson(it)
         }
-
         return buildIntent(
             activity,
             bundleName,
@@ -88,7 +79,6 @@ object NavHelper {
 
     fun buildMainModuleIntent(activity: Activity, initialProps: InitialProps? = null): Intent? {
         val mainBundleInfo = BundleInfoManager.getMainBundleInfo() ?: return null
-
         return buildIntent(activity, mainBundleInfo.bundleName, null, initialProps)
     }
 
@@ -100,11 +90,10 @@ object NavHelper {
     ): Boolean {
         if (activity == null) return false
 
-        val intent = buildIntent(activity, bundleName, moduleName, initialProps) ?: return false
-
-        activity.startActivity(intent)
-
-        return true
+        val initialPropsObj = initialProps?.let {
+            GsonUtils.toJson(it)
+        }
+        return jump2Module(activity, bundleName, moduleName, initialPropsObj)
     }
 
     fun jump2Module(
@@ -117,7 +106,23 @@ object NavHelper {
 
         val intent = buildIntent(activity, bundleName, moduleName, initialProps) ?: return false
 
-        activity.startActivity(intent)
+        if (BundleInfoManager.isBundleRegistered(bundleName)) {
+            activity.startActivity(intent)
+        } else {
+            CoroutineScope(Dispatchers.Main).launch {
+                val remoteBundle = BundleInfoManager.getRemoteBundle(bundleName)
+                if (remoteBundle != null) {
+                    activity.startActivity(intent)
+                } else {
+                    GlobalExceptionHandler.onBundle404(
+                        activity,
+                        bundleName,
+                        moduleName,
+                        initialProps
+                    )
+                }
+            }
+        }
 
         return true
     }

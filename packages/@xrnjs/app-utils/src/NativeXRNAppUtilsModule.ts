@@ -1,7 +1,6 @@
 import { TurboModuleRegistry } from "react-native";
 import type { TurboModule } from "react-native/Libraries/TurboModule/RCTExport";
 
-
 /**
  * 设备安全性结果
  */
@@ -22,7 +21,7 @@ export interface Spec extends TurboModule {
    * 安装App
    * @param filePath 安装包路径
    */
-  installApp(filePath: string): void;
+  installApp(filePath: string): boolean;
   /**
    * 是否已安装特定App
    * @param pkgName App包名
@@ -31,18 +30,18 @@ export interface Spec extends TurboModule {
   /**
    * 退出App
    */
-  exitApp(): void;
+  exitApp(): boolean;
   /**
    * 重启App
    */
-  relaunchApp(): void;
+  relaunchApp(): boolean;
   /**
    * App切到后台
    */
-  moveTaskToBack(): void;
+  moveTaskToBack(): boolean;
   /**
-   * 跳转到应用市场的指定应用详情
-   * @param appPkgName App包名
+   * Android/Harmony：打开应用市场的 App 详情页
+   * @param appPkgName Android App 包名；Harmony App bundleName
    * @param marketPgkName 应用市场包名
    */
   launchAppDetail(appPkgName: string, marketPgkName: string): Promise<void>;

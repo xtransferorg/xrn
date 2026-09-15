@@ -2,7 +2,6 @@ import {
   RNInstance,
   RNOHCoreContext,
   RNOHLogger } from '@rnoh/react-native-openharmony'
-import {XRNApp, XRNJSPackagerClientConfig} from '../XRNOH'
 import { APP_BUNDLE_BUNDLE_INFO_MANAGER,
   APP_RNOH_RNOHCoreContext,
   APP_RN_BUNDLE_STATE_MAP, APP_RN_RNINSTANCE_MAP} from '../Constants'
@@ -12,86 +11,54 @@ import { BundleInfo } from '../bundle/BundleInfo'
 import {
   getJSBundleProvider,
   getRNInstanceConfig, getWrappedCustomRNComponentBuilder, globalRNContainerOptions } from './RNContainerHelper'
+import { XRNApp } from '../XRNOH/XRNApp'
+import { XRNJSPackagerClientConfig } from '../XRNOH'
 
 /**
- * React Native Container Component
- *
- * Responsible only for rendering and refreshing the UI component,
- * as well as interacting with the internal React Native instance.
- *
- * The lifecycle of RNInstance (creation and destruction) is managed by RNInstanceManager.
+ * RN 容器组件，只负责组件刷新，以及和 RN 内部的交互；
+ * RNInstance 由 RNInstanceManager 管理，创建和销毁；
  */
 @Component
 export struct RNContainer {
   private static TAG = 'RNContainer'
 
-  /**
-   * Name of the bundle to load
-   */
   @Require
   bundleName: string = "unknown"
-  /**
-   * Name of the module
-   */
   @Require
   moduleName: string = "unknown"
-  /**
-   * Initial props passed to the RN view
-   */
   @Require
   initialProps: Record<string, string> | undefined
 
-  /**
-   * Reference to the RNOH core context
-   */
   @StorageLink('RNOHCoreContext')
   private rnohCoreContext: RNOHCoreContext | undefined = undefined
 
-  /**
-   * Reference to the bundle info manager
-   */
   @StorageLink(APP_BUNDLE_BUNDLE_INFO_MANAGER)
   private bundleInfoManager: BundleInfoManager | undefined = undefined
-  /**
-   * Cached bundle info for this container
-   */
   private bundleInfo: BundleInfo | undefined
 
-  /**
-   * Map of RN instances, keyed by bundle name
-   */
   @StorageProp(APP_RN_RNINSTANCE_MAP)
   @Watch('onPropertyChange')
   private rnInstanceMap: Map<string, RNInstanceWrapper> | undefined = undefined
-  /**
-   * Map of bundle states, keyed by bundle name
-   */
   @StorageProp(APP_RN_BUNDLE_STATE_MAP)
   @Watch('onPropertyChange')
   private bundleStateMap: Map<string, BundleStateWrapper> | undefined = undefined
 
-  /**
-   * Currently bound RN instance
-   */
   @State
   private rnInstance: RNInstance | undefined = undefined
 
   private logger!: RNOHLogger
 
   /**
-   * Index of the current RNContainer.
-   * Starts from 1 when valid.
+   * 索引值
+   * 从1开始有效
    */
   private rnContainerIndex = 0;
-  /**
-   * Indicates whether the JS bundle has finished loading
-   */
   @State
   private jsBundleReady: boolean = false
 
   /**
-   * Callback method triggered when a @Watch variable changes.
-   * @param propName - Name of the property that changed
+   * @Watch 变量变更时的回调方法
+   * @param propName
    */
   onPropertyChange(propName: string) {
     if (propName === 'rnInstanceMap') {
@@ -105,12 +72,12 @@ export struct RNContainer {
 
   async aboutToAppear(): Promise<void> {
     this.bundleInfo = this.bundleInfoManager?.getBundleInfo(this.bundleName)
-    // Use cached instance if available, otherwise create a new one
+    //有缓存直接用，无缓存创建
     this.rnInstance = RN_INSTANCE_MANAGER.getRNInstanceByBundle(this.bundleName)
     if (!this.rnInstance) {
       this.rnInstance = await RN_INSTANCE_MANAGER.createInstanceIfNeed(this.bundleName)
     }
-    // Generate RNContainer index value
+    //生成 RNContainer 索引值
     const bundleStateWrapper = RN_INSTANCE_MANAGER.getBundleStateWrapper(this.bundleName)
     this.rnContainerIndex = bundleStateWrapper?.createIndexForRNContainer() || 0
     if (this.rnContainerIndex > 0) {
@@ -133,9 +100,8 @@ export struct RNContainer {
   }
 
   /**
-   * This method should only be called inside the build() function.
-   * Determines whether the RN application should be displayed.
-   * @returns {boolean} Whether to show the RN app.
+   * 该方法只能在 build() 中调用；
+   * @returns
    */
   private needShowRNApp(): boolean {
     const bundleStateWrapper = RN_INSTANCE_MANAGER.getBundleStateWrapper(this.bundleName)
@@ -145,9 +111,7 @@ export struct RNContainer {
     } else if (this.jsBundleReady) {
       showRNApp = true
     } else {
-      // When a single bundle has multiple SurfaceHandles, only one RNApp is responsible for
-      // triggering the destruction and recreation of the RNInstance.
-      // The RNApp will be shown only after the new RNInstance is created and the JS is ready.
+      //一个Bundle多个SurfaceHandle时，只由一个RNApp触发销毁和重新创建 RNInstance，等新的 RNInstance 创建好，JS Ready时，再显示 RNApp
       showRNApp = this.rnContainerIndex === bundleStateWrapper?.getLastIndex()
     }
     console.log(`RNContainer.needShowRNApp:needShow=${showRNApp}, bundleName=${this.bundleName}, bundleState = ${bundleStateWrapper?.bundleState}, this.rnContainerIndex=${this.rnContainerIndex}, maxIndex=${bundleStateWrapper?.getLastIndex()}, rnInstance=${this.rnInstance}`)
@@ -167,7 +131,7 @@ export struct RNContainer {
             this.onSetup(rnInstance)
           },
           jsBundleProvider: getJSBundleProvider(this.bundleName),
-          onReload: async (ins, reason) => {
+          onReload: async (instance, reason) => {
             if(reason) {
               try {
                 const data: XRNJSPackagerClientConfig = JSON.parse(reason)
@@ -193,6 +157,13 @@ export struct RNContainer {
               const rnohCoreContext: RNOHCoreContext | undefined = AppStorage.get<RNOHCoreContext>(APP_RNOH_RNOHCoreContext)
               await rnohCoreContext?.destroyAndUnregisterRNInstance(reloadRNInstance)
               await RN_INSTANCE_MANAGER.createInstanceIfNeed(this.bundleName)
+            })
+          } else if (bundleStateWrapper?.getRNViewCount() === 0 && bundleStateWrapper.bundleState === BundleState.RELEASING) {
+            setTimeout(async () => {
+              const releaseRNInstance = bundleStateWrapper?.rnInstance
+              releaseRNInstance?.enableFeatureFlag("ENABLE_RN_INSTANCE_CLEAN_UP")
+              const rnohCoreContext: RNOHCoreContext | undefined = AppStorage.get<RNOHCoreContext>(APP_RNOH_RNOHCoreContext)
+              await rnohCoreContext?.destroyAndUnregisterRNInstance(releaseRNInstance)
             })
           }
         })

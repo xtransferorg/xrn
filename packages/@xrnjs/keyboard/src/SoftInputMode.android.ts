@@ -1,0 +1,23 @@
+import { HarmonySoftInputModeMap } from "./SoftInputMode.harmony";
+
+const ANDROID = Object.freeze({
+  SOFT_INPUT_MASK_STATE: 15,
+  SOFT_INPUT_STATE_UNSPECIFIED: 0,
+  SOFT_INPUT_STATE_UNCHANGED: 1,
+  SOFT_INPUT_STATE_HIDDEN: 2,
+  SOFT_INPUT_STATE_ALWAYS_HIDDEN: 3,
+  SOFT_INPUT_STATE_VISIBLE: 4,
+  SOFT_INPUT_STATE_ALWAYS_VISIBLE: 5,
+  SOFT_INPUT_MASK_ADJUST: 240,
+  SOFT_INPUT_ADJUST_UNSPECIFIED: 0,
+  SOFT_INPUT_ADJUST_RESIZE: 16,
+  SOFT_INPUT_ADJUST_PAN: 32,
+  SOFT_INPUT_ADJUST_NOTHING: 48,
+});
+
+export type AndroidSoftInputModeMap = typeof ANDROID;
+
+export const SOFT_INPUT_MODE = Object.freeze({
+  ANDROID,
+  HARMONY: {} as HarmonySoftInputModeMap,
+} as const);

@@ -81,10 +81,13 @@ export class IOSDeviceManager extends BaseDeviceManager {
       return false;
     }
   }
-  async getAppVersion(packageName: string): Promise<string> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  getAppVersion(packageName: string): Promise<string> {
     // iOS 真机获取 app 版本一般需要特殊命令，这里暂时返回空字符串
-    return "";
+    return Promise.resolve("");
   }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async uninstallApp(packageName: string): Promise<void> {
     // TODO: 需要实现卸载命令
   }
@@ -94,16 +97,18 @@ export class IOSDeviceManager extends BaseDeviceManager {
     }
     await execWithOra("安装应用", `ios-deploy --bundle ${appPath}`);
   }
-  async launchApp(packageName: string, activity?: string): Promise<void> {
+  async launchApp(packageName: string): Promise<void> {
     if (!(await this.isDeviceRunning())) {
       throw new Error(`设备 ${this.device.deviceName} 未运行`);
     }
     const command = `ios-deploy --id ${this.device.udid} --justlaunch --bundle_id ${packageName}`;
     await execWithOra("启动应用", command);
   }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async reversePort(devicePort: number, port: number): Promise<void> {
     // iOS 真机一般不支持端口反向代理
   }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async removeReversePort(devicePort: number): Promise<void> {
     // iOS 真机一般不支持端口反向代理
   }

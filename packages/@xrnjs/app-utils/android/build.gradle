@@ -49,7 +49,7 @@ def supportsNamespace() {
 
 android {
   if (supportsNamespace()) {
-    namespace "com.XRNAppUtilsModule"
+    namespace "xrn.modules.apputils"
 
     sourceSets {
       main {
@@ -64,6 +64,10 @@ android {
     minSdkVersion getExtOrIntegerDefault("minSdkVersion")
     targetSdkVersion getExtOrIntegerDefault("targetSdkVersion")
 
+  }
+
+  buildFeatures {
+    buildConfig true
   }
 
   buildTypes {
@@ -83,6 +87,19 @@ android {
 }
 
 repositories {
+   maven {
+    // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
+
+    // Use node resolver to locate react-native package
+    def reactNativePackage = file(["node", "--print", "require.resolve('react-native/package.json')"].execute(null, rootDir).text.trim())
+    if (reactNativePackage.exists()) {
+      url "$reactNativePackage.parentFile/android"
+    }
+    // Fallback to react-native package colocated in node_modules
+    else {
+      url "$rootDir/../node_modules/react-native/android"
+    }
+  }
   mavenCentral()
   google()
 }

@@ -10,6 +10,7 @@ import NLModal from "./Modal";
 import Button from "./Button";
 import { useAppContext } from "./AppContext";
 import { Theme, useTheme, useThemedStyles } from "../theme";
+import { sensorsFundClick } from "../../../../utils/sensorsTrack";
 
 const FilterButton = ({
   onPress,
@@ -54,6 +55,7 @@ const Filters = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
               key={method}
               active={filter.methods?.has(method)}
               onPress={() => {
+                sensorsFundClick({ button_name: 'devtools_btn_click', devtools_click_btn_name: '网络日志 筛选Method点击' });
                 const newMethods = new Set(filter.methods);
                 if (newMethods.has(method)) {
                   newMethods.delete(method);
@@ -80,6 +82,7 @@ const Filters = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
           <FilterButton
             active={filter.statusErrors}
             onPress={() => {
+              sensorsFundClick({ button_name: 'devtools_btn_click', devtools_click_btn_name: '网络日志 筛选Error点击' });
               dispatch({
                 type: "SET_FILTER",
                 payload: {
@@ -101,6 +104,7 @@ const Filters = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
             maxLength={3}
             accessibilityLabel="Status Code"
             onChangeText={(text) => {
+              sensorsFundClick({ button_name: 'devtools_btn_click', devtools_click_btn_name: '网络日志 筛选Status点击' });
               const status = parseInt(text, 10);
               dispatch({
                 type: "SET_FILTER",
@@ -116,6 +120,7 @@ const Filters = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
         <TouchableOpacity
           style={styles.resetStyle}
           onPress={() => {
+            sensorsFundClick({ button_name: 'devtools_btn_click', devtools_click_btn_name: '网络日志 重置筛选点击' });
             dispatch({
               type: "CLEAR_FILTER",
             });

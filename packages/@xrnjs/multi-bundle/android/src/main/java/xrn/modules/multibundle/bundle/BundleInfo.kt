@@ -1,16 +1,28 @@
 package xrn.modules.multibundle.bundle
 
+import com.facebook.react.BuildConfig
+import xrn.modules.multibundle.devsupport.XRNDeveloperSettings
+
 
 /**
- * Bundle info
- * @param bundleName bundle name
- * @param bundleType bundle type
- * @param defaultModuleName default module name
- * @param moduleNames module names
- * @param codePushKey CodePush deployment key
- * @param port local server port
+ * Bundle 信息
+ * 静态数据
+ * @param bundleName bundle 名
+ * @param bundleType bundle 类型
+ * @param defaultModuleName 默认 module 名
+ * @param moduleNames module 名数组
+ * @param codePushKey CodePush Key
+ * @param port 端口
  */
-class BundleInfo(val bundleName: String, val bundleType: BundleType, val defaultModuleName: String, moduleNames: Array<String>?, codePushKey: String?, private val port: Int) {
+class BundleInfo(
+    val bundleName: String,
+    val bundleType: BundleType,
+    val defaultModuleName: String,
+    moduleNames: Array<String>?,
+    codePushKey: String?,
+    private var port: Int,
+    private val deliveryType: DeliveryType = DeliveryType.INNER
+) {
 
     companion object {
         /**
@@ -20,7 +32,7 @@ class BundleInfo(val bundleName: String, val bundleType: BundleType, val default
     }
 
     /**
-     * CodePush deployment key in config file
+     * 初始 CodePush Key
      */
     private val initCodePushKey: String = codePushKey ?: ""
 
@@ -36,19 +48,19 @@ class BundleInfo(val bundleName: String, val bundleType: BundleType, val default
     }
 
     /**
-     * dynamically hook bundle info at runtime
+     * Hook
      */
     private var hook: BundleInfoHook? = null
 
     /**
-     * whether it is the main bundle
+     * 是否为主 bundle
      */
     fun isMainBundle(): Boolean {
         return bundleType == BundleType.MAIN
     }
 
     /**
-     * add module name dynamically at runtime.
+     * 添加 AppKey
      */
     fun addAppKey(appKey: String?) {
         if (appKey.isNullOrEmpty()) {
@@ -60,62 +72,69 @@ class BundleInfo(val bundleName: String, val bundleType: BundleType, val default
     }
 
     /**
-     * get module name list
+     * 获取 module 名 list
      */
     fun getModuleNames(): List<String> {
         return moduleNameList.toList()
     }
 
     /**
-     * set BundleInfoHook
+     * 设置 BundleInfoHook
      */
     fun setHook(hook: BundleInfoHook?) {
         this.hook = hook
     }
 
     /**
-     * get the CodePush deployment key in config file
+     * 获取初始 CodePush Key
      */
     fun getInitCodePushKey(): String {
         return initCodePushKey
     }
 
     /**
-     * get the final CodePush deployment key
+     * 获取 CodePush Key
      */
     fun getCodePushKey(): String {
+        if (BuildConfig.DEBUG
+            && XRNDeveloperSettings.instance(bundleName)?.isCodePushEnabled() == false
+        ) {
+            return ""
+        }
+
         return hook?.hookCodePushKey?.let { it(this) } ?: initCodePushKey
     }
 
     /**
-     * get local server port
+     * 获取本地服务 端口
      */
     fun getPort(): Int {
+        val cachedPort = XRNDeveloperSettings.instance(bundleName)?.getDebugServerPort()
+        if (cachedPort != null && cachedPort != XRNDeveloperSettings.DEBUG_SERVER_PORT_DEFAULT) {
+            return cachedPort
+        }
+
         return port
+    }
+
+    fun setPort(newPort: Int) {
+        this.port = newPort
     }
 }
 
-/**
- * bundle type enums
- */
 enum class BundleType {
-    /**
-     * main bundle
-     */
     MAIN,
-
-    /**
-     * default bundle
-     */
     DEFAULT
 }
 
+enum class DeliveryType {
+    INNER,
+    DYNAMIC
+}
+
 /**
- * Dynamically hook bundle info at runtime
+ * 特殊信息Hook方法
  */
 interface BundleInfoHook {
-    /**
-     * hook CodePush deployment key
-     */
     val hookCodePushKey: ((info: BundleInfo) -> String)?
 }

@@ -24,6 +24,10 @@ class NavigationModuleInternal {
     NavDestinationMgr.setTopRnId(key)
   }
 
+  bindNavigationState(state: string) {
+    NavDestinationMgr.setTopRnState(state)
+  }
+
   dispatchAction(jsonAction: string): boolean {
     const action = JSON.parse(jsonAction) as RNNavigationAction
 

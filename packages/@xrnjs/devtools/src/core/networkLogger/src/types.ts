@@ -4,6 +4,7 @@ export type Headers = Record<string, string>;
 
 export type RequestMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
+// 启动网络日志收集配置参数
 export type StartNetworkLoggingOptions = {
   /**
    * Max number of requests to keep before overwriting

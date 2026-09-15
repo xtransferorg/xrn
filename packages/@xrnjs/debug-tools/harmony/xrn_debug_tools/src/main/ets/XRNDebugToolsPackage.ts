@@ -9,14 +9,19 @@ import type {
 import { TM } from "@rnoh/react-native-openharmony/generated/ts";
 import { RNPackageContext } from "@rnoh/react-native-openharmony/src/main/ets/RNOH/RNPackage";
 import { XRNDebugToolsModule } from './XRNDebugToolsModule';
+import { BundleInfoUpdatable } from '@xrnjs/modules-core/ts'
 
-class XRNDebugToolsModulesFactory extends TurboModulesFactory {
+class XRNDebugToolsModulesFactory extends TurboModulesFactory implements BundleInfoUpdatable {
 
   bundleName: string
 
   constructor(ctx: TurboModuleContext, bundleName: string) {
     super(ctx)
     this.bundleName = bundleName;
+  }
+
+  updateBundleInfo(bundleName: string): void {
+    this.bundleName = bundleName
   }
 
   createTurboModule(name: string): TurboModule | null {

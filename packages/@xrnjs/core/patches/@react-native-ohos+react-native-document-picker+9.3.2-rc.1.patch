@@ -1,0 +1,13 @@
+diff --git a/node_modules/@react-native-ohos/react-native-document-picker/harmony/document_picker/src/main/ets/documentPickerTurboModule.ts b/node_modules/@react-native-ohos/react-native-document-picker/harmony/document_picker/src/main/ets/documentPickerTurboModule.ts
+index 9eb70f2..c5c1ad0 100644
+--- a/node_modules/@react-native-ohos/react-native-document-picker/harmony/document_picker/src/main/ets/documentPickerTurboModule.ts
++++ b/node_modules/@react-native-ohos/react-native-document-picker/harmony/document_picker/src/main/ets/documentPickerTurboModule.ts
+@@ -113,7 +113,7 @@ export class DocumentPickerTurboModule extends TurboModule implements TM.RNDocum
+   async pick(options: PickerOptions): Promise<TM.RNDocumentPicker.DocumentPickerResponse[]> {
+     try {
+       const pickerOpt = new picker.DocumentSelectOptions();
+-      if (canIUse('SystemCapability.FileManagement.UserFileService.FolderSelection')) {
++      if (canIUse('SystemCapability.FileManagement.UserFileService')) {
+         pickerOpt.selectMode = picker.DocumentSelectMode.FILE;
+       };
+       pickerOpt.fileSuffixFilters = this.getPickerFileSuffix(options.type);

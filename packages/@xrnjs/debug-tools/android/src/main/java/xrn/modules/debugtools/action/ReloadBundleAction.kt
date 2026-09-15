@@ -9,7 +9,6 @@ class ReloadBundleAction(val activity: RNContainerActivity?): IAction {
     }
 
     override fun doAction() {
-        val reactInstanceManager = activity?.getRNHost()?.reactInstanceManager
-        reactInstanceManager?.devSupportManager?.handleReloadJS()
+        activity?.reactHost?.devSupportManager?.handleReloadJS()
     }
 }

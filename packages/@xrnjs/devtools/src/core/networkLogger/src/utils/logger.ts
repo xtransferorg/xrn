@@ -1,2 +1,2 @@
 export const warn = (message: string) =>
-console.warn(`xrn-network-logger: ${message}`);
+console.warn(`@xrnjs/network-logger: ${message}`);

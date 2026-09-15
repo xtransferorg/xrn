@@ -15,6 +15,8 @@ Pod::Spec.new do |s|
   s.source       = { git: "https://github.com/xtransferorg/xrn" }
 
   s.source_files = "ios/**/*.{h,m,mm,swift}"
+  s.public_header_files = "ios/**/*.h"
+  s.module_name = "XRNDebugTools"
 
   s.dependency "react-native-xrn-navigation"
 

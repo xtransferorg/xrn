@@ -92,7 +92,7 @@ export class HarmonyDeviceManager extends BaseDeviceManager {
     );
   }
 
-  async launchApp(packageName: string, activity?: string): Promise<void> {
+  async launchApp(packageName: string): Promise<void> {
     if (!(await this.isDeviceRunning())) {
       throw new Error(`设备 ${this.deviceName} 未运行`);
     }
@@ -117,6 +117,7 @@ export class HarmonyDeviceManager extends BaseDeviceManager {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async removeReversePort(devicePort: number): Promise<void> {
     // 鸿蒙暂未实现端口反向代理移除，如有需要可补充
   }

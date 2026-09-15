@@ -28,11 +28,14 @@
 
 - (void)startUp {
   NSAssert(self.dataSource != nil, @"MultiBundle not set dataSource");
+	
   NSArray <XTBundleData *>*bundleModelArray = [self.dataSource multiBundleForBundleModelArray];
+	
   NSDictionary *launchOptions = [[self.dataSource multiBundleForLaunchOptions] copy];
+	
   self.pool = XTJSBridgePool.shared;
+	
   [XTJSBridgePool.shared setupAllJSBridgeInfo:bundleModelArray launchOptions:launchOptions];
 }
-
 
 @end

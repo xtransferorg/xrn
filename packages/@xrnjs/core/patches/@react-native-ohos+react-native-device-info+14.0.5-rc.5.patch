@@ -1,0 +1,534 @@
+diff --git a/node_modules/@react-native-ohos/react-native-device-info/harmony/device_info/src/main/cpp/RNDeviceInfo.cpp b/node_modules/@react-native-ohos/react-native-device-info/harmony/device_info/src/main/cpp/RNDeviceInfo.cpp
+index 29db123..da60f4c 100644
+--- a/node_modules/@react-native-ohos/react-native-device-info/harmony/device_info/src/main/cpp/RNDeviceInfo.cpp
++++ b/node_modules/@react-native-ohos/react-native-device-info/harmony/device_info/src/main/cpp/RNDeviceInfo.cpp
+@@ -133,6 +133,33 @@ RNDeviceInfo::RNDeviceInfo(const ArkTSTurboModule::Context ctx, const std::strin
+         ARK_METHOD_METADATA(getSupportedMediaTypeListSync, 0),
+         ARK_ASYNC_METHOD_METADATA(getStartupTime, 0),
+         ARK_METHOD_METADATA(getStartupTimeSync, 0),
++        ARK_METHOD_METADATA(isPinOrFingerprintSetSync, 0),
++        ARK_METHOD_METADATA(getMacAddressSync, 0),
++        ARK_METHOD_METADATA(getUsedMemorySync, 0),
++        ARK_ASYNC_METHOD_METADATA(isEmulator, 0),
++        ARK_METHOD_METADATA(isEmulatorSync, 0),
++        ARK_ASYNC_METHOD_METADATA(hasSystemFeature, 1),
++        ARK_METHOD_METADATA(hasSystemFeatureSync, 1),
++        ARK_ASYNC_METHOD_METADATA(getSystemAvailableFeatures, 0),
++        ARK_METHOD_METADATA(getSystemAvailableFeaturesSync, 0),
++        ARK_ASYNC_METHOD_METADATA(getInstallReferrer, 0),
++        ARK_METHOD_METADATA(getInstallReferrerSync, 0),
++        ARK_ASYNC_METHOD_METADATA(getTags, 0),
++        ARK_METHOD_METADATA(getTagsSync, 0),
++        ARK_ASYNC_METHOD_METADATA(getSystemManufacturer, 0),
++        ARK_METHOD_METADATA(getSystemManufacturerSync, 0),
++        ARK_ASYNC_METHOD_METADATA(getAndroidId, 0),
++        ARK_METHOD_METADATA(getAndroidIdSync, 0),
++        ARK_ASYNC_METHOD_METADATA(getMaxMemory, 0),
++        ARK_METHOD_METADATA(getMaxMemorySync, 0),
++        ARK_ASYNC_METHOD_METADATA(getPreviewSdkInt, 0),
++        ARK_METHOD_METADATA(getPreviewSdkIntSync, 0),
++        ARK_ASYNC_METHOD_METADATA(getSupportedAbis, 0),
++        ARK_METHOD_METADATA(getSupportedAbisSync, 0),
++        ARK_ASYNC_METHOD_METADATA(getSupported32BitAbis, 0),
++        ARK_METHOD_METADATA(getSupported32BitAbisSync, 0),
++        ARK_ASYNC_METHOD_METADATA(getSupported64BitAbis, 0),
++        ARK_METHOD_METADATA(getSupported64BitAbisSync, 0),
+     };
+ }
+ 
+diff --git a/node_modules/@react-native-ohos/react-native-device-info/harmony/device_info/src/main/ets/RNDeviceInfoModule.ts b/node_modules/@react-native-ohos/react-native-device-info/harmony/device_info/src/main/ets/RNDeviceInfoModule.ts
+index 7853c97..6581dd4 100644
+--- a/node_modules/@react-native-ohos/react-native-device-info/harmony/device_info/src/main/ets/RNDeviceInfoModule.ts
++++ b/node_modules/@react-native-ohos/react-native-device-info/harmony/device_info/src/main/ets/RNDeviceInfoModule.ts
+@@ -49,6 +49,9 @@ import { asset } from '@kit.AssetStoreKit';
+ import { process, util } from '@kit.ArkTS';
+ import { systemDateTime } from '@kit.BasicServicesKit';
+ import { hidebug } from '@kit.PerformanceAnalysisKit';
++import { cryptoFramework } from '@kit.CryptoArchitectureKit';
++import { userAuth } from '@kit.UserAuthenticationKit';
++import { preferences } from "@kit.ArkData";
+ 
+ 
+ const abiList32 = ["armeabi", "win_x86", "win_arm"];
+@@ -227,7 +230,7 @@ export class RNDeviceInfoModule extends TurboModule implements TM.RNDeviceInfo.S
+     }
+ 
+     getDeviceId(): string {
+-        return deviceInfo.udid;
++        return this.getUniqueIdSync();
+     }
+ 
+     getDeviceName(): Promise<string> {
+@@ -520,7 +523,7 @@ export class RNDeviceInfoModule extends TurboModule implements TM.RNDeviceInfo.S
+     }
+ 
+     getSystemVersion(): string {
+-        return deviceInfo.osReleaseType;
++        return deviceInfo.distributionOSVersion;
+     }
+ 
+     getTotalDiskCapacity(): Promise<number> {
+@@ -591,47 +594,13 @@ export class RNDeviceInfoModule extends TurboModule implements TM.RNDeviceInfo.S
+         query.set(asset.Tag.ALIAS, this.stringToArray('device_unique_id'));
+         query.set(asset.Tag.RETURN_TYPE, asset.ReturnType.ALL);
+         return new Promise<string>((resolve, reject) => {
+-            try {
+-                let res: Array<asset.AssetMap> = asset.querySync(query)
+-                let secretStr: string = ""
+-                for (let i = 0; i < res.length; i++) {
+-                    let secret: Uint8Array = res[i].get(asset.Tag.SECRET) as Uint8Array;
+-                    secretStr = this.arrayToString(secret);
+-                }
+-                return resolve(secretStr)
+-            } catch (error) {
+-                AAID.getAAID((err: BusinessError, data: string) => {
+-                    if (err) {
+-                        console.info('device_unique_id Failed to get AAID: %{public}d %{public}s' + JSON.stringify(err));
+-                        reject(JSON.stringify(err))
+-                    } else {
+-                        let attr: asset.AssetMap = new Map();
+-                        attr.set(asset.Tag.SECRET, this.stringToArray(data));
+-                        attr.set(asset.Tag.ALIAS, this.stringToArray('device_unique_id'));
+-                        attr.set(asset.Tag.ACCESSIBILITY, asset.Accessibility.DEVICE_FIRST_UNLOCKED);
+-                        attr.set(asset.Tag.DATA_LABEL_NORMAL_1, this.stringToArray('demo_label'));
+-                        attr.set(asset.Tag.IS_PERSISTENT, true);
+-                        try {
+-                            asset.add(attr).then(() => {
+-                                return resolve(data)
+-                            }).catch((err: BusinessError) => {
+-                                console.error(`device_unique_id Failed to add Asset. Code is ${err.code}, message is ${err.message}`);
+-                                reject(JSON.stringify(err))
+-                            })
+-                        } catch (error) {
+-                            let err = error as BusinessError;
+-                            console.error(`device_unique_id  Failed to add Asset. Code is ${err.code}, message is ${err.message}`);
+-                            reject(JSON.stringify(err))
+-                        }
+-                    }
+-                });
+-            }
++            const uniqueId = this.getUniqueIdSync();
++            resolve(uniqueId);
+         })
+     }
+ 
+-    //  只有系统应用可以使用
+     getUniqueIdSync(): string {
+-        return deviceInfo.udid
++        return deviceInfo.ODID;
+     }
+ 
+     getUserAgent(): Promise<string> {
+@@ -641,14 +610,43 @@ export class RNDeviceInfoModule extends TurboModule implements TM.RNDeviceInfo.S
+     }
+ 
+     getUserAgentSync(): string {
+-        let deviceType: string = deviceInfo.deviceType.charAt(0).toUpperCase() + deviceInfo.deviceType.slice(1);
+-        let OSName: string = this.systemName;
+-        let OSVersion: string = this.systemVersion;
+-        let ArkWebVersionCode: string = '4.1.6.1';
+-        let Mobile: string = deviceType === 'Phone' ? 'Mobile' : '';
++        const userAgent = this.getUserAgentSyncLocal()
++        return userAgent;
++    }
++
++    private dataPreference: preferences.Preferences | null = null
+ 
+-        return `Mozilla/5.0 (${deviceType}; ${OSName} ${OSVersion}) AppleWebKit/537.36 (KHTML, like Gecko) ` +
+-          `Chrome/114.0.0.0 Safari/537.36 ArkWeb/${ArkWebVersionCode} ${Mobile}`;
++    private getUserAgentSyncLocal(): string {
++        if(this.dataPreference === null) {
++            const options: preferences.Options = { name: "nativeStore" };
++            try {
++                this.dataPreference = preferences.getPreferencesSync(this.context, options);
++            } catch (error) {
++                console.error(`getUserAgentSyncLocal.initNativeStorage 初始化失败:`, error);
++            }
++        }
++        const cacheValue = this.dataPreference?.getSync("xt-user-agent", "");
++        const cacheUA = typeof cacheValue === "string" ? cacheValue : "";
++        const finalUA = cacheUA || this.getDefaultUA();
++        console.log('getUserAgentSyncLocal', finalUA);
++        return finalUA;
++    }
++
++    private getDefaultUA(): string {
++        let deviceType: string =
++          deviceInfo.deviceType.charAt(0).toUpperCase() +
++          deviceInfo.deviceType.slice(1);
++        let OSName: string =
++          deviceInfo.distributionOSName.length === 0
++            ? "OpenHarmony"
++            : deviceInfo.distributionOSName;
++        let OSVersion: string = deviceInfo.osFullName.slice(0, 3);
++        let ArkWebVersionCode: string = "4.1.6.1";
++        let Mobile: string = deviceType === "Phone" ? "Mobile" : "";
++        return (
++          `Mozilla/5.0 (${deviceType}; ${OSName} ${OSVersion}) AppleWebKit/537.36 (KHTML, like Gecko) ` +
++          `Chrome/114.0.0.0 Safari/537.36 ArkWeb/${ArkWebVersionCode} ${Mobile}`
++        );
+     }
+ 
+     getVersion(): string {
+@@ -897,7 +895,9 @@ export class RNDeviceInfoModule extends TurboModule implements TM.RNDeviceInfo.S
+     }
+ 
+     isPinOrFingerprintSet(): Promise<boolean> {
+-        return screenLock.isSecureMode()
++        return new Promise<boolean>((resolve, reject) => {
++            resolve(this.isPinOrFingerprintSetSync())
++        })
+     }
+ 
+     isTablet(): boolean {
+@@ -1005,4 +1005,152 @@ export class RNDeviceInfoModule extends TurboModule implements TM.RNDeviceInfo.S
+         let startupTime = currentTime - currentUptime + processStartTime;
+         return startupTime;
+     }
++
++    isPinOrFingerprintSetSync(): boolean {
++        const pinAvailable = this.checkAuthAvailable(userAuth.UserAuthType.PIN, userAuth.AuthTrustLevel.ATL1);
++        const fingerprintAvailable = this.checkAuthAvailable(userAuth.UserAuthType.FINGERPRINT, userAuth.AuthTrustLevel.ATL1);
++        console.warn(`isPinOrFingerprintSetSync:pinAvailable=${pinAvailable}, fingerprintAvailable=${fingerprintAvailable}`);
++        return pinAvailable || fingerprintAvailable;
++    }
++
++    checkAuthAvailable(authType: userAuth.UserAuthType, authTrustLevel: userAuth.AuthTrustLevel): boolean {
++        try {
++            userAuth.getAvailableStatus(authType, authTrustLevel);
++            return true;
++        } catch (error) {
++            console.error(`checkAuthAvailable fail:authType=${authType}, authTrustLevel=${authTrustLevel}, error=${JSON.stringify(error)}`);
++        }
++        return false;
++    }
++
++    getMacAddressSync(): string {
++        console.warn('getMacAddressSync');
++        return "UnSupport"
++    }
++
++    getUsedMemorySync(): number {
++        console.warn('getUsedMemorySync');
++        return -1;
++    }
++
++    isEmulator(): Promise<boolean> {
++        console.warn('isEmulator');
++        return new Promise<boolean>((resolve, reject) => {
++            resolve(this.isEmulatorSync());
++        });
++    }
++
++    isEmulatorSync(): boolean {
++        console.warn('isEmulatorSync');
++        return deviceInfo.productModel.includes("emulator") || deviceInfo.productSeries.includes("emulator");
++    }
++
++    hasSystemFeature(feature: string): Promise<boolean> {
++        console.warn('hasSystemFeature');
++        return new Promise<boolean>((resolve, reject) => {
++            resolve(this.hasSystemFeatureSync(feature));
++        });
++    }
++
++    hasSystemFeatureSync(feature: string): boolean {
++        console.warn('hasSystemFeatureSync');
++        return canIUse(feature);
++    }
++
++    getSystemAvailableFeatures(): Promise<string[]> {
++        console.warn('getSystemAvailableFeatures');
++        return new Promise<string[]>((resolve, reject) => {
++            resolve([]);
++        });
++    }
++    getSystemAvailableFeaturesSync(): string[] {
++        console.warn('getSystemAvailableFeaturesSync');
++        return []
++    }
++    getInstallReferrer(): Promise<string> {
++        console.warn('getInstallReferrer');
++        return new Promise<string>((resolve, reject) => {
++            resolve("Huawei");
++        });
++    }
++    getInstallReferrerSync(): string {
++        console.warn('getInstallReferrerSync');
++        return "Huawei";
++    }
++    getTags(): Promise<string> {
++        console.warn('getTags');
++        return new Promise<string>((resolve, reject) => {
++            resolve("Unsupported");
++        });
++    }
++    getTagsSync(): string {
++        console.warn('getTagsSync');
++        return "Unsupported"
++    }
++    getSystemManufacturer(): Promise<string> {
++        console.warn('getSystemManufacturer');
++        return new Promise<string>((resolve, reject) => {
++            resolve(deviceInfo.manufacture);
++        });
++    }
++    getSystemManufacturerSync(): string {
++        console.warn('getSystemManufacturerSync');
++        return deviceInfo.manufacture;
++    }
++    getAndroidId(): Promise<string> {
++        console.warn('getAndroidId');
++        return this.getUniqueId();
++    }
++    getAndroidIdSync(): string {
++        console.warn('getAndroidIdSync');
++        return this.getUniqueIdSync();
++    }
++    getMaxMemory(): Promise<number> {
++        console.warn('getMaxMemory');
++        return appManager.getAppMemorySize();
++    }
++    getMaxMemorySync(): number {
++        console.warn('getMaxMemorySync');
++        return -1;
++    }
++    getPreviewSdkInt(): Promise<string> {
++        console.warn('getPreviewSdkInt');
++        return new Promise<string>((resolve, reject) => {
++            resolve("Unsupported");
++        });
++    }
++    getPreviewSdkIntSync(): string {
++        console.warn('getPreviewSdkIntSync');
++        return "Unsupported";
++    }
++    getSupportedAbis(): Promise<string[]> {
++        console.warn('getSupportedAbis');
++        return new Promise<string[]>((resolve, reject) => {
++            resolve(this.getSupportedAbisSync());
++        });
++    }
++    getSupportedAbisSync(): string[] {
++        console.warn('getSupportedAbisSync');
++        return [deviceInfo.abiList];
++    }
++    getSupported32BitAbis(): Promise<string[]> {
++        console.warn('getSupported32BitAbis');
++        return new Promise<string[]>((resolve, reject) => {
++            resolve(this.getSupported32BitAbisSync());
++        });
++    }
++    getSupported32BitAbisSync(): string[] {
++        console.warn('getSupported32BitAbisSync');
++        return [deviceInfo.abiList];
++    }
++    getSupported64BitAbis(): Promise<string[]> {
++        console.warn('getSupported64BitAbis');
++        return new Promise<string[]>((resolve, reject) => {
++            resolve(this.getSupported64BitAbisSync());
++        });
++    }
++    getSupported64BitAbisSync(): string[] {
++        console.warn('getSupported64BitAbisSync');
++        return [deviceInfo.abiList];
++    }
+ }
+\ No newline at end of file
+diff --git a/node_modules/@react-native-ohos/react-native-device-info/src/NativeRNDeviceInfo.ts b/node_modules/@react-native-ohos/react-native-device-info/src/NativeRNDeviceInfo.ts
+index ec8112d..5e3c76d 100644
+--- a/node_modules/@react-native-ohos/react-native-device-info/src/NativeRNDeviceInfo.ts
++++ b/node_modules/@react-native-ohos/react-native-device-info/src/NativeRNDeviceInfo.ts
+@@ -121,6 +121,33 @@ export interface Spec extends TurboModule {
+     getSupportedMediaTypeListSync(): string[];
+     getStartupTime(): Promise<number>;
+     getStartupTimeSync(): number;
++    isPinOrFingerprintSetSync(): boolean;
++    getMacAddressSync(): string;
++    getUsedMemorySync(): number;
++    isEmulator(): Promise<boolean>;
++    isEmulatorSync(): boolean;
++    hasSystemFeature(feature: string): Promise<boolean>;
++    hasSystemFeatureSync(feature: string): boolean;
++    getSystemAvailableFeatures(): Promise<string[]>;
++    getSystemAvailableFeaturesSync(): string[];
++    getInstallReferrer(): Promise<string>;
++    getInstallReferrerSync(): string;
++    getTags(): Promise<string>;
++    getTagsSync(): string;
++    getSystemManufacturer(): Promise<string>;
++    getSystemManufacturerSync(): string;
++    getAndroidId(): Promise<string>;
++    getAndroidIdSync(): string;
++    getMaxMemory(): Promise<number>;
++    getMaxMemorySync(): number;
++    getPreviewSdkInt(): Promise<string>;
++    getPreviewSdkIntSync(): string;
++    getSupportedAbis(): Promise<string[]>;
++    getSupportedAbisSync(): string[];
++    getSupported32BitAbis(): Promise<string[]>;
++    getSupported32BitAbisSync(): string[];
++    getSupported64BitAbis(): Promise<string[]>;
++    getSupported64BitAbisSync(): string[];
+ }
+ 
+ export default TurboModuleRegistry.getEnforcing<Spec>("RNDeviceInfo");
+\ No newline at end of file
+diff --git a/node_modules/@react-native-ohos/react-native-device-info/src/RNDeviceInfo.ts b/node_modules/@react-native-ohos/react-native-device-info/src/RNDeviceInfo.ts
+index de02604..dd440c4 100644
+--- a/node_modules/@react-native-ohos/react-native-device-info/src/RNDeviceInfo.ts
++++ b/node_modules/@react-native-ohos/react-native-device-info/src/RNDeviceInfo.ts
+@@ -1,3 +1,153 @@
+ import NativeRNDeviceInfo from "./NativeRNDeviceInfo";
++
++export const {
++    getApiLevel,
++    getApiLevelSync,
++    getApplicationName,
++    getAvailableLocationProviders,
++    getAvailableLocationProvidersSync,
++    getBaseOs,
++    getBaseOsSync,
++    getBatteryLevel,
++    getBatteryLevelSync,
++    getBootloader,
++    getBootloaderSync,
++    getBrand,
++    getBuildId,
++    getBuildIdSync,
++    getBuildNumber,
++    getBundleId,
++    getCarrier,
++    getCarrierSync,
++    getCodename,
++    getCodenameSync,
++    getDevice,
++    getDeviceSync,
++    getDeviceId,
++    getDeviceName,
++    getDeviceNameSync,
++    getDeviceType,
++    getDisplay,
++    getDisplaySync,
++    getFingerprint,
++    getFingerprintSync,
++    getFirstInstallTime,
++    getFirstInstallTimeSync,
++    getFontScale,
++    getFontScaleSync,
++    getFreeDiskStorage,
++    getFreeDiskStorageOld,
++    getFreeDiskStorageSync,
++    getFreeDiskStorageOldSync,
++    getHardware,
++    getHardwareSync,
++    getHost,
++    getHostSync,
++    getIncremental,
++    getIncrementalSync,
++    getInstallerPackageName,
++    getInstallerPackageNameSync,
++    getInstanceId,
++    getInstanceIdSync,
++    getIpAddress,
++    getIpAddressSync,
++    getLastUpdateTime,
++    getLastUpdateTimeSync,
++    getMacAddress,
++    getManufacturer,
++    getManufacturerSync,
++    getPowerState,
++    getPowerStateSync,
++    getModel,
++    getProduct,
++    getProductSync,
++    getReadableVersion,
++    getSecurityPatch,
++    getSecurityPatchSync,
++    getSerialNumber,
++    getSerialNumberSync,
++    getSystemName,
++    getSystemVersion,
++    getTotalDiskCapacity,
++    getTotalDiskCapacityOld,
++    getTotalDiskCapacitySync,
++    getTotalDiskCapacityOldSync,
++    getTotalMemory,
++    getTotalMemorySync,
++    isLowRamDevice,
++    getUsedMemory,
++    getType,
++    getTypeSync,
++    getUniqueId,
++    getUniqueIdSync,
++    getUserAgent,
++    getUserAgentSync,
++    getVersion,
++    hasGms,
++    hasGmsSync,
++    hasHms,
++    hasHmsSync,
++    hasNotch,
++    isAirplaneMode,
++    isAirplaneModeSync,
++    isKeyboardConnected,
++    isKeyboardConnectedSync,
++    isMouseConnected,
++    isMouseConnectedSync,
++    isBatteryCharging,
++    isBatteryChargingSync,
++    isCameraPresent,
++    isCameraPresentSync,
++    isHeadphonesConnected,
++    isHeadphonesConnectedSync,
++    isWiredHeadphonesConnected,
++    isWiredHeadphonesConnectedSync,
++    isBluetoothHeadphonesConnected,
++    isBluetoothHeadphonesConnectedSync,
++    isLandscape,
++    isLandscapeSync,
++    isLocationEnabled,
++    isLocationEnabledSync,
++    isPinOrFingerprintSet,
++    isTablet,
++    supported32BitAbis,
++    supported32BitAbisSync,
++    supported64BitAbis,
++    supported64BitAbisSync,
++    supportedAbis,
++    supportedAbisSync,
++    getSupportedMediaTypeList,
++    getSupportedMediaTypeListSync,
++    getStartupTime,
++    getStartupTimeSync,
++    isPinOrFingerprintSetSync,
++    getMacAddressSync,
++    getUsedMemorySync,
++    isEmulator,
++    isEmulatorSync,
++    hasSystemFeature,
++    hasSystemFeatureSync,
++    getSystemAvailableFeatures,
++    getSystemAvailableFeaturesSync,
++    getInstallReferrer,
++    getInstallReferrerSync,
++    getTags,
++    getTagsSync,
++    getSystemManufacturer,
++    getSystemManufacturerSync,
++    getAndroidId,
++    getAndroidIdSync,
++    getMaxMemory,
++    getMaxMemorySync,
++    getPreviewSdkInt,
++    getPreviewSdkIntSync,
++    getSupportedAbis,
++    getSupportedAbisSync,
++    getSupported32BitAbis,
++    getSupported32BitAbisSync,
++    getSupported64BitAbis,
++    getSupported64BitAbisSync,
++} = NativeRNDeviceInfo;
++
+ const RNDeviceInfo = NativeRNDeviceInfo;
+ export default RNDeviceInfo;

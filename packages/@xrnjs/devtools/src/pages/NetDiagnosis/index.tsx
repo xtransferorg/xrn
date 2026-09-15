@@ -12,15 +12,19 @@ import DeviceInfoModule from "react-native-device-info";
 import { Platform } from "@xrnjs/modules-core";
 import { Page } from "../../components/Page";
 import styles from "./style";
+import {
+  sensorsFundClick,
+  sensorsFundPageView,
+} from "../../utils/sensorsTrack";
 import { ROUTES } from "../..";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import LinearGradient from "react-native-linear-gradient";
 import RadarAnimation from "./RadarAnimation";
 import { DNSItem, NetDiagnosisInfo, PingItem, ProxyItem } from "./type";
 import { fetch } from "@react-native-community/netinfo";
 import env from "react-native-config";
 import Clipboard from "@react-native-clipboard/clipboard";
-import { XRNDebugTools } from "@xrnjs/debug-tools";
-import { nativeToast } from "../../utils/toast";
+import { XRNDebugTools } from '@xrnjs/debug-tools'
 
 const defaultNetDiagnosisInfo: NetDiagnosisInfo = {
   appVersion: DeviceInfoModule.getVersion(),
@@ -43,7 +47,7 @@ const defaultNetDiagnosisInfo: NetDiagnosisInfo = {
     },
   },
   DNS: {
-    host: "www.aliyun.com",
+    host: "www.xtransfer.cn",
     ip: "未知",
   },
 };
@@ -52,9 +56,13 @@ const NetworkDiagnosis: React.FC = (props: any) => {
   const { navigation } = props;
   const insets = useSafeAreaInsets();
   const [diagnosisData, setDiagnosisData] = useState<NetDiagnosisInfo>(
-    defaultNetDiagnosisInfo,
+    defaultNetDiagnosisInfo
   );
   const [isDiagnosing, setIsDiagnosing] = useState(false);
+
+  useEffect(() => {
+    sensorsFundPageView({ module_name: `devtools_${ROUTES.NetworkDiagnosis}` });
+  }, []);
 
   const _diagnosisStart = async () => {
     setIsDiagnosing(true);
@@ -67,17 +75,17 @@ const NetworkDiagnosis: React.FC = (props: any) => {
     const connect = netReachable ? "网络可用" : "网络不可用";
 
     const netProxy = ((await XRNDebugTools?.proxyInfo?.(
-      "https://www.baidu.com",
+      "https://www.baidu.com"
     )) as ProxyItem) || { ip: "", port: "", type: "" };
     const baiduPing = ((await XRNDebugTools?.pingStart?.(
-      "www.baidu.com",
+      "www.baidu.com"
     )) as PingItem) || { host: "www.baidu.com", time: "0" };
     const aliyunPing = ((await XRNDebugTools?.pingStart?.(
-      "www.aliyun.com",
+      "www.aliyun.com"
     )) as PingItem) || { host: "www.aliyun.com", time: "0" };
     const ndsResult = ((await XRNDebugTools?.dnsStart?.(
-      "www.baidu.com",
-    )) as DNSItem) || { host: "www.baidu.com", ip: "未知" };
+      "www.xtransfer.cn"
+    )) as DNSItem) || { host: "www.xtransfer.cn", ip: "未知" };
 
     setIsDiagnosing(false);
     const result: NetDiagnosisInfo = {
@@ -107,31 +115,51 @@ const NetworkDiagnosis: React.FC = (props: any) => {
   const _retryDiagnosis = useCallback(() => {
     setDiagnosisData(defaultNetDiagnosisInfo);
     _diagnosisStart();
+    sensorsFundClick({
+      button_name: "devtools_btn_click",
+      devtools_click_btn_name: "网络诊断 重试",
+    });
   }, []);
 
   const _copyLog = useCallback(() => {
     const result = JSON.stringify(diagnosisData);
     Clipboard.setString(result);
-    // Share.share({ message: result });
-    nativeToast("复制成功");
+    sensorsFundClick({
+      button_name: "devtools_btn_click",
+      devtools_click_btn_name: "网络诊断 复制",
+    });
   }, []);
 
   return (
-    <View style={styles.container}>
+    <Page style={styles.container} translucent={true} hideHeader>
       <ScrollView style={styles.contentBox}>
         <View style={styles.gradientBox}>
           {diagnosisData.netStatus === "网络不可用" ? (
-            <View style={[styles.bgTipBox, { backgroundColor: "#EA3841" }]}>
+            <LinearGradient
+              colors={["#EB5545", "#EA3841"]}
+              start={{ x: 0.5, y: 1 }}
+              end={{ x: 0.5, y: 0 }}
+              style={styles.bgTipBox}
+            >
               <Text style={styles.statusText}>
                 {isDiagnosing ? "诊断中" : "网络连接异常"}
               </Text>
-              <Text style={styles.tip}>若任然无法连接到网络，请联系开发</Text>
-            </View>
+              <Text style={styles.tip}>
+                若任然无法连接到网络，请联系开发@刘光强/测试@颉伟鹏
+              </Text>
+            </LinearGradient>
           ) : (
-            <View style={[styles.bgTipBox, { backgroundColor: "#3AA94D" }]}>
+            <LinearGradient
+              colors={["#5EB96E", "#3AA94D"]}
+              start={{ x: 0.5, y: 1 }}
+              end={{ x: 0.5, y: 0 }}
+              style={styles.bgTipBox}
+            >
               <Text style={styles.statusText}>网络连接正常</Text>
-              <Text style={styles.tip}>若任然无法连接到网络，请联系开发</Text>
-            </View>
+              <Text style={styles.tip}>
+                若任然无法连接到网络，请联系开发@刘光强/测试@颉伟鹏
+              </Text>
+            </LinearGradient>
           )}
         </View>
         <View style={styles.infoBox}>
@@ -163,7 +191,7 @@ const NetworkDiagnosis: React.FC = (props: any) => {
               style={styles.version}
             >{`${diagnosisData?.netType} ${diagnosisData?.netStatus}`}</Text>
           </View>
-          {Platform.OS === "android" || Platform.OS === "harmony" ? (
+          {Platform.OS === "android" || Platform.OS === 'harmony' ? (
             <View></View>
           ) : (
             <View>
@@ -194,7 +222,7 @@ const NetworkDiagnosis: React.FC = (props: any) => {
                     style={styles.statusIcon}
                     source={
                       parseFloat(
-                        diagnosisData?.ping?.baiduPing?.time as string,
+                        diagnosisData?.ping?.baiduPing?.time as string
                       ) > 0
                         ? require("../../../assets/images/success_icon.png")
                         : require("../../../assets/images/fail_icon.png")
@@ -209,13 +237,14 @@ const NetworkDiagnosis: React.FC = (props: any) => {
                     style={styles.statusIcon}
                     source={
                       parseFloat(
-                        diagnosisData?.ping?.aliyunPing?.time as string,
+                        diagnosisData?.ping?.aliyunPing?.time as string
                       ) > 0
                         ? require("../../../assets/images/success_icon.png")
                         : require("../../../assets/images/fail_icon.png")
                     }
                   />
                 </View>
+                
               </View>
               <View style={styles.baseInfo}>
                 <View style={styles.titleBox}>
@@ -266,7 +295,7 @@ const NetworkDiagnosis: React.FC = (props: any) => {
           <RadarAnimation />
         </View>
       </Modal>
-    </View>
+    </Page>
   );
 };
 

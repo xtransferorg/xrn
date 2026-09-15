@@ -1,6 +1,7 @@
 import { XTPromptHUD, XTHUDReactiveBaseOptions } from '@jxt/xt_hud'
 import { LoadingProgressView } from './components/LoadingProgressView'
 import window from '@ohos.window'
+import {emitter} from '@kit.BasicServicesKit'
 
 interface LoadingProgressModel {
   progress: number
@@ -40,5 +41,13 @@ export class PopManager {
 
   static hideLoading() {
     XTPromptHUD.hideCustomHUD()
+  }
+
+  static showBundleError() {
+    emitter.emit("XT_BUNDLE_ERROR_SHOW")
+  }
+
+  static hideBundleError() {
+    emitter.emit("XT_BUNDLE_ERROR_HIDE")
   }
 }

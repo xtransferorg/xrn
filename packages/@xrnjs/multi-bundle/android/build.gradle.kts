@@ -1,5 +1,11 @@
 buildscript {
     val kotlinVersion: String = rootProject.extra["kotlin_version"] as String
+//    val kotlinVersion: String = if (rootProject.extra.has("kotlin_version")) {
+//        rootProject.extra["kotlin_version"] as String
+//    } else {
+//        project.properties["FaceidModule_kotlinVersion"] as? String
+//            ?: throw GradleException("Missing 'kotlinVersion' in rootProject.ext or project.properties")
+//    }
 
     repositories {
         google()
@@ -15,10 +21,11 @@ buildscript {
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
+//    id("com.facebook.react")
 }
 
 android {
-    namespace = "com.xrn.multibundle"
+    namespace = "xrn.modules.multibundle"
     compileSdk = 34
 
     defaultConfig {
@@ -41,21 +48,10 @@ android {
             )
         }
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
     buildFeatures {
         viewBinding = true
-    }
+        buildConfig = true
 
-    packagingOptions {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
     }
 }
 
@@ -64,6 +60,8 @@ val jscFlavor = "org.webkit:android-jsc-intl:+"
 
 dependencies {
 
+//    implementation("androidx.core:core-ktx:1.15.0")
+//    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
     implementation("com.blankj:utilcodex:1.31.1")
 
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.8.20")

@@ -26,8 +26,8 @@ abstract class BaseActionHandler : IActionHandler {
     ): Boolean {
         if (topActivity == null) return false
 
-        val intent = NavHelper.buildIntent(
-            topActivity!!,
+        return NavHelper.jump2Module(
+            topActivity,
             targetRoute.bundleName,
             targetRoute.moduleName,
             NavHelper.InitialProps(
@@ -35,14 +35,6 @@ abstract class BaseActionHandler : IActionHandler {
                 initialRouteParams = originAction.payload?.params
             )
         )
-
-        if (intent == null) {
-            return false
-        }
-
-        topActivity!!.startActivity(intent)
-
-        return true
     }
 
     protected fun sendDispatchActionEvent(
@@ -53,11 +45,11 @@ abstract class BaseActionHandler : IActionHandler {
         if (activity == null || activity !is BaseRNContainerActivity) return
 
         val target = activity.getNavigationStateHolder().rnRootKey ?: return
-        val host = activity.getRNHost() ?: return
+        val host = activity.reactHost ?: return
 
         val newAction = createActionFun(originAction, target)
 
-        host.reactInstanceManager.currentReactContext?.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+        host.currentReactContext?.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
             ?.emit("NATIVE_DISPATCH_ACTION", GsonUtils.toJson(newAction))
     }
 

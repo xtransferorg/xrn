@@ -41,7 +41,7 @@ fun ReadableMap.safeGetAny(key: String): Any? {
     }
 }
 
-fun ReadableMap.safeGetMap(key: String): HashMap<String, Any>? {
+fun ReadableMap.safeGetMap(key: String): HashMap<String, Any?>? {
     return if (hasKey(key)) {
         getMap(key)?.toHashMap()
     } else {

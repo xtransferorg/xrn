@@ -1,0 +1,221 @@
+diff --git a/node_modules/react-native-svg/android/src/main/jni/CMakeLists.txt b/node_modules/react-native-svg/android/src/main/jni/CMakeLists.txt
+index 06a3ad3..f21366b 100644
+--- a/node_modules/react-native-svg/android/src/main/jni/CMakeLists.txt
++++ b/node_modules/react-native-svg/android/src/main/jni/CMakeLists.txt
+@@ -1,29 +1,14 @@
+ cmake_minimum_required(VERSION 3.13)
+-set(CMAKE_VERBOSE_MAKEFILE on)
++set(CMAKE_VERBOSE_MAKEFILE ON)
+ 
+-set(RNS_ANDROID_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../..)
+-set(RNS_COMMON_DIR ${RNS_ANDROID_DIR}/../common/cpp)
+-set(RNS_GENERATED_DIR ${RNS_ANDROID_DIR}/build/generated)
+-set(RNS_GENERATED_JNI_DIR ${RNS_GENERATED_DIR}/source/codegen/jni)
+-set(RNS_GENERATED_REACT_DIR ${RNS_GENERATED_JNI_DIR}/react/renderer/components/rnsvg)
++set(RNSVG_ANDROID_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../..)
++set(RNSVG_COMMON_DIR ${RNSVG_ANDROID_DIR}/../common/cpp)
++set(RNSVG_GENERATED_DIR ${RNSVG_ANDROID_DIR}/build/generated)
++set(RNSVG_GENERATED_JNI_DIR ${RNSVG_GENERATED_DIR}/source/codegen/jni)
++set(RNSVG_GENERATED_REACT_DIR ${RNSVG_GENERATED_JNI_DIR}/react/renderer/components/rnsvg)
+ 
+-string(
+-  APPEND
+-  CMAKE_CXX_FLAGS
+-  " -DREACT_NATIVE_MINOR_VERSION=${ReactAndroid_VERSION_MINOR}")
+-
+-add_compile_options(
+-  -fexceptions
+-  -frtti
+-  -std=c++20
+-  -Wall
+-  -Wpedantic
+-  -Wno-gnu-zero-variadic-macro-arguments
+-  -Wno-dollar-in-identifier-extension
+-)
+-
+-file(GLOB rnsvg_SRCS CONFIGURE_DEPENDS *.cpp ${RNS_COMMON_DIR}/react/renderer/components/rnsvg/*.cpp)
+-file(GLOB rnsvg_codegen_SRCS CONFIGURE_DEPENDS ${RNS_GENERATED_REACT_DIR}/*cpp)
++file(GLOB rnsvg_SRCS CONFIGURE_DEPENDS *.cpp ${RNSVG_COMMON_DIR}/react/renderer/components/rnsvg/*.cpp)
++file(GLOB rnsvg_codegen_SRCS CONFIGURE_DEPENDS ${RNSVG_GENERATED_REACT_DIR}/*cpp)
+ 
+ add_library(
+   react_codegen_rnsvg
+@@ -36,14 +21,17 @@ target_include_directories(
+   react_codegen_rnsvg
+   PUBLIC
+   .
+-  ${RNS_COMMON_DIR}
+-  ${RNS_GENERATED_JNI_DIR}
+-  ${RNS_GENERATED_REACT_DIR}
++  ${RNSVG_COMMON_DIR}
++  ${RNSVG_GENERATED_JNI_DIR}
++  ${RNSVG_GENERATED_REACT_DIR}
+ )
+ 
++# https://developer.android.com/guide/practices/page-sizes#cmake
++target_link_options(react_codegen_rnsvg PRIVATE "-Wl,-z,max-page-size=16384")
++
+ find_package(ReactAndroid REQUIRED CONFIG)
+ 
+-if (ReactAndroid_VERSION_MINOR GREATER_EQUAL 76)
++if(ReactAndroid_VERSION_MINOR GREATER_EQUAL 76)
+   target_link_libraries(
+     react_codegen_rnsvg
+     ReactAndroid::reactnative
+@@ -71,23 +59,41 @@ else()
+     react_utils
+   )
+ endif()
++
+ target_link_libraries(
+   react_codegen_rnsvg
+   fbjni
+ )
+ 
++target_include_directories(
++  react_codegen_rnsvg
++  PUBLIC
++  ${CMAKE_CURRENT_SOURCE_DIR}
++)
++
++if(ReactAndroid_VERSION_MINOR GREATER_EQUAL 80)
++  target_compile_reactnative_options(react_codegen_rnsvg PUBLIC)
++else()
++  target_compile_options(
++    react_codegen_rnsvg
++    PRIVATE
++    -fexceptions
++    -frtti
++    -std=c++20
++    -Wall
++  )
++endif()
++
+ target_compile_options(
+   react_codegen_rnsvg
+   PRIVATE
+-  -DLOG_TAG=\"ReactNative\"
+-  -fexceptions
+-  -frtti
+-  -std=c++20
+-  -Wall
++  -Wpedantic
++  -Wno-gnu-zero-variadic-macro-arguments
++  -Wno-dollar-in-identifier-extension
+ )
+ 
+-target_include_directories(
+- ${CMAKE_PROJECT_NAME}
+- PUBLIC
+- ${CMAKE_CURRENT_SOURCE_DIR}
++target_compile_definitions(
++  react_codegen_rnsvg
++  PRIVATE
++  REACT_NATIVE_MINOR_VERSION=${ReactAndroid_VERSION_MINOR}
+ )
+diff --git a/node_modules/react-native-svg/src/css/LocalSvg.tsx b/node_modules/react-native-svg/src/css/LocalSvg.tsx
+index 23279f4..d4170fc 100644
+--- a/node_modules/react-native-svg/src/css/LocalSvg.tsx
++++ b/node_modules/react-native-svg/src/css/LocalSvg.tsx
+@@ -1,6 +1,6 @@
+ import * as React from 'react';
+ import { useState, useEffect, Component } from 'react';
+-import { Image, Platform, type ImageSourcePropType } from 'react-native';
++import { Image, NativeModules, Platform, type ImageSourcePropType } from 'react-native';
+ import { fetchText, type SvgProps } from 'react-native-svg';
+ import { resolveAssetUri } from '../lib/resolveAssetUri';
+ import { SvgCss, SvgWithCss } from './css';
+@@ -14,8 +14,14 @@ export function getUriFromSource(source: ImageSourcePropType) {
+ }
+ 
+ export function loadLocalRawResourceDefault(source: ImageSourcePropType) {
+-  const uri = getUriFromSource(source);
+-  return fetchText(uri);
++  const resolvedAssetSource =
++    Platform.OS === 'web' ? resolveAssetUri(source) : Image.resolveAssetSource(source);
++  if (!resolvedAssetSource?.uri) {
++    return fetchText(undefined);
++  }
++  const jsbundleUrl =
++    'jsbundleUrl' in resolvedAssetSource ? resolvedAssetSource.jsbundleUrl : '';
++  return fetchText(resolvedAssetSource.uri, jsbundleUrl || '');
+ }
+ 
+ export function isUriAnAndroidResourceIdentifier(uri?: string) {
+@@ -24,6 +30,16 @@ export function isUriAnAndroidResourceIdentifier(uri?: string) {
+ 
+ export async function loadAndroidRawResource(uri: string) {
+   try {
++    const scriptUrl = NativeModules.SourceCode.scriptURL;
++    if (!scriptUrl.startsWith('assets://')) {
++      const content = await NativeModules.RNPAssetsLoad.getCodePushRawResource(
++        scriptUrl,
++        `${uri}.svg`
++      );
++      if (content) {
++        return content;
++      }
++    }
+     // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     const RNSVGRenderableModule: any =
+       // neeeded for new arch
+@@ -63,8 +79,21 @@ export function LocalSvg(props: LocalProps) {
+   const { asset, ...rest } = props;
+   const [xml, setXml] = useState<string | null>(null);
+   useEffect(() => {
+-    loadLocalRawResource(asset).then(setXml);
+-  }, [asset]);
++    loadLocalRawResource(asset).then((svgStr) => {
++      const replaced = (svgStr || '')
++        .replace(/fill=\"([^\"\']*)\"/g, (_, originFillColor) => {
++          // @ts-ignore
++          const fillColor =
++            rest.fillColor === 'none' ? originFillColor || '#333333' : rest.fillColor;
++          return `fill="${fillColor}"`;
++        })
++        .replace(/stroke=\"([^\"\']*)\"/g, (_, originColor) => {
++          const color = rest.color === 'none' ? originColor || '#333333' : rest.color;
++          return `stroke="${color}"`;
++        });
++      setXml(replaced);
++    });
++  }, [asset, rest]);
+   return <SvgCss xml={xml} {...rest} />;
+ }
+ 
+diff --git a/node_modules/react-native-svg/src/utils/fetchData.ts b/node_modules/react-native-svg/src/utils/fetchData.ts
+index d141be3..5249c18 100644
+--- a/node_modules/react-native-svg/src/utils/fetchData.ts
++++ b/node_modules/react-native-svg/src/utils/fetchData.ts
+@@ -1,10 +1,30 @@
+ import { Platform } from 'react-native';
+ import { Buffer } from 'buffer';
++import RNFS from 'react-native-fs';
+ 
+-export async function fetchText(uri?: string): Promise<string | null> {
++// @ts-ignore
++const isHarmony = Platform.OS === 'harmony';
++
++export async function fetchText(
++  uri?: string,
++  jsbundleUrl: string = ''
++): Promise<string | null> {
+   if (!uri) {
+     return null;
+   }
++  if (isHarmony) {
++    if (uri.startsWith('asset://')) {
++      const path = uri.replace('asset://', '');
++      if (await RNFS.existsAssets(path)) {
++        return await RNFS.readFileAssets(path, 'utf8');
++      }
++      const absolutePath = `${jsbundleUrl.replace('file://', '')}${path}`;
++      return await RNFS.readFile(absolutePath, 'utf8');
++    }
++    if (uri.startsWith('resource://RAWFILE/')) {
++      return await RNFS.readFileAssets(uri.replace('resource://RAWFILE/', ''), 'utf8');
++    }
++  }
+   if (uri.startsWith('data:image/svg+xml;utf8') && Platform.OS === 'android') {
+     return dataUriToXml(uri);
+   } else if (uri.startsWith('data:image/svg+xml;base64')) {

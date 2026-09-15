@@ -8,12 +8,17 @@ import { Navigation } from "@xrnjs/navigation";
 
 import styles from "./style";
 import { RouteItem } from "./type";
+import { sensorsFundClick, sensorsFundPageView } from "../../utils/sensorsTrack";
 import { ROUTES } from "../..";
 import { XRNDebugTools } from '@xrnjs/debug-tools'
 
 const RouteInfo: React.FC = () => {
   const infoList: RouteItem[] = [];
   const [data, setData] = useState<RouteItem[]>(infoList);
+
+  useEffect(() => {
+    sensorsFundPageView({ module_name: `devtools_${ROUTES.RouteInfo}` });
+  }, []);
 
   useEffect(() => {
     XRNDebugTools?.routeInfo?.().then((res) => {
@@ -36,16 +41,22 @@ const RouteInfo: React.FC = () => {
       Clipboard.setString(result);
     }
     nativeToast("复制成功");
+    sensorsFundClick({ button_name: 'devtools_btn_click', devtools_click_btn_name: '路由信息页 复制' });
   };
 
+  // 获取当前navigation的路由信息，只在v6版本生效，在atta bundle 中不生效
   const getCurrentRoute = useCallback(() => {
+    // 获取当前bundle的导航栈
     const navigationStacks = Navigation?.navigationContainerRefStack?.all?.();
     if (navigationStacks) {
       const lastStackIndex = navigationStacks.length - 1;
       const currentStack = navigationStacks[lastStackIndex];
+      // const currentRoute = currentStack?.getCurrentRoute?.();
       const rootState = currentStack?.getRootState?.();
+      // 获取业务Page路由
       const bizPageRouteIndex = rootState?.index - 2;
       const pageRoute = rootState?.routes[bizPageRouteIndex];
+      // console.log('pageRoute', pageRoute);
       return pageRoute || {};
     } else {
       return {};
@@ -55,6 +66,7 @@ const RouteInfo: React.FC = () => {
   const getPageName = useCallback(() => {
     const currentRoute = getCurrentRoute();
     const pageName = currentRoute["name"] || "";
+    // 处理Tabs路由嵌套
     if (pageName === 'Tabs') {
       const state = currentRoute['state'];
       const index = state['index'];
@@ -72,6 +84,7 @@ const RouteInfo: React.FC = () => {
   const getPageParams = useCallback(() => {
     const currentRoute = getCurrentRoute();
     const pageName = currentRoute["name"] || {};
+    // 处理Tabs路由嵌套
     if (pageName === 'Tabs') {
       const state = currentRoute['state'];
       const index = state['index'];
@@ -93,9 +106,9 @@ const RouteInfo: React.FC = () => {
     const queryString = new URLSearchParams(
       params as Record<string, string>,
     ).toString();
-    let schemeUrl = `xrn://xrn/v1/${bundleName}/${moduleName}/${pageName}`;
+    let schemeUrl = `xtransfer://xtransfer/v1/${bundleName}/${moduleName}/${pageName}`;
     if (queryString) {
-      schemeUrl = `xrn://xrn/v1/${bundleName}/${moduleName}/${pageName}?${queryString}`;
+      schemeUrl = `xtransfer://xtransfer/v1/${bundleName}/${moduleName}/${pageName}?${queryString}`;
     }
     return schemeUrl;
   }, []);
@@ -125,14 +138,14 @@ const RouteInfo: React.FC = () => {
               <Text style={styles.moduleVal}>{item?.moduleName}</Text>
             </View>
             {
-              (index === 0) ? 
+              (index === 0 && item?.bundleName !== 'xtapp') ? 
               <View style={styles.pageBox}>
                 <Text style={styles.pageKey}>pageName:  </Text>
                 <Text style={styles.pageVal}>{getPageName()}</Text>
               </View> : null
             }
             {
-              (index === 0) ? 
+              (index === 0 && item?.bundleName !== 'xtapp') ? 
               <View style={styles.schemeBox}>
                 <Text style={styles.schemeKey}>落地页Url:</Text>
                 <Text style={styles.schemeVal}>{getSchemeUrl(item?.bundleName, item?.moduleName)}</Text>
@@ -146,7 +159,7 @@ const RouteInfo: React.FC = () => {
   };
 
   return (
-    <Page title="路由信息" hideHeader>
+    <Page title="路由信息">
       <View style={styles.container}>
         <FlatList
           data={data}

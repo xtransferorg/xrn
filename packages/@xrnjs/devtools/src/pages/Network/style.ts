@@ -17,5 +17,5 @@ export default StyleSheet.create({
   detailNavRightText: {
     color: "#fff",
     fontSize: 12,
-  },
+  }
 });

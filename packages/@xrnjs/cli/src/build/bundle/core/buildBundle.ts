@@ -1,14 +1,36 @@
 import Server from 'metro/src/Server';
 const outputBundle = require('metro/src/shared/output/bundle');
 import path from 'path';
-import { CommandLineArgs } from "@react-native-community/cli-plugin-metro/build/commands/bundle/bundleCommandLineArgs";
-import type {Config} from '@react-native-community/cli-types';
-import saveAssets from "@react-native-community/cli-plugin-metro/build/commands/bundle/saveAssets";
-import {
-  default as loadMetroConfig,
-  MetroConfig,
-} from '@react-native-community/cli-plugin-metro/build/tools/loadMetroConfig';
-import {logger} from '@react-native-community/cli-tools';
+import type { Config } from '@react-native-community/cli-types';
+import type { TransformProfile } from 'metro-babel-transformer';
+import type { ConfigT as MetroConfig } from 'metro-config';
+import { logger } from '@react-native-community/cli-tools';
+import { loadMetroConfig } from './core';
+
+const communityCliRoot = path.dirname(
+  require.resolve('@react-native/community-cli-plugin/package.json'),
+);
+const saveAssets = require(
+  path.join(communityCliRoot, 'dist/commands/bundle/saveAssets'),
+).default;
+
+interface CommandLineArgs {
+  entryFile: string;
+  sourceMapUrl?: string;
+  dev: boolean;
+  minify?: boolean;
+  platform: string;
+  unstableTransformProfile?: TransformProfile;
+  generateStaticViewConfigs: boolean;
+  maxWorkers?: number;
+  resetCache?: boolean;
+  config?: string;
+  bundleOutput: string;
+  assetsDest?: string;
+  assetCatalogDest?: string;
+  sourcemapOutput?: string;
+  sourcemapUseAbsolutePath?: boolean;
+}
 
 interface RequestOptions {
   entryFile: string;
@@ -16,21 +38,8 @@ interface RequestOptions {
   dev: boolean;
   minify: boolean;
   platform: string | undefined;
-  unstable_transformProfile: string | undefined;
+  unstable_transformProfile: TransformProfile | undefined;
   generateStaticViewConfigs: boolean;
-}
-
-export interface AssetData {
-  __packager_asset: boolean;
-  fileSystemLocation: string;
-  hash: string;
-  height: number | null;
-  httpServerLocation: string;
-  name: string;
-  scales: number[];
-  type: string;
-  width: number | null;
-  files: string[];
 }
 
 async function buildBundle(
@@ -81,7 +90,7 @@ export async function buildBundleWithConfig(
     await output.save(bundle, args, logger.info);
 
     // Save the assets of the bundle
-    const outputAssets: AssetData[] = await server.getAssets({
+    const outputAssets = await server.getAssets({
       ...Server.DEFAULT_BUNDLE_OPTIONS,
       ...requestOpts,
       bundleType: 'todo',

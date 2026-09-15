@@ -1,5 +1,5 @@
 import { useDeepCompareEffect } from "ahooks";
-import React, { ReactElement, ReactNode, useCallback, useEffect } from "react";
+import React, { ReactElement, ReactNode, useEffect } from "react";
 import {
   BackHandler,
   Platform,
@@ -8,13 +8,21 @@ import {
   View,
   ViewStyle,
   NativeModules,
+  NativeEventEmitter,
+  NativeModule,
 } from "react-native";
+import { useSafeAreaFrame, useSafeAreaInsets } from "react-native-safe-area-context";
+
 import {
   StackNavigationProp,
-  useFocusEffect,
   useNavigation,
   goBack,
   Navigation,
+  useRoute,
+  setShouldInterceptSideSwipe,
+  confirmShouldSideSwipePop,
+  XRNBundleNavigation,
+  XRNNavigation,
 } from "@xrnjs/navigation";
 import { getStatusBarHeight } from "../../utils/StatusBarUtils";
 import { ErrorBoundary } from "../ErrorBoundary";
@@ -39,9 +47,12 @@ export interface PageProps {
   titleContainerStyle?: StyleProp<ViewStyle>;
   onBack?: (navigation: StackNavigationProp) => boolean;
   /** 是否需要沉浸式导航栏，true：表示Page内的视图会顶到屏幕最顶端，paddingTop的值会被置为0 */
-  translucent?: boolean;
-  /** Page页面是否支持侧滑返回，默认值为true */
-  gestureEnabled?: boolean;
+  translucent?: boolean,
+  /** @deprecated 之后不再需要设置此属性，统一使用onBack来处理返回拦截逻辑
+   * https://alidocs.dingtalk.com/i/nodes/G1DKw2zgV2R0OlqmcRK99o1RVB5r9YAn
+   * Page页面是否支持侧滑返回，默认值为true 
+   */
+  gestureEnabled?: boolean,
 }
 
 const Page: React.FC<PageProps> = (props) => {
@@ -56,10 +67,12 @@ const Page: React.FC<PageProps> = (props) => {
     statusBarStyle = "dark-content",
     titleContainerStyle,
     translucent,
-    gestureEnabled = true,
+    gestureEnabled = (Platform.OS === 'ios' && onBack) ? false : true
   } = props;
 
-  const navigation = useNavigation();
+  const navigation = useNavigation()
+  const { key } = useRoute()
+  const isRemovingRef = React.useRef(false);
 
   useEffect(() => {
     Platform.select({
@@ -76,14 +89,16 @@ const Page: React.FC<PageProps> = (props) => {
         },
       },
     })?.setStatusBar();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const insets = useSafeAreaInsets()
+  const frame = useSafeAreaFrame()
 
   useDeepCompareEffect(() => {
     const options = Navigation.navigationOptions.resolveDynamicScreenOptions(
       navigation,
       {
-        pageTitle: title || "",
+        pageTitle: title || '',
         gestureEnabled,
         hideHeader,
         hideLeft,
@@ -92,12 +107,22 @@ const Page: React.FC<PageProps> = (props) => {
       }
     );
 
+    const maxWidth =
+      frame.width -
+      ((!hideLeft || rightButton ? 48 : 16) +
+        Math.max(insets.left, insets.right)) *
+      2;
+
+    const mergedTitleContainerStyle = Object.assign({}, { maxWidth }, titleContainerStyle)
+
     navigation.setOptions({
       ...options,
-      headerTitleContainerStyle: titleContainerStyle,
+      headerTitleContainerStyle: mergedTitleContainerStyle,
     });
   }, [
     navigation,
+    insets,
+    frame,
     title,
     gestureEnabled,
     hideHeader,
@@ -107,35 +132,85 @@ const Page: React.FC<PageProps> = (props) => {
     onBack,
   ]);
 
-  useFocusEffect(
-    useCallback(() => {
-      // 处理iOS Page页面禁止侧滑返回时逻辑
-      if (Platform.OS === "ios" && !gestureEnabled) {
-        NativeModules?.BundleNavigation?.gestureEnabled(false);
-      }
-      return () => {
-        if (Platform.OS === "ios" && !gestureEnabled) {
-          NativeModules?.BundleNavigation?.gestureEnabled(true);
-        }
-      };
-    }, [gestureEnabled])
-  );
-
   useEffect(() => {
     const handleBackEvent = () => {
       // 处理Android Page页面禁止侧滑返回时，禁止执行goBack
       if (onBack?.(navigation) || gestureEnabled === false) {
+        // 返回true，表示业务已处理返回事件，不需要系统介入
         return true;
       }
       goBack(navigation);
       return true;
     };
-    BackHandler.addEventListener("hardwareBackPress", handleBackEvent);
-    return () =>
-      BackHandler.removeEventListener("hardwareBackPress", handleBackEvent);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    const unsubscribe = BackHandler.addEventListener(
+      'hardwareBackPress',
+      handleBackEvent
+    );
+    return () => {
+      unsubscribe.remove();
+    };
+  }, [gestureEnabled, navigation, onBack]);
 
+
+  useEffect(() => {
+    if (Platform.OS !== 'ios') return;
+    if (isRemovingRef.current) return;
+
+    // 处理iOS的手势侧滑返回，如果Page页面的`onBack`函数有值且pageName有设置，代表此Page需要返回拦截
+    if (onBack && gestureEnabled === false) {
+      console.log('setShouldInterceptSideSwipe ✅', gestureEnabled, onBack, key)
+      setShouldInterceptSideSwipe(true, key);
+    } else {
+      console.log('setShouldInterceptSideSwipe ❌', gestureEnabled, onBack, key)
+      setShouldInterceptSideSwipe(false, key);
+    }
+  }, [onBack, gestureEnabled, key]);
+
+  useEffect(() => {
+    if (Platform.OS !== 'ios') return;
+
+    if (!gestureEnabled && !onBack) {
+      // 只设置gestureEnabled=false，不设置onBack。
+      XRNBundleNavigation?.gestureEnabled?.(false);
+    }
+
+    const handleIOSBackEvent = async (e: {
+      routeKey: string; preventDefault: () => void; data: { action: any }
+    }) => {
+      if (e?.routeKey !== key) {
+        // 如果不是当前页面的返回事件，直接返回
+        return;
+      }
+      // 根据onBack返回值，决定是业务处理返回还是Page处理返回，true表示业务自己处理返回
+      const result = onBack?.(navigation);
+      console.log('handleIOSBackEvent Onback 🔥', result);
+      if (result === false) {
+        goBack(navigation);
+      }
+    }
+    const iosEventEmitter = new NativeEventEmitter(XRNNavigation as unknown as NativeModule)
+    const swipebackUnsubscribe = iosEventEmitter?.addListener('XT_IOS_PAGESIDESWIPEBACK', handleIOSBackEvent);
+
+    const beforeRemoveUnsubscribe = navigation.addListener('beforeRemove', () => {
+      confirmShouldSideSwipePop();
+      isRemovingRef.current = true;
+    });
+
+
+    return () => {
+      if (Platform.OS !== 'ios') return;
+
+      if (!gestureEnabled && !onBack) {
+        XRNBundleNavigation?.gestureEnabled?.(true);
+      }
+      beforeRemoveUnsubscribe();
+      swipebackUnsubscribe?.remove?.();
+    }
+  }, [gestureEnabled, navigation, onBack, key]);
+
+  const handleBackPress = () => {
+    goBack(navigation);
+  };
 
   // 处理hideHeader后状态栏白色bug，如果需要自定义paddingTop值，在业务侧Page组件style中重写paddingTop，backgroundColor同理
   const hideHeaderStyle = hideHeader

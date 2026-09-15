@@ -8,11 +8,7 @@ enum class ImageCacheType(private vararg val dataSources: DataSource) {
   MEMORY(DataSource.MEMORY_CACHE);
 
   companion object {
-    fun fromNativeValue(value: DataSource): ImageCacheType = when (value) {
-      DataSource.LOCAL, DataSource.REMOTE -> NONE
-      DataSource.DATA_DISK_CACHE, DataSource.RESOURCE_DISK_CACHE -> DISK
-      DataSource.MEMORY_CACHE -> MEMORY
-      else -> throw IllegalArgumentException("Unknown data source: $value")
-    }
+    fun fromNativeValue(value: DataSource): ImageCacheType =
+      entries.firstOrNull { it.dataSources.contains(value) } ?: NONE
   }
 }

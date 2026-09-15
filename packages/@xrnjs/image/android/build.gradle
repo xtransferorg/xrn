@@ -75,6 +75,10 @@ android {
     buildConfigField("boolean", "ALLOW_GLIDE_LOGS", project.properties.get("EXPO_ALLOW_GLIDE_LOGS", "false"))
   }
 
+  buildFeatures {
+    buildConfig true
+  }
+
   buildTypes {
     release {
       minifyEnabled false
@@ -111,7 +115,7 @@ dependencies {
   kapt "com.github.bumptech.glide:compiler:${GLIDE_VERSION}"
   api 'com.caverock:androidsvg-aar:1.4'
 
-  implementation "com.github.penfeizhou.android.animation:glide-plugin:3.0.2"
+  implementation "com.github.penfeizhou.android.animation:glide-plugin:3.0.5"
   implementation "com.github.bumptech.glide:avif-integration:${GLIDE_VERSION}"
 
   api "com.github.bumptech.glide:okhttp3-integration:${GLIDE_VERSION}"
@@ -119,4 +123,3 @@ dependencies {
 
   implementation "jp.wasabeef:glide-transformations:4.3.0"
 }
-

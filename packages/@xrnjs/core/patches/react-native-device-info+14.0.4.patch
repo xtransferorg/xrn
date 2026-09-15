@@ -1,0 +1,54 @@
+diff --git a/node_modules/react-native-device-info/android/src/main/java/com/learnium/RNDeviceInfo/RNDeviceModule.java b/node_modules/react-native-device-info/android/src/main/java/com/learnium/RNDeviceInfo/RNDeviceModule.java
+index 23e8fb4..3269931 100644
+--- a/node_modules/react-native-device-info/android/src/main/java/com/learnium/RNDeviceInfo/RNDeviceModule.java
++++ b/node_modules/react-native-device-info/android/src/main/java/com/learnium/RNDeviceInfo/RNDeviceModule.java
+@@ -38,6 +38,7 @@ import android.hardware.camera2.CameraManager;
+ import androidx.annotation.Nullable;
+ 
+ import com.facebook.react.bridge.Arguments;
++import com.facebook.react.bridge.LifecycleEventListener;
+ import com.facebook.react.bridge.ReactApplicationContext;
+ import com.facebook.react.bridge.ReactContext;
+ import com.facebook.react.bridge.ReactContextBaseJavaModule;
+@@ -91,12 +92,31 @@ public class RNDeviceModule extends ReactContextBaseJavaModule {
+   private static String BATTERY_LEVEL= "batteryLevel";
+   private static String LOW_POWER_MODE = "lowPowerMode";
+ 
++  private boolean isActivityResumed = true;
++
+   public RNDeviceModule(ReactApplicationContext reactContext) {
+     super(reactContext);
+     this.deviceTypeResolver = new DeviceTypeResolver(reactContext);
+     this.deviceIdResolver = new DeviceIdResolver(reactContext);
+     this.installReferrerClient = new RNInstallReferrerClient(reactContext.getBaseContext());
+     this.inputMethodManager = (InputMethodManager) reactContext.getSystemService(Context.INPUT_METHOD_SERVICE);
++    
++    this.getReactApplicationContext().addLifecycleEventListener(new LifecycleEventListener() {
++      @Override
++      public void onHostResume() {
++        isActivityResumed = true;
++      }
++
++      @Override
++      public void onHostPause() {
++        isActivityResumed = false;
++      }
++
++      @Override
++      public void onHostDestroy() {
++
++      }
++    });
+   }
+ 
+   @Override
+@@ -338,6 +358,9 @@ public class RNDeviceModule extends ReactContextBaseJavaModule {
+   @ReactMethod(isBlockingSynchronousMethod = true)
+   @SuppressWarnings("ConstantConditions")
+   public String getIpAddressSync() {
++    // 合规性：应用在前台时才返回IP地址，后台时返回"unknown"
++    if (!isActivityResumed) return "unknown";
++
+     try {
+       return
+               InetAddress.getByAddress(

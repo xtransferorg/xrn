@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 主背景色 -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#F5F5F7" />
+        </shape>
+    </item>
+
+</layer-list>

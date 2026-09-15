@@ -1,3 +1,3 @@
-# xrn-navigation
+# @xrnjs/navigation
 
-xrn-navigation
+@xrnjs/navigation

@@ -52,9 +52,6 @@ export type NativeStorageHook = {
   removeItemSync: () => boolean;
 };
 
-
-
-
 export type NativeStorageStatic = {
   /**
    * 异步获取值

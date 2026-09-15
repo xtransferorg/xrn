@@ -1,5 +1,12 @@
-import React, { forwardRef, useEffect, useImperativeHandle } from "react";
-import { BackHandler, NativeEventEmitter, NativeModules } from "react-native";
+import throttle from "lodash/throttle";
+import { nanoid } from "nanoid";
+import React, {
+  forwardRef,
+  useImperativeHandle,
+  useLayoutEffect,
+  useRef,
+} from "react";
+import { BackHandler, NativeEventEmitter, NativeModule } from "react-native";
 
 import { withNavigation } from "./compatV4";
 import {
@@ -10,66 +17,86 @@ import {
   Navigation,
   NavigationState,
   StackRouteConfig,
+  NavigationContainerRefWithCurrent,
 } from "./core";
 import { NavigationInterceptExtraData } from "./core/navigationInstance/NavigationInterceptorManager";
 import { useNavigationContainerRefStack } from "./core/useNavigationContainerRefStack";
 import { deepCloneInitialState } from "./core/utils";
 import { NativeNavigationModule } from "./native";
-import { LinkingConfig } from "./useLinking";
+import { XRNNavigation } from "./native/XRNNavigation";
+import { LinkingConfig, useLinking } from "./useLinking";
 
 const Stack = createStackNavigator();
+
+const SAVE_NAVIGATION_STATE_THROTTLE_WAIT = 200;
 
 export type NavigationContainerWrapperProps = {
   routes: StackRouteConfig[];
   interceptExtraData?: NavigationInterceptExtraData;
   linking?: LinkingConfig;
+  onReady: (
+    navigationRef: NavigationContainerRefWithCurrent<any>,
+    key: string,
+  ) => void;
 } & Pick<NavigationContainerProps, "initialState" | "onStateChange">;
 
-const NavigationContainerWrapperInner = <ParamList extends object>(
+const NavigationContainerWrapperInner = <ParamList extends {}>(
   {
     routes,
     initialState,
     onStateChange,
     interceptExtraData,
-    // linking,
+    linking,
+    onReady,
   }: NavigationContainerWrapperProps,
-  ref?: React.Ref<NavigationContainerRef<ReactNavigation.RootParamList> | null>
+  ref?: React.Ref<NavigationContainerRef<ReactNavigation.RootParamList> | null>,
 ) => {
+  const rootKeyRef = useRef<string>();
+  if (!rootKeyRef.current) {
+    rootKeyRef.current = "stack-" + nanoid(16);
+    NativeNavigationModule.setNavigationKey(rootKeyRef.current);
+  }
+  const rootKey = rootKeyRef.current;
+
   const { navigationRef, pushRefToStack } =
-    useNavigationContainerRefStack<ParamList>();
+    useNavigationContainerRefStack<ParamList>(rootKey);
 
   useImperativeHandle(ref, () => navigationRef.current);
 
-  // const { enableLinking, initializeLinkingHandler } = useLinking(
-  //   navigationRef,
-  //   linking
-  // );
+  const { enableLinking, initializeLinkingHandler } = useLinking(
+    navigationRef,
+    linking,
+  );
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const handleBackEvent = () => {
       navigationRef.current?.goBack();
       return true;
     };
 
-    BackHandler.addEventListener("hardwareBackPress", handleBackEvent);
-    return () =>
-      BackHandler.removeEventListener("hardwareBackPress", handleBackEvent);
+    const subscription = BackHandler.addEventListener(
+      "hardwareBackPress",
+      handleBackEvent,
+    );
+    return () => subscription.remove();
   }, [navigationRef]);
 
-  useEffect(() => {
-    const eventEmitter = new NativeEventEmitter(NativeModules?.XRNNavigation);
+  useLayoutEffect(() => {
+    const eventEmitter = new NativeEventEmitter(
+      XRNNavigation as unknown as NativeModule,
+    );
 
     const listener = eventEmitter.addListener(
       "NATIVE_DISPATCH_ACTION",
       (action) => {
         const newAction = NativeNavigationModule.completeNativeAction(action);
 
-        if (newAction.target !== navigationRef.getRootState().key) return;
+        if (newAction.target !== rootKey) return;
 
         delete newAction.target;
 
         navigationRef.dispatch(newAction);
-      }
+      },
     );
 
     return () => {
@@ -77,14 +104,23 @@ const NavigationContainerWrapperInner = <ParamList extends object>(
     };
   }, [navigationRef]);
 
-  const bindNavigationKeyToNative = () => {
-    NativeNavigationModule.setNavigationKey(navigationRef.getRootState().key);
-  };
+  const saveNavigationStateToNativeRef =
+    useRef<ReturnType<typeof throttle<(state?: NavigationState) => void>>>();
+  if (!saveNavigationStateToNativeRef.current) {
+    saveNavigationStateToNativeRef.current = throttle(
+      (state?: NavigationState) => {
+        NativeNavigationModule.setNavigationState(state);
+      },
+      SAVE_NAVIGATION_STATE_THROTTLE_WAIT,
+    );
+  }
+  const saveNavigationStateToNative = saveNavigationStateToNativeRef.current;
 
-  const saveNavigationStateToNative = (_state?: NavigationState) => {
-    // console.log('saveNavigationStateToNative', state);
-    // NavigationModule.setNavigationState(state);
-  };
+  useLayoutEffect(() => {
+    return () => {
+      saveNavigationStateToNativeRef.current?.cancel();
+    };
+  }, []);
 
   return (
     <NavigationContainer
@@ -93,12 +129,11 @@ const NavigationContainerWrapperInner = <ParamList extends object>(
         initialState ? deepCloneInitialState(initialState) : undefined
       }
       onReady={() => {
-        pushRefToStack();
-        bindNavigationKeyToNative();
+        onReady?.(navigationRef, rootKey);
         saveNavigationStateToNative(navigationRef.getRootState());
-        // if (enableLinking) {
-        //   initializeLinkingHandler();
-        // }
+        if (enableLinking) {
+          initializeLinkingHandler();
+        }
       }}
       onStateChange={(state) => {
         onStateChange?.(state);
@@ -108,15 +143,14 @@ const NavigationContainerWrapperInner = <ParamList extends object>(
         console.log(
           "[XRN][Navigation] ",
           "NavigationContainer onUnhandledAction: ",
-          action
+          action,
         );
-        NativeNavigationModule.dispatchAction(
-          navigationRef.getRootState().key,
-          action
-        );
+        saveNavigationStateToNative.flush();
+        NativeNavigationModule.dispatchAction(rootKey, action);
       }}
     >
       <Stack.Navigator
+        id={rootKey}
         detachInactiveScreens={false}
         screenOptions={() =>
           Navigation.navigationOptions.getMergedNavigatorScreenOptions()
@@ -126,7 +160,7 @@ const NavigationContainerWrapperInner = <ParamList extends object>(
             action,
             prevState,
             nextState,
-            interceptExtraData
+            interceptExtraData,
           );
         }}
       >
@@ -143,7 +177,7 @@ const NavigationContainerWrapperInner = <ParamList extends object>(
                 Navigation.navigationOptions.mergeScreenOptions(
                   props,
                   item.navigationOptions,
-                  item.component.navigationOptions
+                  item.component.navigationOptions,
                 )
               }
             />
@@ -155,9 +189,9 @@ const NavigationContainerWrapperInner = <ParamList extends object>(
 };
 
 export const NavigationContainerWrapper = forwardRef(
-  NavigationContainerWrapperInner
-) as <RootParamList extends object = ReactNavigation.RootParamList>(
+  NavigationContainerWrapperInner,
+) as <RootParamList extends {} = ReactNavigation.RootParamList>(
   props: NavigationContainerWrapperProps & {
     ref?: React.Ref<NavigationContainerRef<RootParamList>>;
-  }
+  },
 ) => React.ReactElement;

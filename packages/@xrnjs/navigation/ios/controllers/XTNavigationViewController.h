@@ -7,10 +7,13 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "XTNavigationLifecycleProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface XTNavigationViewController : UINavigationController
+
+@property (nonatomic, strong) id<XTNavigationLifecycleProtocol> lifecycleObserver;
 
 @end
 

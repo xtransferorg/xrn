@@ -1,14 +1,20 @@
-import React, { Suspense, useEffect } from "react";
+import * as Sentry from "@sentry/react-native";
+import React, { Suspense, useEffect, useMemo } from "react";
+import { finishBundle, Navigation, } from "@xrnjs/navigation";
 import { checkRNUpdate } from "../utils/codePushUtils";
 import {
   NavigateBundleProps,
   NavigateBundleProvider,
 } from "./NavigateParamsContext";
-import { bundleConfig } from "../bundle";
+import { BundleConfig, bundleConfig } from "../bundle";
 import {
   NavigationContainer,
   NavigationContainerProps,
 } from "./NavigationContainer";
+
+export type WrapperComponent = React.ComponentType<{
+  children?: React.ReactNode;
+}>;
 
 export type InitModuleProps = {
   routers: NavigationContainerProps["routes"];
@@ -19,18 +25,19 @@ export type InitModuleProps = {
     NavigationContainerProps,
     "onStateChange" | "linking"
   > & {
-    WrapperComponent?: React.ComponentType<{
-      children?: React.ReactNode;
-    }>;
+    getWrapperComponent?: (
+      bundleConfig: BundleConfig,
+      moduleConfig: { moduleName: string }
+    ) => WrapperComponent;
   };
 };
 
 export function initModule({
   routers,
   autoCheckUpdate = true,
-  navigationContainerProps = {} as any,
+  navigationContainerProps = {},
 }: InitModuleProps) {
-  console.log("bundleConfig", bundleConfig);
+  // console.log("bundleConfig", bundleConfig);
 
   if (!bundleConfig)
     console.warn(
@@ -45,16 +52,26 @@ export function initModule({
   ) => {
     const { rootTag, params = null, moduleName } = props;
 
-    const {
-      WrapperComponent: NavigationContainerWrapperCom = React.Fragment,
-      ...resetNavigationContainerProps
-    } = navigationContainerProps;
+    const { getWrapperComponent, ...resetNavigationContainerProps } =
+      navigationContainerProps;
+
+    const NavigationContainerWrapperCom = useMemo(() => {
+      return (
+        getWrapperComponent?.(bundleConfig, { moduleName }) || React.Fragment
+      );
+    }, [getWrapperComponent, moduleName]);
+
 
     useEffect(() => {
+
       if (autoCheckUpdate) {
         checkRNUpdate({ isMain: mainBundle, timeout: 2 * 1000 });
       }
     }, []);
+
+    const handleBackPress = () => {
+      finishBundle();
+    };
 
     return (
       <Suspense>
@@ -71,6 +88,10 @@ export function initModule({
                 bundleName: appName,
                 moduleName,
               }}
+              // @ts-ignore
+              onReady={(ref, key) => {
+                Navigation.navigationContainerRefStack.push(key, ref);
+              }}
               {...resetNavigationContainerProps}
             />
           </NavigateBundleProvider>
@@ -78,5 +99,6 @@ export function initModule({
       </Suspense>
     );
   };
-  return PageProvider;
+
+  return Sentry.wrap(PageProvider as unknown as React.ComponentType<any>);
 }

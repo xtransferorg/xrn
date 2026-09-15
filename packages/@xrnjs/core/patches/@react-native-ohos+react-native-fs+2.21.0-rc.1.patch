@@ -1,0 +1,328 @@
+diff --git a/node_modules/@react-native-ohos/react-native-fs/FS.common.js b/node_modules/@react-native-ohos/react-native-fs/FS.common.js
+index 0e652ec..48b3760 100644
+--- a/node_modules/@react-native-ohos/react-native-fs/FS.common.js
++++ b/node_modules/@react-native-ohos/react-native-fs/FS.common.js
+@@ -572,17 +572,25 @@ var RNFS = {
+     if (options.method && typeof options.method !== 'string') throw new Error('uploadFiles: Invalid value for property `method`');
+ 
+     if (options.begin) {
+-      subscriptions.push(RNFS_NativeEventEmitter.addListener('UploadBegin', options.begin));
++      subscriptions.push(RNFS_NativeEventEmitter.addListener('UploadBegin', (res) => {
++        if (res.jobId === jobId) options.begin(res);
++      }));
+     } else if (options.beginCallback) {
+       // Deprecated
+-      subscriptions.push(RNFS_NativeEventEmitter.addListener('UploadBegin', options.beginCallback));
++      subscriptions.push(RNFS_NativeEventEmitter.addListener('UploadBegin', (res) => {
++        if (res.jobId === jobId) options.beginCallback(res);
++      }));
+     } 
+ 
+     if (options.progress) {
+-      subscriptions.push(RNFS_NativeEventEmitter.addListener('UploadProgress', options.progress));
++      subscriptions.push(RNFS_NativeEventEmitter.addListener('UploadProgress', (res) => {
++        if (res.jobId === jobId) options.progress(res);
++      }));
+     } else if (options.progressCallback) {
+       // Deprecated
+-      subscriptions.push(RNFS_NativeEventEmitter.addListener('UploadProgress', options.progressCallback));
++      subscriptions.push(RNFS_NativeEventEmitter.addListener('UploadProgress', (res) => {
++        if (res.jobId === jobId) options.progressCallback(res);
++      }));
+     }
+ 
+     var bridgeOptions = {
+@@ -593,8 +601,8 @@ var RNFS = {
+       headers: options.headers || {},
+       fields: options.fields || {},
+       method: options.method || 'POST',
+-      hasBeginCallback: options.begin instanceof Function || options.beginCallback instanceof Function,
+-      hasProgressCallback: options.progress instanceof Function || options.progressCallback instanceof Function,
++      hasBeginCallback: options.beginCallback instanceof Function || options.begin instanceof Function,
++      hasProgressCallback: options.progressCallback instanceof Function || options.progress instanceof Function,
+     };
+ 
+     return {
+@@ -603,6 +611,9 @@ var RNFS = {
+         subscriptions.forEach(sub => sub.remove());
+         return res;
+       })
++      .catch(e => {
++        return Promise.reject(e);
++      })
+     };
+   },
+ 
+diff --git a/node_modules/@react-native-ohos/react-native-fs/src/NativeReactNativeFs.ts b/node_modules/@react-native-ohos/react-native-fs/src/NativeReactNativeFs.ts
+index b880ff4..1661f7d 100644
+--- a/node_modules/@react-native-ohos/react-native-fs/src/NativeReactNativeFs.ts
++++ b/node_modules/@react-native-ohos/react-native-fs/src/NativeReactNativeFs.ts
+@@ -26,6 +26,13 @@ type DownloadResult = {
+   bytesWritten: number;   // The number of bytes written to the file
+ };
+ 
++type UploadResult = {
++  jobId: number;        // The upload job ID, required if one wishes to cancel the upload. See `stopUpload`.
++  statusCode: number;   // The HTTP status code
++  body: string;         // The HTTP response body
++  headers?: Object;     // The HTTP response headers from the server
++};
++
+ export interface Spec extends TurboModule {
+   getConstants(): Object;
+ 
+@@ -59,6 +66,8 @@ export interface Spec extends TurboModule {
+ 
+   downloadFile(bridgeOptions: Object): Promise<DownloadResult>;
+ 
++  uploadFiles(options: Object): Promise<UploadResult>;
++
+   readDir(dirpath: string): Promise<Object[]>;
+ 
+   existsAssets(filepath: string):Promise<boolean>;
+diff --git a/node_modules/@react-native-ohos/react-native-fs/harmony/fs/src/main/ets/FsTurboModule.ts b/node_modules/@react-native-ohos/react-native-fs/harmony/fs/src/main/ets/FsTurboModule.ts
+index c9f8689..156beff 100644
+--- a/node_modules/@react-native-ohos/react-native-fs/harmony/fs/src/main/ets/FsTurboModule.ts
++++ b/node_modules/@react-native-ohos/react-native-fs/harmony/fs/src/main/ets/FsTurboModule.ts
+@@ -66,6 +66,42 @@ type DownloadResult = {
+   bytesWritten: number // The number of bytes written to the file
+ }
+ 
++type UploadFileOptions = {
++  jobId: number
++	toUrl: string // URL to upload file to
++	binaryStreamOnly?: boolean // Allow for binary data stream for file to be uploaded without extra headers, Default is 'false'
++	files: UploadFileItem[] // An array of objects with the file information to be uploaded.
++	headers?: Headers // An object of headers to be passed to the server
++	fields?: Fields // An object of fields to be passed to the server
++	method?: string // Default is 'POST', supports 'POST' and 'PUT'
++	hasBeginCallback?: (res: UploadBeginCallbackResult) => void
++	hasProgressCallback?: (res: UploadProgressCallbackResult) => void
++}
++
++type UploadFileItem = {
++	name: string // Name of the file, if not defined then filename is used
++	filename: string // Name of file
++	filepath: string // Path to file
++	filetype: string // The mimetype of the file to be uploaded, if not defined it will get mimetype from `filepath` extension
++}
++
++type UploadBeginCallbackResult = {
++	jobId: number // The upload job ID, required if one wishes to cancel the upload. See `stopUpload`.
++}
++
++type UploadProgressCallbackResult = {
++	jobId: number // The upload job ID, required if one wishes to cancel the upload. See `stopUpload`.
++	totalBytesExpectedToSend: number // The total number of bytes that will be sent to the server
++	totalBytesSent: number // The number of bytes sent to the server
++}
++
++type UploadResult = {
++	jobId: number // The upload job ID, required if one wishes to cancel the upload. See `stopUpload`.
++	statusCode: number // The HTTP status code
++	headers: Headers // The HTTP response headers from the server
++	body: string // The HTTP response body
++}
++
+ type ReadDirItem = {
+   ctime?: number;
+   mtime?: number;
+@@ -227,7 +263,7 @@ export class FsTurboModule extends TurboModule implements TM.ReactNativeFs.Spec
+             loadTask.on('remove', () => {
+             })
+             loadTask.on('fail', (err) => {
+-              reject(err);
++              reject(String(err));
+             })
+           } else {
+             reject("downloadTask dismiss");
+@@ -238,6 +274,189 @@ export class FsTurboModule extends TurboModule implements TM.ReactNativeFs.Spec
+       })
+     });
+   }
++  // 上传文件
++  uploadFiles(options: UploadFileOptions): Promise<UploadResult> {
++    this.logger.info('uploadFiles')
++    return new Promise(async (resolve, reject) => {
++      let uploadFileOptions: UploadFileOptions = options as UploadFileOptions;
++
++      // 发送开始事件
++      if (uploadFileOptions.hasBeginCallback) {
++        let uploadBeginCallbackResult: UploadBeginCallbackResult = {
++          jobId: uploadFileOptions.jobId
++        }
++        this.ctx.rnInstance.emitDeviceEvent('UploadBegin', uploadBeginCallbackResult)
++      }
++
++      try {
++        if (!uploadFileOptions.files || uploadFileOptions.files.length === 0) {
++          throw new Error('No files to upload');
++        }
++
++        const context = this.ctx.uiAbilityContext;
++        const filesArray: loadRequest.File[] = [];
++        const tempFiles: string[] = []; // 存储临时文件路径，用于清理
++
++        const fileEntries: Array<{fileItem: UploadFileItem, finalUri: string, tempFilePath?: string}> = [];
++
++        for (let i = 0; i < uploadFileOptions.files.length; i++) {
++          const fileItem = uploadFileOptions.files[i];
++          let filePath = fileItem.filepath;
++          
++          // 转换路径格式
++          if (filePath.startsWith('internal://cache')) {
++            filePath = this.context.cacheDir + filePath.replace('internal://cache', '');
++          } else if (filePath.startsWith('internal://files')) {
++            filePath = this.context.filesDir + filePath.replace('internal://files', '');
++          } else if (filePath.startsWith('file://')) {
++            filePath = filePath.replace('file://', '');
++          }
++
++          // 检查文件是否存在
++          const fileExists = fs.accessSync(filePath);
++          if (!fileExists) {
++            throw new Error(`File not found: ${fileItem.filepath}`);
++          }
++
++          // 检查文件是否已经在 cache 目录
++          if (filePath.startsWith(this.context.cacheDir)) {
++            // 已经在 cache 目录，直接使用
++            const finalUri = 'internal://cache' + filePath.replace(this.context.cacheDir, '');
++            fileEntries.push({ fileItem, finalUri });
++          } else {
++            // 需要拷贝到 cache 目录
++            const timestamp = Date.now();
++            const random = Math.random().toString(36).substr(2, 8);
++            const ext = fileItem.filename.split('.').pop() || 'tmp';
++            const tempFileName = `upload_${uploadFileOptions.jobId}_${i}_${timestamp}_${random}.${ext}`;
++            const tempFilePath = this.context.cacheDir + '/' + tempFileName;
++            const finalUri = 'internal://cache/' + tempFileName;
++            
++            // 同步拷贝文件
++            fs.copyFileSync(filePath, tempFilePath);
++            
++            fileEntries.push({ fileItem, finalUri, tempFilePath });
++            tempFiles.push(tempFilePath);
++          }
++        }
++
++        // 构建 filesArray
++        for (const entry of fileEntries) {
++          const { fileItem, finalUri } = entry;
++          
++          let type = fileItem.filetype || 'application/octet-stream';
++          if (!fileItem.filetype) {
++            const ext = fileItem.filename.split('.').pop()?.toLowerCase();
++            const mimeMap: Record<string, string> = {
++              'jpg': 'image/jpeg', 'jpeg': 'image/jpeg', 'png': 'image/png',
++              'gif': 'image/gif', 'pdf': 'application/pdf', 'txt': 'text/plain',
++              'json': 'application/json', 'mp4': 'video/mp4', 'mp3': 'audio/mpeg',
++              'zip': 'application/zip', 'doc': 'application/msword',
++              'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
++              'xls': 'application/vnd.ms-excel',
++              'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
++              'ppt': 'application/vnd.ms-powerpoint',
++              'pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation'
++            };
++            if (ext && mimeMap[ext]) {
++              type = mimeMap[ext];
++            }
++          }
++
++          filesArray.push({
++            uri: finalUri,
++            name: fileItem.name || fileItem.filename,
++            filename: fileItem.filename,
++            type: type
++          });
++        }
++
++        const uploadConfig: loadRequest.UploadConfig = {
++          url: uploadFileOptions.toUrl,
++          method: uploadFileOptions.method || 'POST',
++          header: uploadFileOptions.headers || {},
++          files: filesArray,
++          data: uploadFileOptions.fields
++            ? Object.entries(uploadFileOptions.fields).map(([k, v]) => ({ name: k, value: String(v) }))
++            : []
++        };
++
++        loadRequest.uploadFile(context, uploadConfig)
++          .then((task: loadRequest.UploadTask) => {
++            let isSettled = false;
++
++            if (uploadFileOptions.hasProgressCallback) {
++              task.on('progress', (uploadedSize: number, totalSize: number) => {
++                const uploadProgressCallbackResult: UploadProgressCallbackResult = {
++                  jobId: uploadFileOptions.jobId,
++                  totalBytesExpectedToSend: totalSize,
++                  totalBytesSent: uploadedSize
++                };
++                this.ctx.rnInstance.emitDeviceEvent('UploadProgress', uploadProgressCallbackResult);
++              });
++            }
++
++            task.on('complete', (states: Array<loadRequest.TaskState>) => {
++              if (isSettled) return;
++              isSettled = true;
++
++              task.off('complete');
++              task.off('fail');
++              task.off('progress');
++
++              // 清理临时文件
++              this.cleanupTempFiles(tempFiles);
++
++              const lastState = states[states.length - 1];
++              let uploadResult: UploadResult = {
++                jobId: uploadFileOptions.jobId,
++                statusCode: lastState.responseCode || 200,
++                headers: uploadFileOptions.headers,
++                body: lastState.message || ''
++              };
++              resolve(uploadResult);
++            });
++
++            task.on('fail', (states: Array<loadRequest.TaskState>) => {
++              if (isSettled) return;
++              isSettled = true;
++
++              task.off('complete');
++              task.off('fail');
++              task.off('progress');
++
++              // 清理临时文件
++              this.cleanupTempFiles(tempFiles);
++
++              reject(new Error(states[0]?.message || 'Upload failed'));
++            });
++          })
++          .catch((err: BusinessError) => {
++            // 清理临时文件
++            this.cleanupTempFiles(tempFiles);
++            this.logger.error(`uploadFiles error: ${err?.message}`);
++            reject(err);
++          });
++
++      } catch (error) {
++        this.logger.error(`uploadFiles error: ${error?.message}`);
++        reject(error);
++      }
++    });
++  }
++
++  // 清理临时文件
++  private cleanupTempFiles(tempFiles: string[]): void {
++    for (const tempFile of tempFiles) {
++      try {
++        fs.unlinkSync(tempFile);
++        this.logger.info(`Cleaned up temp file: ${tempFile}`);
++      } catch (e) {
++        // 文件不存在或其他错误，记录但不抛出
++        this.logger.warn(`Failed to clean up temp file ${tempFile}: ${e?.message}`);
++      }
++    }
++  }
+ 
+   // 常量
+   getConstants(): Object {

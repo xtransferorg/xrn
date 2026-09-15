@@ -1,0 +1,184 @@
+diff --git a/node_modules/react-native-screens/cpp/RNScreensTurboModule.cpp b/node_modules/react-native-screens/cpp/RNScreensTurboModule.cpp
+index 9e9a91e..0a9af1c 100644
+--- a/node_modules/react-native-screens/cpp/RNScreensTurboModule.cpp
++++ b/node_modules/react-native-screens/cpp/RNScreensTurboModule.cpp
+@@ -6,6 +6,7 @@ namespace RNScreens {
+
+ const char RNScreensTurboModule::MODULE_NAME[] = "RNScreensTurboModule";
+
++std::mutex RNScreensTurboModule::mutex_;
+ std::function<std::array<int, 2>(int)> RNScreensTurboModule::startTransition_;
+ std::function<void(int, double)> RNScreensTurboModule::updateTransition_;
+ std::function<void(int, bool)> RNScreensTurboModule::finishTransition_;
+@@ -16,6 +17,7 @@ RNScreensTurboModule::RNScreensTurboModule(
+     std::function<void(int, double)> updateTransition,
+     std::function<void(int, bool)> finishTransition,
+     std::function<void(int)> disableSwipeBackForTopScreen) {
++  std::lock_guard<std::mutex> lock(mutex_);
+   startTransition_ = startTransition;
+   updateTransition_ = updateTransition;
+   finishTransition_ = finishTransition;
+@@ -62,7 +64,15 @@ JSI_HOST_FUNCTION(RNScreensTurboModule::startTransition) {
+         rt, "[RNScreens] `startTransition` method requires 1 argument.");
+   }
+   int stackTag = arguments[0].asNumber();
+-  auto screenTags = startTransition_(stackTag);
++  std::function<std::array<int, 2>(int)> fn;
++  {
++    std::lock_guard<std::mutex> lock(mutex_);
++    fn = startTransition_;
++  }
++  if (!fn) {
++    return jsi::Value::undefined();
++  }
++  auto screenTags = fn(stackTag);
+   jsi::Object screenTagsObject(rt);
+   jsi::Value topScreenTag, belowTopScreenTag, canStartTransition;
+   if (screenTags[0] > -1) {
+@@ -87,7 +97,14 @@ JSI_HOST_FUNCTION(RNScreensTurboModule::updateTransition) {
+   }
+   int stackTag = arguments[0].asNumber();
+   double progress = arguments[1].asNumber();
+-  updateTransition_(stackTag, progress);
++  std::function<void(int, double)> fn;
++  {
++    std::lock_guard<std::mutex> lock(mutex_);
++    fn = updateTransition_;
++  }
++  if (fn) {
++    fn(stackTag, progress);
++  }
+   return jsi::Value::undefined();
+ }
+
+@@ -98,7 +115,14 @@ JSI_HOST_FUNCTION(RNScreensTurboModule::finishTransition) {
+   }
+   int stackTag = arguments[0].asNumber();
+   bool canceled = arguments[1].getBool();
+-  finishTransition_(stackTag, canceled);
++  std::function<void(int, bool)> fn;
++  {
++    std::lock_guard<std::mutex> lock(mutex_);
++    fn = finishTransition_;
++  }
++  if (fn) {
++    fn(stackTag, canceled);
++  }
+   return jsi::Value::undefined();
+ }
+
+@@ -108,7 +132,14 @@ JSI_HOST_FUNCTION(RNScreensTurboModule::disableSwipeBackForTopScreen) {
+         rt, "[RNScreens] `startTransition` method requires 1 argument.");
+   }
+   int stackTag = arguments[0].asNumber();
+-  disableSwipeBackForTopScreen_(stackTag);
++  std::function<void(int)> fn;
++  {
++    std::lock_guard<std::mutex> lock(mutex_);
++    fn = disableSwipeBackForTopScreen_;
++  }
++  if (fn) {
++    fn(stackTag);
++  }
+   return jsi::Value::undefined();
+ }
+
+diff --git a/node_modules/react-native-screens/cpp/RNScreensTurboModule.h b/node_modules/react-native-screens/cpp/RNScreensTurboModule.h
+index 80c2965..a5b007d 100644
+--- a/node_modules/react-native-screens/cpp/RNScreensTurboModule.h
++++ b/node_modules/react-native-screens/cpp/RNScreensTurboModule.h
+@@ -1,5 +1,6 @@
+ #include <jsi/jsi.h>
+ #include <array>
++#include <mutex>
+
+ #define JSI_HOST_FUNCTION(NAME)    \
+   jsi::Value NAME(                 \
+@@ -13,6 +14,7 @@ using namespace facebook;
+ namespace RNScreens {
+
+ class RNScreensTurboModule : public jsi::HostObject {
++  static std::mutex mutex_;
+   static std::function<std::array<int, 2>(int)> startTransition_;
+   static std::function<void(int, double)> updateTransition_;
+   static std::function<void(int, bool)> finishTransition_;
+diff --git a/node_modules/react-native-screens/ios/RNSModule.mm b/node_modules/react-native-screens/ios/RNSModule.mm
+index f3f14d3..e42f089 100644
+--- a/node_modules/react-native-screens/ios/RNSModule.mm
++++ b/node_modules/react-native-screens/ios/RNSModule.mm
+@@ -138,33 +138,50 @@ - (void)installHostObject
+    because depending on the selected architecture, only one method will be called.
+    For `Paper`, it will be constantsToExport, and for `Fabric`, it will be getTurboModule.
+ */
+-  RCTCxxBridge *cxxBridge = (RCTCxxBridge *)self.bridge;
+-  if (cxxBridge != nil) {
++  @synchronized(self.class) {
++    RCTCxxBridge *cxxBridge = (RCTCxxBridge *)self.bridge;
++    if (cxxBridge == nil) {
++      return;
++    }
+     auto jsiRuntime = (jsi::Runtime *)cxxBridge.runtime;
+-    if (jsiRuntime != nil) {
+-      auto &runtime = *jsiRuntime;
+-      __weak auto weakSelf = self;
+-
+-      const auto &startTransition = [weakSelf](int stackTag) -> std::array<int, 2> {
+-        auto screensTags = [weakSelf startTransition:@(stackTag)];
+-        return {[screensTags[0] intValue], [screensTags[1] intValue]};
+-      };
+-      const auto &updateTransition = [weakSelf](int stackTag, double progress) {
+-        [weakSelf updateTransition:@(stackTag) progress:progress];
+-      };
+-      const auto &finishTransition = [weakSelf](int stackTag, bool canceled) {
+-        [weakSelf finishTransition:@(stackTag) canceled:canceled];
+-      };
+-      const auto &disableSwipeBackForTopScreen = [weakSelf](int stackTag) {
+-        [weakSelf disableSwipeBackForTopScreen:@(stackTag)];
+-      };
+-
+-      auto rnScreensModule = std::make_shared<RNScreens::RNScreensTurboModule>(
+-          startTransition, updateTransition, finishTransition, disableSwipeBackForTopScreen);
+-      auto rnScreensModuleHostObject = jsi::Object::createFromHostObject(runtime, rnScreensModule);
+-      runtime.global().setProperty(
+-          runtime, RNScreens::RNScreensTurboModule::MODULE_NAME, std::move(rnScreensModuleHostObject));
++    if (jsiRuntime == nil) {
++      return;
+     }
++    auto &runtime = *jsiRuntime;
++    __weak auto weakSelf = self;
++
++    const auto &startTransition = [weakSelf](int stackTag) -> std::array<int, 2> {
++      auto strongSelf = weakSelf;
++      if (!strongSelf) {
++        return {-1, -1};
++      }
++      auto screensTags = [strongSelf startTransition:@(stackTag)];
++      return {[screensTags[0] intValue], [screensTags[1] intValue]};
++    };
++    const auto &updateTransition = [weakSelf](int stackTag, double progress) {
++      auto strongSelf = weakSelf;
++      if (strongSelf) {
++        [strongSelf updateTransition:@(stackTag) progress:progress];
++      }
++    };
++    const auto &finishTransition = [weakSelf](int stackTag, bool canceled) {
++      auto strongSelf = weakSelf;
++      if (strongSelf) {
++        [strongSelf finishTransition:@(stackTag) canceled:canceled];
++      }
++    };
++    const auto &disableSwipeBackForTopScreen = [weakSelf](int stackTag) {
++      auto strongSelf = weakSelf;
++      if (strongSelf) {
++        [strongSelf disableSwipeBackForTopScreen:@(stackTag)];
++      }
++    };
++
++    auto rnScreensModule = std::make_shared<RNScreens::RNScreensTurboModule>(
++        startTransition, updateTransition, finishTransition, disableSwipeBackForTopScreen);
++    auto rnScreensModuleHostObject = jsi::Object::createFromHostObject(runtime, rnScreensModule);
++    runtime.global().setProperty(
++        runtime, RNScreens::RNScreensTurboModule::MODULE_NAME, std::move(rnScreensModuleHostObject));
+   }
+ }
+

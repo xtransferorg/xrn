@@ -5,48 +5,30 @@ import androidx.annotation.RawRes
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import com.blankj.utilcode.util.GsonUtils
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import xrn.modules.multibundle.Utils
 
 /**
- * Singleton manager for handling bundle information.
+ * BundleInfo 管理器
  */
 object BundleInfoManager {
+
     const val TAG = "BundleInfoManager"
 
-    /**
-     * Indicates whether the manager has been initialized.
-     */
     @Volatile
     private var isInitialized = false
 
-    /**
-     * Configuration options used during initialization.
-     *
-     * Set via the [init] method. Can be null if not yet initialized.
-     */
     private var options: BundleInfoManagerOptions? = null
-
-    /**
-     * Optional hook for customizing bundle info behavior.
-     */
     private var hook: BundleInfoHook? = null
 
-    /**
-     * Array of all registered bundle information.
-     */
     private var BUNDLE_INFOS: Array<BundleInfo> = arrayOf()
 
-    /**
-     * Map from bundle name to its corresponding BundleInfo.
-     */
     private val bundleInfoMap = mutableMapOf<String, BundleInfo>();
 
-    /**
-     * Initializes the BundleInfoManager with the given options and hook.
-     *
-     * @param options Configuration options for initialization.
-     * @param hook Optional hook for intercepting or customizing bundle info.
-     */
+    private var remoteBundleManager: RemoteBundleHost? = null
+
     fun init(options: BundleInfoManagerOptions?, hook: BundleInfoHook?) {
         Utils.assertFalse(this.isInitialized, "${TAG}.init:BundleInfoManager has initialized")
         isInitialized = true
@@ -61,30 +43,39 @@ object BundleInfoManager {
                 } ?: BundleType.DEFAULT
             }
 
-            val bundleInfo = BundleInfo(option.bundleName, bundleType, option.defaultModuleName, option.moduleNames, option.codePushKey, option.port)
+            val bundleInfo = BundleInfo(
+                option.bundleName,
+                bundleType,
+                option.defaultModuleName,
+                option.moduleNames,
+                option.codePushKey,
+                option.port
+            )
             bundleInfo.setHook(hook)
             if (bundleInfoMap.containsKey(bundleInfo.bundleName)) {
-                throw IllegalArgumentException("${TAG}.constructor:bundle name has set, info.bundleName=${bundleInfo.bundleName}")
+                throw IllegalArgumentException("${BundleInfoManager.TAG}.constructor:bundle name has set, info.bundleName=${bundleInfo.bundleName}")
             }
             bundleInfoMap[bundleInfo.bundleName] = bundleInfo
             return@map bundleInfo
         } ?: listOf()
         BUNDLE_INFOS = bundleInfos.toTypedArray()
+
+        register(*DevBundleCache.getDevBundles().toTypedArray())
     }
 
-    /**
-     * Initializes the BundleInfoManager using a raw config file.
-     *
-     * @param context Application context.
-     * @param rawRes Resource ID pointing to a raw JSON file containing bundle information.
-     * @param hook Optional hook for customizing or intercepting bundle info processing.
-     */
     fun initWithRawFile(context: Context, @RawRes rawRes: Int, hook: BundleInfoHook? = null) {
-        Utils.assertFalse(this.isInitialized, "${TAG}.initWithRawFile:BundleInfoManager has initialized")
+        Utils.assertFalse(
+            this.isInitialized,
+            "${TAG}.initWithRawFile:BundleInfoManager has initialized"
+        )
         loadOptionsFromRawFile(context, rawRes, hook)
     }
 
-    private fun loadOptionsFromRawFile(context: Context, @RawRes rawRes: Int, hook: BundleInfoHook?) {
+    private fun loadOptionsFromRawFile(
+        context: Context,
+        @RawRes rawRes: Int,
+        hook: BundleInfoHook?
+    ) {
         val stringBuilder = StringBuilder()
         try {
             val inputStream = context.resources.openRawResource(rawRes)
@@ -102,54 +93,128 @@ object BundleInfoManager {
         init(bundleInfosOption, hook)
     }
 
-    /**
-     * Returns a list of all registered bundle information.
-     */
+    fun prefetchRemoteBundles() {
+        CoroutineScope(Dispatchers.Main).launch {
+            val bundles = remoteBundleManager?.getRemoteBundles()
+            bundles?.forEach { bundleInfo ->
+                registerRemoteBundle(bundleInfo)
+            }
+        }
+    }
+
+    suspend fun getRemoteBundle(bundleName: String): BundleInfo? {
+        val localBundleInfo = getBundleInfo(bundleName)
+        if (localBundleInfo != null) {
+            return localBundleInfo
+        }
+
+        val remoteBundleInfo = remoteBundleManager?.getRemoteBundle(bundleName)
+        if (remoteBundleInfo != null) {
+            registerRemoteBundle(remoteBundleInfo)
+            return getBundleInfo(bundleName)
+        }
+
+        return null
+    }
+
+    fun setRemoteBundleManager(manager: RemoteBundleHost) {
+        this.remoteBundleManager = manager
+    }
+
+    fun register(bundle: BundleInfo) {
+        if (bundleInfoMap.containsKey(bundle.bundleName)) {
+            return
+        }
+
+        bundleInfoMap[bundle.bundleName] = bundle
+        BUNDLE_INFOS = BUNDLE_INFOS + bundle
+    }
+
+    fun register(vararg bundle: BundleInfo) {
+        bundle.forEach {
+            register(it)
+        }
+    }
+
+    fun registerDevBundle(bundleName: String, port: Int) {
+        val bundleInfo = BundleInfo(
+            bundleName = bundleName,
+            bundleType = BundleType.DEFAULT,
+            defaultModuleName = "",
+            moduleNames = null,
+            codePushKey = null,
+            port = port,
+        )
+
+        DevBundleCache.addDevBundle(bundleInfo)
+        register(bundleInfo)
+    }
+
+    fun registerRemoteBundle(bundle: RemoteBundleInfo) {
+        register(
+            BundleInfo(
+                bundleName = bundle.bundleName,
+                bundleType = BundleType.DEFAULT,
+                defaultModuleName = "",
+                moduleNames = null,
+                codePushKey = bundle.deploymentKey,
+                port = 0,
+                deliveryType = bundle.deliveryType
+            )
+        )
+    }
+
     fun getAllBundleInfo(): List<BundleInfo> {
-        Utils.assertTrue(this.isInitialized, "${TAG}.getAllBundleInfo:BundleInfoManager has not initialized")
+        Utils.assertTrue(
+            this.isInitialized,
+            "${TAG}.getAllBundleInfo:BundleInfoManager has not initialized"
+        )
         return BUNDLE_INFOS.toList()
     }
 
     /**
-     * Returns the [BundleInfo] associated with the given bundle name.
-     *
-     * @param bundleName The name of the bundle to look up.
-     * @return The corresponding [BundleInfo], or null if not found or bundleName is null.
+     * 根据 bundleName 获取 BundleInfo
+     * @param bundleName
+     * @returns
      */
     fun getBundleInfo(bundleName: String?): BundleInfo? {
-        Utils.assertTrue(this.isInitialized, "${TAG}.getBundleInfo:BundleInfoManager has not initialized")
+        Utils.assertTrue(
+            this.isInitialized,
+            "${TAG}.getBundleInfo:BundleInfoManager has not initialized"
+        )
         return this.bundleInfoMap[bundleName ?: ""]
     }
 
     /**
-     * Checks if a bundle with the given name is registered.
-     *
-     * @param bundleName The name of the bundle to check.
-     * @return True if the bundle is registered, false otherwise.
+     * 指定 bundle 是否已注册
+     * @param bundleName
+     * @returns
      */
     fun isBundleRegistered(bundleName: String): Boolean {
-        Utils.assertTrue(this.isInitialized, "${TAG}.isBundleRegistered:BundleInfoManager has not initialized")
+        Utils.assertTrue(
+            this.isInitialized,
+            "${TAG}.isBundleRegistered:BundleInfoManager has not initialized"
+        )
         return this.getBundleInfo(bundleName) != null
     }
 
     /**
-     * Returns the main (primary) BundleInfo, if available.
-     *
-     * @return The main BundleInfo, or null if none is set.
+     * 获取 main bundle
+     * @returns
      */
-    fun getMainBundleInfo(): BundleInfo? {
-        Utils.assertTrue(this.isInitialized, "${TAG}.getMainBundleInfo:BundleInfoManager has not initialized")
+    fun getMainBundleInfo(): BundleInfo {
+        Utils.assertTrue(
+            this.isInitialized,
+            "${TAG}.getMainBundleInfo:BundleInfoManager has not initialized"
+        )
         val mainBundle: BundleInfo? = this.BUNDLE_INFOS.find { bundleInfo ->
             bundleInfo.isMainBundle()
         }
-        return mainBundle
+        return mainBundle ?: this.BUNDLE_INFOS[0]
     }
 
     /**
-     * Finds the BundleInfo associated with the specified port.
-     *
-     * @param port The port number to look up.
-     * @return The corresponding BundleInfo if found, or null otherwise.
+     * 根据端口获取 BundleInfo
      */
     fun findBundleInfoByPort(port: Int): BundleInfo? {
         return bundleInfoMap.values.find { it.getPort() == port }
@@ -157,22 +222,22 @@ object BundleInfoManager {
 }
 
 /**
- * BundleInfoManager options
+ * BundleInfoManager 配置信息
  */
 class BundleInfoManagerOptions {
     /**
-     * project info
+     * 项目信息
      */
     var project: ProjectInfoOption? = null
 
     /**
-     * Array of bundle options currently configured or available.
+     * Bundle信息
      */
     var bundles: Array<BundleInfoOption> = arrayOf()
 }
 
 /**
- * project info
+ * 项目信息
  */
 class ProjectInfoOption {
     var name: String = ""
@@ -186,25 +251,29 @@ class BundleInfoOption {
      * bundle name
      */
     var bundleName: String = ""
+
     /**
-     * bundle type
+     * 是否主bundle
      */
     var bundleType: String = ""
+
     /**
-     * default module name
+     * 默认 moduleName，main bundle 需要配置
      */
     var defaultModuleName: String = ""
+
     /**
-     * Array of module names managed.
+     * 所有的 bundleName
      */
     var moduleNames: Array<String> = arrayOf()
+
     /**
-     * CodePush deployment key
+     * CodePush Key
      */
     var codePushKey: String = ""
+
     /**
-     * local server port
-     * default value is 8081
+     * 本地服务端口
      */
     var port: Int = 8081
 }

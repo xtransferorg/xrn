@@ -12,7 +12,7 @@
 #import "BundleNavigation.h"
 #import "JSONUtils.h"
 #import "XTBaseBundleViewController.h"
-#import <react-native-xrn-multi-bundle/RCTBridge+XTExtension.h>
+#import <react-native-xrn-multi-bundle/XTMultiBundle.h>
 
 @implementation NavigationAction
 
@@ -25,21 +25,7 @@
     return instance;
 }
 
-/**
- Dispatch a navigation action described by a JSON string.
-
- - Parameter action: A JSON string with the shape:
-   {
-     "type": "NAVIGATE" | "PUSH" | "REPLACE" | "GO_BACK",
-     "payload": { "name": "/bundleName/moduleName/pageName", "params"?: { ... } }
-   }
-
- Behavior:
- 1. Parses and validates the JSON string.
- 2. Routes the request based on `type` by calling `navigateAction:payload:`, `pushAction:`, `replaceAction:`, or `goBackAction`.
- 3. Logs a warning for unknown action types.
- */
- - (void)dispatchAction:(NSString *)action {
+- (void)dispatchAction:(NSString *)action {
     NSDictionary *actionObj = [JSONUtils jsonStringToDictionary:action];
     if (![actionObj isKindOfClass:[NSDictionary class]] || actionObj.count <= 0 ) {
         NSLog(@"[Error] Invalid action format");
@@ -69,15 +55,6 @@
     }
 }
 
-/**
- Set the root stack key for the current top bundle view controller on the native navigation stack.
-
- - Parameter key: A string identifier used by the JS navigation stack to correlate native-dispatched actions.
-
- Behavior:
- 1. Finds the top `UIViewController` in the current `UINavigationController`.
- 2. If it is an `XTBaseBundleViewController`, assigns `rootStackKey` to the provided key.
- */
 - (void)setNavigationKey:(NSString *)key {
     UINavigationController *nvc = [XTNativeRouterManager shared].nav;
     UIViewController *stackTopVC = nvc.viewControllers.lastObject;
@@ -91,15 +68,6 @@
     }
 }
 
-/**
- Set the serialized navigation state for the current top bundle view controller.
-
- - Parameter state: A string (typically JSON) representing the navigation state to be consumed by the JS side.
-
- Behavior:
- 1. Finds the top `UIViewController` in the current `UINavigationController`.
- 2. If it is an `XTBaseBundleViewController`, assigns `navigationState` to the provided value.
- */
 - (void)setNavigationState:(NSString *)state {
     UINavigationController *nvc = [XTNativeRouterManager shared].nav;
     UIViewController *stackTopVC = nvc.viewControllers.lastObject;
@@ -131,42 +99,30 @@
     [[XTNativeRouterManager shared] popViewControllerAnimated:YES];
 }
 
-/**
- Navigate to a target bundle view controller if it exists in the native stack; otherwise push a new one.
-
- - Parameters:
-   - action: Original action JSON string (used when emitting a callback if the target exists).
-   - payload: Dictionary expected to include `name` as a route path and optional `params`.
-
- Behavior:
- 1. Searches the native navigation stack for a view controller matching the bundle/module in `payload.name`.
- 2. If found, trims the stack to that controller and emits a callback to the JS bundle to handle the page-level navigation.
- 3. If not found, pushes a new view controller for the specified bundle/module.
- */
 - (void)navigateViewController:(NSString *)action payload:(NSDictionary *)payload {
     NSInteger targetIndex = [self findTargetBundleViewController:payload];
     
-    // If the route exists in the native navigation stack, trim entries after the target index
+    // 原生导航栈中存在此路由,就移除index之后的路由
     if (targetIndex >= 0) {
-        // Example: A -> B -> C -> D  => navigate(B) results in stack: [A, B]
+        // A -> B -> C -> D  => navigate(B)，导航栈结构：[A, B]
         NSArray *newStacks = [self replaceViewControllerAtIndex:targetIndex];
         if (!newStacks || targetIndex >= newStacks.count) {
             return;
         }
         
-        // Get the latest top controller from the updated navigation stack
+        // 获取最新导航栈栈顶的控制器
         UIViewController *targetVc = newStacks[targetIndex];
         NSString *rootKey = nil;
-        RCTBridge *bridge = nil;
+        XTJSRuntimeContext *runtimeContext = nil;
         
         if ([targetVc isKindOfClass:[XTBaseBundleViewController class]]) {
             XTBaseBundleViewController *mainVc = (XTBaseBundleViewController *)targetVc;
-            bridge = mainVc.bridge;
             rootKey = mainVc.rootStackKey;
+            runtimeContext = mainVc.runtimeContext;
         }
         
-        if (bridge && rootKey) {
-            [self bundleCallbackEmit:action payload:payload bridge:bridge rootKey:rootKey];
+        if (runtimeContext && rootKey) {
+            [self bundleCallbackEmit:action payload:payload context:runtimeContext rootKey:rootKey];
         }
     } else {
         [self pushViewController:payload replace:NO];
@@ -185,23 +141,9 @@
     return subArr;
 }
 
-/**
- Emit a navigation action back to a specific JS bundle/root stack.
-
- - Parameters:
-   - action: Original action JSON string dispatched from JS.
-   - payload: Parsed payload dictionary from the action, expected to include `name` as a path.
-   - bridge: The `RCTBridge` associated with the target bundle.
-   - rootKey: The root stack key to target within the bundle's navigation tree.
-
- Behavior:
- 1. Parses `payload.name` to extract `pageName`.
- 2. Clones and augments the original action by setting `target` to `rootKey` and overriding `payload.name` with `pageName`.
- 3. Sends the updated action to the JS side via the `XRNNavigation` module with event `NATIVE_DISPATCH_ACTION`.
- */
 - (void)bundleCallbackEmit:(NSString *)action
                    payload:(NSDictionary *)payload
-                    bridge:(RCTBridge *)bridge
+                   context:(XTJSRuntimeContext *)context
                    rootKey:(NSString *)rootKey {
     NSString *path = payload[@"name"];
     if (![path isKindOfClass:[NSString class]]) return;
@@ -210,7 +152,10 @@
     NSString *pageName = pathObj[@"pageName"];
     if (!pageName || pageName.length <= 0) return;
     
-	XRNNavigation *navigationModule = (XRNNavigation *)[bridge moduleForClass:[XRNNavigation class]];
+	XRNNavigation *navigationModule = (XRNNavigation *)[context moduleForClass:[XRNNavigation class]];
+    if (![navigationModule isKindOfClass:[XRNNavigation class]]) {
+        return;
+    }
     NSMutableDictionary *actionDic = [[JSONUtils jsonStringToDictionary:action] mutableCopy];
     actionDic[@"target"] = rootKey;
     
@@ -224,18 +169,6 @@
     [navigationModule sendCustomEvent:@"NATIVE_DISPATCH_ACTION" data:actionStr];
 }
 
-/**
- Push or replace a bundle view controller onto the native navigation stack.
-
- - Parameters:
-   - payload: Dictionary containing at least `name` (path: `/bundleName/moduleName/pageName`) and optional `params`.
-   - replace: If YES, replaces the top view controller; if NO, pushes a new one.
-
- Behavior:
- 1. Parses `payload.name` into bundle/module/page.
- 2. Builds a message containing `initialRouteName` and optional `initialRouteParams`.
- 3. Invokes native navigation to present the specified bundle/module, honoring the `replace` flag.
- */
 - (void)pushViewController:(NSDictionary *)payload replace:(BOOL)replace {
     NSString *path = payload[@"name"];
     if (![path isKindOfClass:[NSString class]]) return;
@@ -264,7 +197,7 @@
     [bundleNav native_navPushBundleProject:bundleName moduleName:moduleName message:message replace:replace];
 }
 
-// Parse route path: "/bundleName/moduleName/pageName"
+// 解析路由path：“/bundleName/moduleName/pageName”
 - (NSDictionary *)parseNavigatePath:(NSString *)path {
     NSString *trimmedPath = [path stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
     trimmedPath = [trimmedPath stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"/"]];
@@ -296,6 +229,7 @@
     NSDictionary *pathObj = [self parseNavigatePath:path];
     NSString *bundleName = pathObj[@"bundleName"];
     NSString *moduleName = pathObj[@"moduleName"];
+    NSString *pageName = pathObj[@"pageName"];
     if (bundleName.length <= 0 || moduleName.length <= 0) {
         return -1;
     }
@@ -305,19 +239,70 @@
         UIViewController *vc = viewControllers[i];
         NSString *vcBundleName = nil;
         NSString *vcModuleName = nil;
+        NSString *vcNavigationState = nil;
         
         if ([vc isKindOfClass:[XTBaseBundleViewController class]]) {
             XTBaseBundleViewController *mainVc = (XTBaseBundleViewController *)vc;
-            vcBundleName = mainVc.bridge.xt_jsBundleName;
+            vcBundleName = mainVc.runtimeContext.jsBundleName;
             vcModuleName = mainVc.moduleName;
+            vcNavigationState = mainVc.navigationState;
         }
         
-        if ([vcBundleName isEqualToString:bundleName] && [vcModuleName isEqualToString:moduleName]) {
+        if ([vcBundleName isEqualToString:bundleName] &&
+            [vcModuleName isEqualToString:moduleName] &&
+            [self hasSamePageWithNavigationState:vcNavigationState pageName:pageName]) {
             return i;
         }
     }
 
     return -1;
+}
+
+/**
+ 通过控制器缓存的 RN 导航状态（navigationState）判断其导航树中是否包含目标页面。
+
+ - 目标未指定具体页面（pageName 为空）或状态尚未保存时，仅按 bundleName + moduleName 匹配。
+ - 状态格式异常无法解析时返回 NO，避免误命中。
+ */
+- (BOOL)hasSamePageWithNavigationState:(NSString *)navigationState pageName:(NSString *)pageName {
+    if (pageName.length <= 0 || navigationState.length <= 0) {
+        return NO;
+    }
+    
+    NSDictionary *stateDic = [JSONUtils jsonStringToDictionary:navigationState];
+    return [self navigationStateDictionary:stateDic containsPage:pageName];
+}
+
+/**
+ 递归遍历导航状态树（含嵌套导航器的 route.state），判断是否存在 name 与目标页面一致的路由。
+ */
+- (BOOL)navigationStateDictionary:(NSDictionary *)stateDic containsPage:(NSString *)pageName {
+    if (![stateDic isKindOfClass:[NSDictionary class]]) {
+        return NO;
+    }
+    
+    NSArray *routes = stateDic[@"routes"];
+    if (![routes isKindOfClass:[NSArray class]]) {
+        return NO;
+    }
+    
+    for (id route in routes) {
+        if (![route isKindOfClass:[NSDictionary class]]) {
+            continue;
+        }
+        
+        NSString *name = route[@"name"];
+        if ([name isKindOfClass:[NSString class]] && [name isEqualToString:pageName]) {
+            return YES;
+        }
+        
+        NSDictionary *childState = route[@"state"];
+        if ([self navigationStateDictionary:childState containsPage:pageName]) {
+            return YES;
+        }
+    }
+    
+    return NO;
 }
 
 @end

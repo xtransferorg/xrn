@@ -1,4 +1,4 @@
-const codePushToken = "";
+const codePushToken = "Zd12T48nJdu710Zkj7f5xAIYVn7o4ksvOXqog";
 
 class RequestManager {
   private retryCount: number;

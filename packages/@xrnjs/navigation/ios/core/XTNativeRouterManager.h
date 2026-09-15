@@ -12,7 +12,13 @@
 
 @class XTBaseBundleViewController;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 extern XTNavigationViewController * _Nullable xtNavController(void);
+#ifdef __cplusplus
+}
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 

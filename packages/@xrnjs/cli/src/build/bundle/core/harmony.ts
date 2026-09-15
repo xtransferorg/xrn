@@ -4,7 +4,6 @@ import Metro from "metro";
 import { RunBuildOptions as BuildOptions } from "metro";
 import MetroServer from "metro/src/Server";
 import pathUtils from "path";
-import { getAssetDestRelativePath } from "@react-native-oh/react-native-harmony-cli/dist/assetResolver";
 import { ConfigT as MetroConfig } from "metro-config";
 
 type AssetData = Metro.AssetData;
@@ -25,8 +24,8 @@ export async function buildHarmonyBundle(args: {
     platform: "harmony",
     minify: args.minify !== undefined ? args.minify : !args.dev,
     dev: args.dev,
-    sourceMap: args.sourcemapOutput,
-    sourceMapUrl: args.sourcemapOutput,
+    sourceMap: Boolean(args.sourcemapOutput),
+    sourceMapUrl: pathUtils.basename(args.sourcemapOutput),
   };
   const bundle = await createBundle(args.config, buildOptions);
   await saveBundle(bundle, args.bundleOutput, args.sourcemapOutput);
@@ -88,7 +87,7 @@ async function copyAssets(
     const idx = getHighestQualityFileIdx(asset);
     fileDestBySrc[asset.files[idx]] = pathUtils.join(
       assetsDest,
-      getAssetDestRelativePath(asset)
+      getAssetDestRelativePath(asset, asset.scales[idx])
     );
   }
   return copyFiles(fileDestBySrc);
@@ -105,6 +104,23 @@ function getHighestQualityFileIdx(assetData: AssetData): number {
     }
   }
   return result;
+}
+
+function getAssetDestRelativePath(asset: AssetData, scale = 1): string {
+  const suffix = scale === 1 ? "" : `@${scale}x`;
+  const fileName = getResourceIdentifier(asset);
+  // Replace "../" to avoid assets escaping the expected directory.
+  return `${fileName + suffix}.${asset.type}`.replace(/\.\.\//g, "_");
+}
+
+function getResourceIdentifier(asset: AssetData): string {
+  const folderPath = getBasePath(asset);
+  return `${folderPath}/${asset.name}`.replace(/^assets\//, "");
+}
+
+function getBasePath(asset: AssetData): string {
+  const basePath = asset.httpServerLocation;
+  return basePath.startsWith("/") ? basePath.slice(1) : basePath;
 }
 
 function copyFiles(fileDestBySrc: Record<Path, Path>) {

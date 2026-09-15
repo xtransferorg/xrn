@@ -8,6 +8,7 @@ import RequestList from './RequestList';
 import createHar from '../utils/createHar';
 import Unmounted from './Unmounted';
 import { AppContextProvider } from './AppContext';
+import { sensorsFundClick } from '../../../../utils/sensorsTrack';
 import { nativeToast } from '../../../../utils/toast';
 import Clipboard from "@react-native-clipboard/clipboard";
 
@@ -57,9 +58,9 @@ const NetworkLogger: React.FC<Props> = ({
   }, [sort, requests]);
 
   const getHar = useCallback(async () => {
+    sensorsFundClick({ button_name: 'devtools_btn_click', devtools_click_btn_name: '网络日志 导出全量日志' });
     const har = await createHar(logger.getRequests());
     Clipboard.setString(JSON.stringify(har));
-    nativeToast("复制成功");
   }, []);
 
   const options = useMemo(() => {
@@ -67,6 +68,7 @@ const NetworkLogger: React.FC<Props> = ({
       {
         text: paused ? '启用收集' : '暂停收集',
         onPress: async () => {
+          sensorsFundClick({ button_name: 'devtools_btn_click', devtools_click_btn_name: `网络日志 ${paused ? '启用收集' : '暂停收集'}点击` });
           setPaused((prev: boolean) => {
             logger.onPausedChange(!prev);
             return !prev;
@@ -76,6 +78,7 @@ const NetworkLogger: React.FC<Props> = ({
       {
         text: '清空日志',
         onPress: async () => {
+          sensorsFundClick({ button_name: 'devtools_btn_click', devtools_click_btn_name: '网络日志 清空日志点击' });
           logger.clearRequests();
         },
       },
@@ -111,6 +114,7 @@ const NetworkLogger: React.FC<Props> = ({
                   } else {
                     nativeToast('未获取到request');
                   }
+                  sensorsFundClick({ button_name: 'devtools_btn_click', devtools_click_btn_name: '网络日志 跳转日志详情' });
                 }}
               />
             </>

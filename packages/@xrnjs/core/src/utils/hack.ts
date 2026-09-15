@@ -1,12 +1,15 @@
-import { NativeModules, Platform, Text } from "react-native"
+import { Platform, Text } from "react-native"
+import { requireNativeModule } from '@xrnjs/modules-core'
+
+const PlatformConstants = requireNativeModule<any>('PlatformConstants')
 
 /**
    * hack： 安卓端字体显示问题
    * issue: https://github.com/facebook/react-native/issues/29259
    */
 export function hackAndriodFont() {
-  if (Platform.OS === 'android' && NativeModules.PlatformConstants) {
-		const fingerprint = NativeModules.PlatformConstants.Fingerprint
+  if (Platform.OS === 'android' && PlatformConstants) {
+		const fingerprint = PlatformConstants?.Fingerprint
 
 		if (fingerprint?.match(/^(xiaomi|redmi|mi|mix|poco).*\/v12\..*/i)) {
       // @ts-ignore

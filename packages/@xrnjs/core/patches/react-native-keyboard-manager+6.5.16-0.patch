@@ -1,0 +1,38 @@
+diff --git a/node_modules/react-native-keyboard-manager/dist/index.d.ts b/node_modules/react-native-keyboard-manager/dist/index.d.ts
+index 758bf31..baee73d 100644
+--- a/node_modules/react-native-keyboard-manager/dist/index.d.ts
++++ b/node_modules/react-native-keyboard-manager/dist/index.d.ts
+@@ -28,6 +28,7 @@ export type KeyboardAppearance = 'default' | 'light' | 'dark';
+ export declare const PreviousNextView: ComponentType<ViewProps> | typeof View;
+ type KeyboardManagerType = {
+     setEnable(enable: boolean): void;
++    setEnableForce(enable: boolean): void;
+     setEnableDebugging(enable: boolean): void;
+     setLayoutIfNeededOnUpdate(enable: boolean): void;
+     setKeyboardDistanceFromTextField(distance: number): void;
+diff --git a/node_modules/react-native-keyboard-manager/ios/ReactNativeKeyboardManager/ReactNativeKeyboardManager.m b/node_modules/react-native-keyboard-manager/ios/ReactNativeKeyboardManager/ReactNativeKeyboardManager.m
+index 729de57..bd02b0c 100644
+--- a/node_modules/react-native-keyboard-manager/ios/ReactNativeKeyboardManager/ReactNativeKeyboardManager.m
++++ b/node_modules/react-native-keyboard-manager/ios/ReactNativeKeyboardManager/ReactNativeKeyboardManager.m
+@@ -104,7 +104,20 @@ - (dispatch_queue_t)methodQueue
+ 
+ RCT_EXPORT_METHOD(setEnable: (BOOL) enabled) {
+     if (debugging) RCTLogInfo(@"KeyboardManager.setEnable: %d", enabled);
+-    [[IQKeyboardManager shared] setEnable:enabled];
++	// 这里强制设置启用keyboardManager，自动管理键盘
++	[[IQKeyboardManager shared] setEnable:YES];
++}
++
++RCT_EXPORT_METHOD(setEnableForce: (BOOL) enabled) {
++		if (debugging) RCTLogInfo(@"KeyboardManager.setEnable: %d", enabled);
++	// 如果业务有某种特殊的需求，非得禁用keyboardManager，使用此api
++	[[IQKeyboardManager shared] setEnable:enabled];
++}
++
++// 同步方法获取键盘开启/禁用状态
++RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(getEnableSync) {
++	BOOL enable = [IQKeyboardManager shared].enable;
++	return @(enable);
+ }
+ 
+ RCT_EXPORT_METHOD(setKeyboardDistanceFromTextField: (CGFloat) distance) {

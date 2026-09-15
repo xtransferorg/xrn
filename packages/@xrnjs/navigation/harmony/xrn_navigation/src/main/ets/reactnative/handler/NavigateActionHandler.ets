@@ -1,5 +1,5 @@
 import { ObjectUtil } from "@pura/harmony-utils";
-import { getRNInstance } from "xrn-multi-bundle";
+import { getRNInstance } from "@xrnjs/multi-bundle";
 import { GlobalNavPathStack } from "../../native/NavHelper";
 import { NavigationRouteConfig } from "../types/NativeTypes";
 import { RNNavigationAction, RNNavigationActionType } from "../types/ReactNativeTypes";

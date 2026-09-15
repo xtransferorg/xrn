@@ -4,9 +4,8 @@ import { execShellCommand } from "./shell";
 
 import fs from "fs-extra";
 import path from "path";
-import { getHarmonyPackageByAliasMap } from "./getHarmonyPackageByAliasMap";
-import assert from "assert";
-import { DEPENDENCIES_CHECK_WHITELIST } from "../constants";
+// import loadNativeConfig from "@react-native-community/cli-config";
+import type { Config } from "@react-native-community/cli-types";
 
 // types/PackageJson.ts
 export interface PackageJson {
@@ -46,10 +45,17 @@ export function readPackageJsonSync(dir: string) {
   return JSON.parse(data) as PackageJson;
 }
 
+export function getSubBundlePackageJson(subBundleList: RepInfo[]) {
+  return subBundleList.reduce((acc, subBundle) => {
+    acc[subBundle.name] = readPackageJsonSync(subBundle.name);
+    return acc;
+  }, {} as Record<string, PackageJson>);
+}
+
 export async function installPackages(
   bundleRepo: RepInfo,
   packagePath: string,
-  isFromCodePush: boolean = false,
+  isFromCodePush: boolean = false
 ) {
   const branchPath = `${packagePath}/${bundleRepo.name}`;
   logger.info(`下载依赖 ${isFromCodePush ? packagePath : branchPath}`);
@@ -58,13 +64,120 @@ export async function installPackages(
   });
 }
 
+export const loadNativeConfigByCli = async (root: string): Promise<Config> => {
+  const out = await execShellCommand(`npx react-native config`, { cwd: root });
+  return JSON.parse(out) as Config;
+};
+
+export async function loadReactNativeConfigDeps(root: string) {
+  // const config = loadNativeConfig(root);
+  const config = await loadNativeConfigByCli(root);
+
+  const dependenciesWithVersions: Record<string, DepInfo> = {};
+
+  Object.entries(config.dependencies).forEach(([name, depConfig]) => {
+    // 从 package.json 读取版本号
+    const pkgPath = path.join(depConfig.root, "package.json");
+    if (fs.existsSync(pkgPath)) {
+      const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf-8"));
+      dependenciesWithVersions[name] = {
+        ...depConfig,
+        version: pkg.version,
+      };
+    } else {
+      throw new Error(`${name} 的 package.json 不存在`);
+    }
+  });
+
+  const simpleDeps = simplifyNativeDeps(dependenciesWithVersions, root);
+
+  return simpleDeps;
+}
+
+export function filterNativeDeps(
+  nativeDeps: Record<string, DepInfo>,
+  platform: Platform
+): Record<string, DepInfo> {
+  return (
+    Object.entries(nativeDeps)
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      .filter(([name, dep]) => {
+        return dep.platforms[platform];
+      })
+      .reduce((acc, [name, dep]) => {
+        acc[name] = dep;
+        return acc;
+      }, {} as Record<string, DepInfo>)
+  );
+}
+
+export async function getNativeDeps(root: string, platform: Platform) {
+  const dependencies = await loadReactNativeConfigDeps(root);
+  // 过滤出 platform 的依赖
+  const platformDependencies = Object.entries(dependencies)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    .filter(([name, dep]) => {
+      return dep.platforms[platform];
+    })
+    .reduce((acc, [name, dep]) => {
+      acc[name] = dep.version;
+      return acc;
+    }, {} as Record<string, string>);
+  return platformDependencies;
+}
+
+/**
+ * 简化 DepInfo 数据，只保留必要字段并将路径转换为从 node_modules 开始的相对路径
+ * @param nativeDeps 原始的依赖信息对象
+ * @param projectRoot 项目根目录路径
+ * @returns 简化后的依赖信息对象
+ */
+export function simplifyNativeDeps(
+  nativeDeps: Record<string, DepInfo>,
+  projectRoot: string
+): Record<string, DepInfo> {
+  const result: Record<string, DepInfo> = {};
+
+  Object.entries(nativeDeps).forEach(([name, depInfo]) => {
+    // 将 root 路径转换为从 node_modules 开始的相对路径
+    const relativeRoot = path.relative(projectRoot, depInfo.root);
+
+    // 构建简化的 platforms 对象
+    const simplifiedPlatforms: DepInfo["platforms"] = {};
+
+    if (depInfo.platforms.android) {
+      const relativeAndroidPath = depInfo.platforms.android.sourceDir
+        ? path.relative(projectRoot, depInfo.platforms.android.sourceDir)
+        : path.join(relativeRoot, "android");
+      simplifiedPlatforms.android = { sourceDir: relativeAndroidPath };
+    }
+
+    if (depInfo.platforms.ios) {
+      simplifiedPlatforms.ios = { sourceDir: path.join(relativeRoot, "ios") };
+    }
+
+    if (depInfo.platforms.harmony) {
+      simplifiedPlatforms.harmony = { sourceDir: path.join(relativeRoot, "harmony") };
+    }
+
+    result[name] = {
+      name: depInfo.name,
+      version: depInfo.version,
+      root: relativeRoot,
+      platforms: simplifiedPlatforms,
+    };
+  });
+
+  return result;
+}
+
 /**
  * 使用广度优先遍历获取所有 node_modules 中有效 npm 包路径（包含 package.json）
  * @param rootDir 起始目录，默认是 process.cwd()
  * @returns 所有有效 npm 包路径数组
  */
 export function getAllValidNodeModulesPathsBFS(
-  rootDir: string = process.cwd(),
+  rootDir: string = process.cwd()
 ): string[] {
   const visited = new Set<string>();
   const results: string[] = [];
@@ -123,14 +236,9 @@ export function getAllValidNodeModulesPathsBFS(
   return results;
 }
 
-const getWhiteListWithCache = async () => {
-  return DEPENDENCIES_CHECK_WHITELIST;
-};
-
 export function getAllNativeDeps(
   root: string,
-  platforms: Platform[] = [Platform.Android, Platform.iOS, Platform.Harmony],
-  whitelist: string[] = [],
+  platforms: Platform[] = [Platform.Android, Platform.iOS, Platform.Harmony]
 ) {
   const nativeDeps: Record<string, DepInfo> = {};
   const nodeModulePaths = getAllValidNodeModulesPathsBFS(root);
@@ -143,10 +251,7 @@ export function getAllNativeDeps(
     if (platforms.some((dir) => dirs.includes(dir))) {
       const depPackage = readPackageJsonSync(nodeModulePath);
       if (nativeDeps[depPackage.name]) {
-        if (
-          nodeModulePath.includes("@types") ||
-          whitelist.includes(depPackage.name)
-        ) {
+        if (nodeModulePath.includes("@types")) {
           continue;
         }
         if (nodeModulePath.includes("@react-native-oh-tpl")) {
@@ -164,7 +269,7 @@ export function getAllNativeDeps(
           },
         };
         logger.error(
-          `重复的依赖 ${depPackage.name}, ${JSON.stringify(obj, null, 2)}`,
+          `重复的依赖 ${depPackage.name}, ${JSON.stringify(obj, null, 2)}`
         );
         duplicateDeps.push(depPackage.name);
         continue;
@@ -195,152 +300,7 @@ export function getAllNativeDeps(
     }
   }
   return {
-    nativeDeps,
+    nativeDeps: simplifyNativeDeps(nativeDeps, root),
     duplicateDeps,
   };
 }
-
-export async function checkHarmonyDeps({
-  bundlePath,
-  bundleName,
-  nativeDeps,
-}: {
-  bundlePath: string;
-  bundleName: string;
-  nativeDeps: Record<string, DepInfo>;
-}) {
-  const map = getHarmonyPackageByAliasMap(bundlePath);
-  const DEPENDENCIES_CHECK_WHITELIST = await getWhiteListWithCache();
-  const { nativeDeps: bundlePackageDeps, duplicateDeps } = getAllNativeDeps(
-    bundlePath,
-    [Platform.Android, Platform.iOS, Platform.Harmony],
-    DEPENDENCIES_CHECK_WHITELIST.harmony,
-  );
-
-  let checkError = !!duplicateDeps.length;
-
-  // 获取未重定向的原生依赖
-  for (const [name, value] of Object.entries(bundlePackageDeps)) {
-    if (DEPENDENCIES_CHECK_WHITELIST.harmony.includes(name)) {
-      continue;
-    }
-    const { android, ios, harmony } = value?.platforms || {};
-    if (android || ios || harmony) {
-      const bundleDep = bundlePackageDeps[name];
-      const nativeDep = nativeDeps[name];
-
-      if (!nativeDep) {
-        logger.error(`原生依赖不存在${name}但${bundleName}存在`);
-        checkError = true;
-      } else if (nativeDep.version !== bundleDep.version) {
-        logger.error(
-          `原生依赖 ${name} 版本校验失败：${bundleName} 中的版本：${bundleDep.version}；原生仓库中的版本：${nativeDep.version}`,
-        );
-        checkError = true;
-      }
-
-      if (!harmony) {
-        // 没有鸿蒙实现的原生依赖，则必须要重定向实现
-        const mappedHarmonyPackageName = map[name]?.name;
-        const mappedHarmonyPackageVersion = map[name]?.version;
-        // 安卓或 iOS 原生依赖，没有在内部实现鸿蒙
-        if (mappedHarmonyPackageName) {
-          const harmonyNativeVersion =
-            nativeDeps[mappedHarmonyPackageName].version;
-          const harmonyBundleVersion = mappedHarmonyPackageVersion;
-          if (harmonyNativeVersion) {
-            assert(
-              harmonyNativeVersion,
-              `${mappedHarmonyPackageName} 原生仓库中版本不存在`,
-            );
-            assert(
-              harmonyBundleVersion,
-              `${mappedHarmonyPackageName} bundle仓库中版本不存在`,
-            );
-            if (harmonyBundleVersion !== harmonyNativeVersion) {
-              logger.error(
-                `鸿蒙依赖 ${mappedHarmonyPackageName} 版本校验失败：${bundleName} 中的版本：${harmonyBundleVersion}；原生仓库中的版本：${harmonyNativeVersion}`,
-              );
-              checkError = true;
-            }
-          } else {
-            logger.error(`原生依赖不存在${name}但${bundleName}存在`);
-            checkError = true;
-          }
-        } else {
-          logger.error(`原生依赖 ${name} 不存在鸿蒙实现且未重定向`);
-          checkError = true;
-        }
-      } else {
-        // 如果是内部已鸿蒙实现的原生依赖
-      }
-    }
-  }
-  return checkError;
-}
-
-interface CheckDepParams {
-  bundlePath: string;
-  bundleName: string;
-  nativeDeps: Record<string, DepInfo>;
-  platform: Platform;
-}
-
-const checkDeps = async ({
-  bundlePath,
-  bundleName,
-  nativeDeps,
-  platform,
-}: CheckDepParams) => {
-  const DEPENDENCIES_CHECK_WHITELIST = await getWhiteListWithCache();
-  const { nativeDeps: bundleNativeDeps, duplicateDeps } = getAllNativeDeps(
-    bundlePath,
-    [platform],
-    DEPENDENCIES_CHECK_WHITELIST[platform],
-  );
-  let checkError = !!duplicateDeps.length;
-  for (const key in bundleNativeDeps) {
-    if (DEPENDENCIES_CHECK_WHITELIST[platform].includes(key)) {
-      continue;
-    }
-    // eslint-disable-next-line no-prototype-builtins
-    if (!nativeDeps.hasOwnProperty(key)) {
-      logger.error(`原生依赖不存在${key}但${bundleName}存在`);
-      checkError = true;
-    } else if (
-      bundleNativeDeps[key] &&
-      nativeDeps[key].version !== bundleNativeDeps[key].version
-    ) {
-      logger.error(
-        `原生依赖 ${key} 版本校验失败：${bundleName} 中的版本：${bundleNativeDeps[key].version}；原生仓库中的版本：${nativeDeps[key].version}`,
-      );
-      checkError = true;
-    }
-  }
-
-  // logger.info("native依赖校验成功");
-  return checkError;
-};
-
-export const checkBundleDependencies = async ({
-  bundlePath,
-  bundleName,
-  nativeDeps,
-  platform,
-}: CheckDepParams) => {
-  logger.info(`开始校验${bundleName}原生依赖是否一致`);
-  if (Platform.Harmony === platform) {
-    return await checkHarmonyDeps({
-      bundlePath,
-      bundleName,
-      nativeDeps,
-    });
-  } else {
-    return await checkDeps({
-      bundlePath,
-      bundleName,
-      nativeDeps,
-      platform,
-    });
-  }
-};

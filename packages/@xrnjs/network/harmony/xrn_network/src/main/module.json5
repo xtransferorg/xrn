@@ -1,0 +1,9 @@
+{
+  "module": {
+    "name": "xrn_network",
+    "type": "har",
+    "deviceTypes": [
+      "default"
+    ]
+  }
+}

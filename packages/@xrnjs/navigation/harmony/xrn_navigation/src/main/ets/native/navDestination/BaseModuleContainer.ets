@@ -1,4 +1,4 @@
-import { RNInstanceManager, RNContainer, APP_RN_RNINSTANCE_MANAGER } from "xrn-multi-bundle"
+import { RNInstanceManager, RNContainer, APP_RN_RNINSTANCE_MANAGER } from "@xrnjs/multi-bundle"
 import NavDestinationMgr from "../NavDestinationMgr"
 import { getModuleRouteParams, RNAppInitialProps } from "../NavHelper"
 

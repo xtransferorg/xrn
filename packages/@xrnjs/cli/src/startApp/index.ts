@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { KeyPressHandler } from "./KeyPressHandler";
+import { startAppContext } from "./StartAppContext";
 import { createAppStarter } from "./appStarter";
 import { printHelp, printUsage, keepStatusAtBottom } from "./commandsTable";
 import { DevServer, startServer } from "./devServer";
@@ -23,6 +24,9 @@ export class AppRunner {
   private static readonly KEY_IOS_SIM = ["i", "I"];
   private static readonly KEY_IOS = ["o", "O"];
   private static readonly KEY_HARMONY = ["h", "H"];
+  private static readonly KEY_RELOAD = ["r", "R"];
+  private static readonly KEY_DEV_MENU = ["d", "D"];
+  private static readonly KEY_DEV_TOOLS = ["j", "J"];
   private static readonly KEY_HELP = ["?", "？"];
 
   constructor(private args: XrnStartArgs) {
@@ -33,10 +37,10 @@ export class AppRunner {
    * Start the application runner with development server and interactive mode
    */
   public async start() {
-    this.devServer = await startServer(this.args);
-    printUsage(!!this.devServer);
-    this.startStatusUpdater();
-    this.keypressHandler.startInterceptingKeyStrokes();
+    this.devServer = await startServer(this.args, () => {
+      this.startStatusUpdater();
+      this.keypressHandler.startInterceptingKeyStrokes();
+    });
   }
 
   /**
@@ -85,6 +89,21 @@ export class AppRunner {
       case AppRunner.KEY_HARMONY[0]:
       case AppRunner.KEY_HARMONY[1]:
         await this.runPlatform(DeviceType.HARMONY);
+        break;
+
+      case AppRunner.KEY_RELOAD[0]:
+      case AppRunner.KEY_RELOAD[1]:
+        this.devServer?.reload();
+        break;
+
+      case AppRunner.KEY_DEV_MENU[0]:
+      case AppRunner.KEY_DEV_MENU[1]:
+        this.devServer?.openDevMenu();
+        break;
+
+      case AppRunner.KEY_DEV_TOOLS[0]:
+      case AppRunner.KEY_DEV_TOOLS[1]:
+        this.devServer?.openDevTools();
         break;
 
       case AppRunner.KEY_HELP[0]:

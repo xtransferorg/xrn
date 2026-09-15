@@ -3,24 +3,31 @@ package xrn.modules.navigation
 import android.app.Activity
 import android.app.Application
 import android.os.Bundle
+import android.util.Log
 import com.blankj.utilcode.util.ActivityUtils
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
+import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.modules.core.DeviceEventManagerModule
 import xrn.modules.navigation.kotlin.Utils
 import xrn.modules.navigation.kotlin.bean.NavigationStateHolder
 import xrn.modules.navigation.reactnative.NavigationModule
 
+@ReactModule(name = XRNNavigationModule.NAME)
 class XRNNavigationModule(private val reactContext: ReactApplicationContext) :
-    ReactContextBaseJavaModule(reactContext), Application.ActivityLifecycleCallbacks {
+    NativeXRNNavigationModuleSpec(reactContext), Application.ActivityLifecycleCallbacks {
+
+    companion object {
+        const val NAME = "XRNNavigation"
+    }
 
     var isAppBlur = false
 
     override fun getName(): String {
-        return "XRNNavigation"
+        return NAME
     }
 
     override fun initialize() {
@@ -34,27 +41,33 @@ class XRNNavigationModule(private val reactContext: ReactApplicationContext) :
     }
 
     @ReactMethod
-    fun setNavigationKey(key: String) {
+    override fun setNavigationKey(key: String): Boolean {
         getNavigationStateHolder()?.rnRootKey = key
+        return true
     }
 
     @ReactMethod
-    fun setNavigationState(state: String) {
+    override fun setNavigationState(state: String): Boolean {
         getNavigationStateHolder()?.rnRootState = state
+        return true
     }
 
     @ReactMethod
-    fun dispatchAction(action: String) {
-        NavigationModule.dispatchAction(action)
+    override fun dispatchAction(action: String, promise: Promise) {
+        // 使用安全的方式获取 Activity，避免多线程环境下的竞态条件
+        val activity = currentActivity
+        if (activity == null) {
+            Log.e(NAME, "dispatchAction failed: currentActivity is null, action: $action")
+            // Activity 为空可能是因为应用在后台、正在销毁或未完全初始化
+            return
+        }
+
+        NavigationModule.dispatchAction(activity, action)
+        promise.resolve(true)
     }
 
     @ReactMethod
-    fun beforeAppCrash() {
-        NavigationModule.beforeAppCrash()
-    }
-
-    @ReactMethod
-    fun getCurrentModuleInfo(promise: Promise) {
+    override fun getCurrentModuleInfo(promise: Promise) {
         val state = getNavigationStateHolder()
 
         val result = state?.toReadableMap() ?: Arguments.createMap()
@@ -62,15 +75,16 @@ class XRNNavigationModule(private val reactContext: ReactApplicationContext) :
         promise.resolve(result)
     }
 
-    // Required for rn built in EventEmitter Calls.
     @ReactMethod
-    fun addListener(eventName: String?) {
-
+    override fun setShouldInterceptSideSwipe(shouldIntercept: Boolean, routeKey: String?): Boolean {
+        // Android No-op
+        return true
     }
 
     @ReactMethod
-    fun removeListeners(count: Int?) {
-
+    override fun confirmShouldSideSwipePop(): Boolean {
+        // Android No-op
+        return true
     }
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {

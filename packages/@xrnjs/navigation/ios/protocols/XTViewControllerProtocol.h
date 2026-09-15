@@ -7,23 +7,24 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <React/RCTBridge.h>
 
 #ifndef XTViewControllerProtocol_h
 #define XTViewControllerProtocol_h
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class XTJSRuntimeContext;
+
 @protocol XTViewControllerProtocol <NSObject>
 
-@property (nonatomic, readonly, strong) RCTBridge *bridge;
+@property (nonatomic, readonly, strong) XTJSRuntimeContext *runtimeContext;
 @property (nonatomic, readonly, copy) NSString *moduleName;
 @property (nonatomic, readonly, copy) NSDictionary *initialProperties;
 
 @required
-- (instancetype)initWithBridge:(RCTBridge *)bridge
-                    moduleName:(NSString *)moduleName
-             initialProperties:(nullable NSDictionary *)initialProperties;
+- (instancetype)initWithRuntimeContext:(XTJSRuntimeContext *)runtimeContext
+                            moduleName:(NSString *)moduleName
+                     initialProperties:(nullable NSDictionary *)initialProperties;
 @end
 
 NS_ASSUME_NONNULL_END

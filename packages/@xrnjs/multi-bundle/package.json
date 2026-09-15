@@ -1,14 +1,19 @@
 {
   "name": "@xrnjs/multi-bundle",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "description": "支持多 Bundle 加载与管理，优化应用资源使用",
-  "main": "./build/index.js",
-  "types": "./build/index.d.ts",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "autoDeployAPIDocs": true,
   "scripts": {
-    "build": "tsc",
-    "clean": "rm -rf build",
-    "prepare": "yarn clean && yarn build",
-    "watch": "nodemon --ignore build/ --watch ./src -C -e js,jsx,ts,tsx,css,less --debug -x 'yalc publish --push'"
+    "build-deps": "npx xrn-tools build-dep-packages @xrnjs/multi-bundle",
+    "build": "xrn-module build",
+    "clean": "xrn-module clean",
+    "lint": "xrn-module lint",
+    "prepare": "npx xrn-module prepare",
+    "xrn-module": "xrn-module",
+    "yalcPublish": "npx yalc publish --push",
+    "watch": "nodemon --ignore build/ --ignore lib/ --ignore node_modules/ --watch ./ -C -e js,jsx,ts,tsx,css,less --debug -x 'yarn build && yalc push'"
   },
   "files": [
     "src",
@@ -36,26 +41,22 @@
   "keywords": [
     "react-native",
     "xrn",
-    "xrn-multi-bundle",
-    "XRNMultiBundle",
-    "xrnjs"
+    "@xrnjs/multi-bundle",
+    "XRNMultiBundle"
   ],
-  "publishConfig": {
-    "access": "public"
-  },
   "repository": "https://github.com/xtransferorg/xrn",
   "bugs": {
     "url": "https://github.com/xtransferorg/xrn/issues"
   },
   "author": "",
-  "license": "Apache-2.0",
-  "homepage": "https://xtransferorg.github.io/xrn/versions/latest/",
+  "license": "MIT",
+  "homepage": "https://xtransferorg.github.io/versions/latest/",
   "devDependencies": {
-    "@react-native-oh/react-native-harmony": "0.72.38",
-    "@types/react": "^18.0.25",
+    "@react-native-oh/react-native-harmony": "0.77.33",
+    "@types/react": "^18.2.6",
     "nodemon": "^3.1.1",
-    "react-native": "0.72.5",
-    "typescript": "^5.1.3"
+    "xrn-module-scripts": "*",
+    "xrn-tools": "*"
   },
   "peerDependencies": {
     "react": "*",
@@ -74,7 +75,7 @@
     "showName": "多 Bundle 管理",
     "group": "资源管理",
     "description": "支持多 Bundle 加载与管理，优化应用资源使用",
-    "packageName": "xrn-multi-bundle",
+    "packageName": "@xrnjs/multi-bundle",
     "exportFromCore": false
   }
 }

@@ -1,6 +1,4 @@
-import { MetaConfig } from "../bundle/interface";
-
-export const DEFAULT_META_CONFIG: MetaConfig = {
+export const DEFAULT_META_CONFIG = {
   modules: {},
   id: 0,
   hash: "",

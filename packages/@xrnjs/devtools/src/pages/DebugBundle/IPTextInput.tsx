@@ -6,6 +6,7 @@ import styles from "./style";
 import { IPTextInputProps } from "./type";
 
 const IPTextInput: React.FC<IPTextInputProps> = ({ ip, onValueChange }) => {
+  // 判断是否为模拟器
   const isEmulator = DeviceInfo.isEmulatorSync();
   const [value, setValue] = useState(ip);
 

@@ -3,97 +3,140 @@ package xrn.modules.apputils
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.text.TextUtils
 import com.blankj.utilcode.util.AppUtils
 import com.blankj.utilcode.util.LogUtils
 import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.bridge.ReactContextBaseJavaModule
-import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.Promise
+import com.facebook.react.module.annotations.ReactModule
 
+@ReactModule(XRNAppUtilsModule.PKG_NAME)
 class XRNAppUtilsModule(reactContext: ReactApplicationContext) :
-  ReactContextBaseJavaModule(reactContext) {
+    NativeXRNAppUtilsModuleSpec(reactContext) {
 
-  companion object {
-    const val PKG_NAME = "XRNAppUtilsModule"
-  }
+    companion object {
+        const val PKG_NAME = "XRNAppUtilsModule"
 
-  private val rootChecker by lazy {
-    RootChecker(reactApplicationContext)
-  }
+        private val MARKET_DETAIL_URI_PREFIX_MAP = mapOf(
+            "com.huawei.appmarket" to "appmarket://details?id=",
+            "com.heytap.market" to "oppomarket://details?packagename=",
+            "com.oppo.market" to "oppomarket://details?packagename=",
+            "com.bbk.appstore" to "vivomarket://details?id=",
+            "com.hihonor.appmarket" to "honormarket://details?id=",
+            "com.tencent.android.qqdownloader" to "tmast://appdetails?pname="
+        )
+    }
 
-  @ReactMethod
-  fun isAppRooted(promise: Promise) {
-    promise.resolve(rootChecker.isDeviceRooted)
-  }
+    private val rootChecker by lazy {
+        RootChecker(reactApplicationContext)
+    }
 
-  /**
-   * 安装指定 Apk 文件
-   * @param file Apk 文件目录
-   */
-  @ReactMethod
-  fun installApp(file: String) = AppUtils.installApp(file)
+    override fun isAppRooted(promise: Promise) {
+        promise.resolve(rootChecker.isDeviceRooted)
+    }
 
-  /**
-   * 判断指定包名的App是否已安装
-   * 同步方法
-   * @param packageName 包名
-   */
-  @ReactMethod(isBlockingSynchronousMethod = true)
-  fun isAppInstalled(packageName: String): Boolean {
-    return AppUtils.isAppInstalled(packageName)
-  }
-
-  @ReactMethod
-  fun exitApp() = AppUtils.exitApp()
-
-  @ReactMethod
-  fun relaunchApp() = AppUtils.relaunchApp()
-
-  @ReactMethod
-  fun moveTaskToBack() {
-    currentActivity?.moveTaskToBack(true)
-  }
-
-  @ReactMethod
-  fun launchAppDetail(appPkgName: String?, marketPgkName: String?, promise: Promise?) {
-    try {
-      if (TextUtils.isEmpty(appPkgName)) {
+    override fun checkSysIntegrity(
+        nonce: String?,
+        promise: Promise?
+    ) {
         promise?.resolve(false)
-        return
-      }
-      val uri: Uri = Uri.parse("market://details?id=$appPkgName")
-      val intent = Intent(Intent.ACTION_VIEW, uri)
-      if (!TextUtils.isEmpty(marketPgkName)) {
-        intent.setPackage(marketPgkName)
-      }
-      intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-      reactApplicationContext.startActivity(intent)
-      promise?.resolve(true)
-    } catch (e: java.lang.Exception) {
-      promise?.reject(e)
-      e.printStackTrace()
     }
-  }
 
-  @ReactMethod
-  fun isGooglePlayStoreInstalled(promise: Promise?) {
-    try {
-      val packageManager: PackageManager = reactApplicationContext.packageManager
-      // 尝试获取 Google Play Store 应用的信息
-      val packageInfo =
-        packageManager.getPackageInfo("com.android.vending", PackageManager.GET_ACTIVITIES)
-      LogUtils.d("packageInfo", packageInfo)
-      // 如果没有抛出异常，表示已安装 Google Play Store
-      promise?.resolve(true)
-    } catch (e: PackageManager.NameNotFoundException) {
-      // 如果抛出异常，表示未安装 Google Play Store
-      promise?.resolve(false)
+    /**
+     * 安装指定 Apk 文件
+     * @param file Apk 文件目录
+     */
+
+    override fun installApp(file: String): Boolean {
+        AppUtils.installApp(file)
+        return true
     }
-  }
 
-  override fun getName(): String {
-    return PKG_NAME
-  }
+    /**
+     * 判断指定包名的App是否已安装
+     * 同步方法
+     * @param packageName 包名
+     */
+    override fun isAppInstalled(packageName: String): Boolean {
+        return AppUtils.isAppInstalled(packageName)
+    }
+
+    override fun exitApp(): Boolean {
+        AppUtils.exitApp()
+        return true
+    }
+
+    override fun relaunchApp(): Boolean {
+        AppUtils.relaunchApp()
+        return true
+    }
+
+    override fun moveTaskToBack(): Boolean {
+        val intent = Intent("android.intent.action.MAIN")
+        intent.addCategory("android.intent.category.HOME")
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        currentActivity?.startActivity(intent)
+        return true
+    }
+
+    override fun launchAppDetail(appPkgName: String?, marketPgkName: String?, promise: Promise?) {
+        try {
+            if (marketPgkName.isNullOrEmpty() || !AppUtils.isAppInstalled(marketPgkName)) {
+                promise?.reject("market_not_installed", "Target app market is not installed")
+                return
+            }
+            if (appPkgName.isNullOrEmpty()) {
+                promise?.reject("app_detail_invalid_params", "appPkgName is empty")
+                return
+            }
+            val intent = createAppDetailIntents(appPkgName, marketPgkName).firstOrNull {
+                it.resolveActivity(reactApplicationContext.packageManager) != null
+            }
+            if (intent == null) {
+                promise?.reject(
+                    "app_detail_unavailable",
+                    "No activity can handle app detail for appPkgName=$appPkgName, marketPgkName=$marketPgkName"
+                )
+                return
+            }
+            reactApplicationContext.startActivity(intent)
+            promise?.resolve(null)
+        } catch (e: java.lang.Exception) {
+            promise?.reject("store_open_failed", "Failed to open app detail", e)
+            e.printStackTrace()
+        }
+    }
+
+    private fun createAppDetailIntents(appPkgName: String, marketPgkName: String): List<Intent> {
+        val vendorUri = MARKET_DETAIL_URI_PREFIX_MAP[marketPgkName]?.plus(appPkgName)
+        return listOfNotNull(
+            vendorUri,
+            "market://details?id=$appPkgName"
+        ).map { uri ->
+            Intent(Intent.ACTION_VIEW, Uri.parse(uri)).apply {
+                setPackage(marketPgkName)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+        }
+    }
+
+
+    override fun isGooglePlayStoreInstalled(promise: Promise?) {
+        try {
+            val packageManager: PackageManager = reactApplicationContext.packageManager
+            // 尝试获取 Google Play Store 应用的信息
+            val packageInfo =
+                packageManager.getPackageInfo("com.android.vending", PackageManager.GET_ACTIVITIES)
+            LogUtils.d("packageInfo", packageInfo)
+            // 如果没有抛出异常，表示已安装 Google Play Store
+            promise?.resolve(true)
+        } catch (e: PackageManager.NameNotFoundException) {
+            // 如果抛出异常，表示未安装 Google Play Store
+            promise?.resolve(false)
+        }
+    }
+
+    override fun getName(): String {
+        return PKG_NAME
+    }
 
 }

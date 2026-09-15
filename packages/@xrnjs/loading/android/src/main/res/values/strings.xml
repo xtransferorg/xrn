@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="loading">loading...</string>
+    <string name="updating">Updating, please hold on a sec…</string>
+    <string name="loading">loading…</string>
+    <string name="error_boundary_retry">Retry</string>
+    <string name="error_boundary_page_not_found">Sorry, the page you\'re trying to visit does not exist.</string>
+    <string name="error_boundary_network_error">Oops! Something went wrong. Please try again.</string>
 </resources>

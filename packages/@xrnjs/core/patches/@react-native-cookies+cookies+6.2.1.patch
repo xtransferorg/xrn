@@ -1,0 +1,26 @@
+diff --git a/node_modules/@react-native-cookies/cookies/android/build.gradle b/node_modules/@react-native-cookies/cookies/android/build.gradle
+index 13c7e43..9a63b0e 100644
+--- a/node_modules/@react-native-cookies/cookies/android/build.gradle
++++ b/node_modules/@react-native-cookies/cookies/android/build.gradle
+@@ -42,6 +42,9 @@ buildscript {
+ apply plugin: 'com.android.library'
+ 
+ android {
++
++    namespace "com.reactnativecommunity.cookies"
++
+     compileSdkVersion safeExtGet('compileSdkVersion', DEFAULT_COMPILE_SDK_VERSION)
+     buildToolsVersion safeExtGet('buildToolsVersion', DEFAULT_BUILD_TOOLS_VERSION)
+     defaultConfig {
+@@ -50,6 +53,11 @@ android {
+         versionCode 1
+         versionName "1.0"
+     }
++
++    buildFeatures {
++        buildConfig true
++    }
++
+     lintOptions {
+         abortOnError false
+     }

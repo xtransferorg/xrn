@@ -60,5 +60,5 @@ export default StyleSheet.create({
     marginTop: 10,
     fontSize: 13,
     textAlign: "center",
-  }
+  },
 });

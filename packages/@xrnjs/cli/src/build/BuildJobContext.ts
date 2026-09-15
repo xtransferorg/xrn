@@ -5,256 +5,349 @@ import {
   BuildEnv,
   BuildCommandOptions,
   BuildType,
-  BundleType,
   Platform,
   RepInfo,
-  XRNConfigType,
-  DefaultOptions,
   DepInfo,
 } from "./typing";
-import { isProd, padZero } from "./utils";
-import {
-  getAllNativeDeps,
-  PackageJson,
-  readPackageJsonSync,
-} from "./utils/package";
+import { PackageJson } from "./utils/package";
 import { MetaConfig } from "./bundle/interface";
-import { DEPENDENCIES_CHECK_WHITELIST } from "./constants";
+import { BaselineManager } from "./BaselineManager";
+import { BaselineManagerFactory } from "./BaselineManagerFactory";
+import {
+  ConfigManager,
+  VersionManager,
+  DependencyManager,
+} from "./managers";
 
+/**
+ * 构建任务上下文
+ * 使用组合模式，将不同职责委托给专门的管理器
+ */
 export class BuildJobContext {
-  /** XTransfer */
+  // ==================== 基本信息 ====================
+  /** 项目名称 */
   project: string;
 
-  /** ios/android */
+  /** 平台 */
   platform: Platform;
 
-  /** 如：3.3.2，默认从xrn.config.json中获取 */
-  version: string;
-
-  /** 环境 */
+  /** 构建环境 */
   buildEnv: BuildEnv;
 
-  /** debug/release */
+  /** 同步目标环境 */
+  syncTargetEnv?: BuildEnv;
+
+  /** 构建类型 */
   buildType: BuildType;
 
-  /** feat-1030-stable */
+  /** 分支名称 */
   branchName: string;
 
-  /** android 渠道包。googlePlay：国际版。china：大陆版（xt.app）。chinaNew：大陆版（xt.app.xtransfer）。xiaomi：小米。vivo：vivio。huawei：华为。oppo：oppo。honor：honor。*/
+  /** 渠道 */
   channel: string;
 
-  /** Android app 包类型。apk/aab */
+  /** 渠道列表 */
+  channelList: string[];
+
+  /** App 格式 */
   appFormat: AppFormat;
 
+  /** 应用根目录 */
+  rootPath: string;
+
+  /** 构建完成后复制安装包的原生工程目录 */
+  nativeRoot?: string;
+
+  /** 应用名称 */
+  appName: string;
+
+  /** 原生项目名称 */
+  nativeProjectName: string;
+
+  /** AppKey */
+  appKey: string;
+
+  // ==================== 构建选项 ====================
   /** 是否加密 */
   isSec: boolean;
 
-  /** 是否启用dsym，默认false */
+  /** 是否启用 dsym */
   enableDsym: boolean;
 
-  /** 是否ios模拟器 */
+  /** 是否 iOS 模拟器 */
   iosSimulator: boolean;
 
-  /** 是否输出log */
+  /** 是否输出详细日志 */
   verbose: boolean;
-
-  /** 是否清理 watchman */
-  cleanWatchMan: boolean;
 
   /** 是否跳过打包 */
   skip: boolean;
 
-  /** 如：xtapp，项目名称，从xrn.config.json中获取 */
-  nativeProjectName: string;
-
-  /** bundle 列表 */
-  subBundle: Array<RepInfo>;
-
-  /** app 根目录 */
-  rootPath: string;
-
-  /** 是否使用本地配置 */
-  useLocalBundleConfig = true;
-
-  /** appKey */
-  appKey: string;
-
-  /** 版本号 */
-  versionNumber: string;
-
-  /** 拆包 */
-  unpacking: boolean;
-
-  /** 是否应该发布热更新，默认true */
+  /** 是否应该发布热更新 */
   shouldFirstCodePush = true;
 
   /** 私钥 */
   privateKey: string;
 
-  /** 原生配置 */
-  // nativeConfig: Config;
+  /** 是否使用本地 Bundle 配置 */
+  useLocalBundleConfig = true;
 
-  /** 原生 package.json */
-  packageJson: PackageJson;
+  /** 是否拆包 */
+  unpacking: boolean;
 
-  /** 原生依赖信息 */
-  nativeDeps: Record<string, DepInfo>;
+  /** 是否启用 Hermes 编译 */
+  hermes = true;
 
-  /** 是否跳过 bundle 打包 */
-  skipBundle: boolean;
+  // ==================== 管理器 ====================
+  /** 配置管理器 */
+  private configManager: ConfigManager;
 
-  meta?: MetaConfig
+  /** 版本管理器 */
+  private versionManager: VersionManager;
 
+  /** 依赖管理器 */
+  private dependencyManager: DependencyManager;
+
+  /** 基线管理器 */
+  baselineManager: BaselineManager;
+
+  // ==================== 其他数据 ====================
+  /** Meta 配置 */
+  meta: MetaConfig;
+
+  /**
+   * 初始化构建上下文
+   */
   async init(
     project: string,
     platform: Platform,
+    version: string,
+    env: BuildEnv,
     options: BuildCommandOptions
-  ) {
-    this.project = project;
-    this.platform = platform;
-    this.buildEnv = options.env || BuildEnv.dev;
-    this.buildType = options.type;
-    this.branchName = options.bundleBranch;
-    this.channel = options.channel;
-    this.appFormat = options.appFormat;
-    this.isSec = options.sec === "true";
-    this.enableDsym = options.dsym === "true";
-    this.iosSimulator =
-      options.iosSimulator === "true" ||
-      (this.appFormat === AppFormat.app && this.platform === Platform.iOS);
-    this.verbose = options.verbose === "true" || process.env.verbose === "true";
-    this.cleanWatchMan =options.cleanWatchMan === true ||  options.cleanWatchMan === "true";
-    this.skip = options.skip === true || options.skip === "true";
-    this.skipBundle = options.skipBundle === true || options.skip === "true";
-    this.rootPath = path.join(process.cwd(), options.appPath);
-    this.shouldFirstCodePush = options.shouldFirstCodePush === "true";
-    this.privateKey = options.privateKey || "";
-    await this.loadConfig();
+  ): Promise<BuildJobContext> {
+    logger.info("初始化构建参数: " + JSON.stringify(options, null, 2));
+
+    if (!options.channel) {
+      throw new Error("必须传递 channel 参数");
+    }
+
+    // 初始化基本信息
+    this.initBasicInfo(project, platform, env, options);
+
+    // 初始化构建选项
+    this.initBuildOptions(options);
+
+    // 初始化管理器
+    this.initManagers();
+
+    // 加载配置
+    await this.loadConfig(version, options);
+
+    // 初始化基线管理器
+    this.initBaselineManager();
+
     return this;
   }
 
-  private calcVersionNumber() {
-    const currentDate = new Date();
-    const timestampShort = `${currentDate.getFullYear()}${padZero(
-      currentDate.getMonth() + 1
-    )}${padZero(currentDate.getDate())}`;
+  /**
+   * 初始化基本信息
+   */
+  private initBasicInfo(
+    project: string,
+    platform: Platform,
+    env: BuildEnv,
+    options: BuildCommandOptions
+  ): void {
+    this.project = project || "XTransfer";
+    this.platform = platform;
+    this.buildEnv = env;
+    this.syncTargetEnv = (options.syncTargetEnv as BuildEnv) || undefined;
+    this.buildType = options.type;
+    this.branchName = options.bundleBranch;
+    this.channel = options.channel;
+    this.channelList = this.channel.split(",");
+    this.rootPath = path.join(process.cwd(), options.appPath);
+    this.nativeRoot = options.nativeRoot
+      ? path.resolve(process.cwd(), options.nativeRoot)
+      : undefined;
+    this.appName = `xt-app-${this.platform}`;
+  }
 
-    if (this.platform === Platform.Android) {
-      return timestampShort;
-    } else if (this.platform === Platform.Harmony) {
-      return `${timestampShort}0`;
+  /**
+   * 初始化构建选项
+   */
+  private initBuildOptions(options: BuildCommandOptions): void {
+    this.hermes = (options.hermes || "true") === "true";
+    this.isSec = options.sec === "true";
+    this.enableDsym = options.dsym === "true";
+    this.verbose = options.verbose === "true" || process.env.verbose === "true";
+    this.skip = options.skip === "true";
+    this.shouldFirstCodePush = options.shouldFirstCodePush === "true";
+    this.privateKey = options.privateKey || "";
+
+    // 确定 appFormat
+    this.appFormat = ConfigManager.determineAppFormat(
+      this.platform,
+      this.buildEnv,
+      this.channel,
+      options.appFormat
+    );
+
+    // iOS 模拟器判断
+    this.iosSimulator =
+      options.iosSimulator === "true" ||
+      (this.appFormat === AppFormat.app && this.platform === Platform.iOS);
+  }
+
+  /**
+   * 初始化管理器
+   */
+  private initManagers(): void {
+    this.configManager = new ConfigManager(
+      this.rootPath,
+      this.platform,
+      this.branchName,
+      this.buildEnv
+    );
+    this.dependencyManager = new DependencyManager(this.rootPath);
+
+    // 版本管理器需要先加载配置后才能初始化
+    // 这里先占位，在 loadConfig 中初始化
+  }
+
+  /**
+   * 初始化基线管理器
+   */
+  private initBaselineManager(): void {
+    this.baselineManager = BaselineManagerFactory.createOrGet({
+      platform: this.platform,
+      buildEnv: this.buildEnv,
+      buildType: this.buildType,
+      version: this.version,
+    });
+    this.baselineManager.cleanBaselineDir();
+  }
+
+  /**
+   * 加载配置
+   */
+  private async loadConfig(version: string, options: BuildCommandOptions): Promise<void> {
+    // 1. 加载 xrn.config.json
+    this.configManager.loadConfig();
+    this.useLocalBundleConfig = this.configManager.shouldUseLocalBundleConfig();
+    this.unpacking = this.configManager.shouldUnpack();
+    this.nativeProjectName = this.configManager.getAppName();
+
+    // 2. 初始化版本管理器
+    const baseVersion = this.configManager.getAppVersion();
+    this.versionManager = new VersionManager(
+      baseVersion,
+      version,
+      this.platform,
+      this.buildEnv,
+      this.buildType
+    );
+
+    // 3. 加载依赖信息
+    await this.dependencyManager.loadDependencies();
+
+    // 4. 初始化本地版本管理器
+    this.versionManager.init(options.minSupportedVersion);
+
+    // 5. 加载 AppKey
+    this.appKey = this.configManager.getAppKey(
+      this.platform,
+      this.buildType,
+      this.channel
+    );
+
+    // 6. 加载 Bundle 配置
+    if (this.useLocalBundleConfig) {
+      this.configManager.loadBundleConfig(options.bundles);
     } else {
-      const timestamp = `${timestampShort}${padZero(
-        currentDate.getHours()
-      )}${padZero(currentDate.getMinutes())}`;
-
-      if (this.buildEnv === BuildEnv.prod) {
-        return timestamp + "00";
-      }
-
-      return timestamp;
+      // TODO: 从远程获取 bundle 配置
+      logger.warn("暂不支持从远程获取 bundle 配置");
     }
   }
 
-  loadVersionNumber() {
-    this.versionNumber = this.calcVersionNumber();
+  // ==================== Getters（委托给管理器） ====================
+
+  /** 获取版本号 */
+  get version(): string {
+    return this.versionManager.getVersion();
   }
 
-  getVersionNumber() {
-    if (!this.versionNumber) {
-      this.loadVersionNumber();
-    }
+  /** 获取基准版本号 */
+  get baseVersion(): string {
+    return this.versionManager.getBaseVersion();
+  }
+
+  /** 获取版本号时间戳 */
+  get versionNumber(): string {
+    return this.versionManager.getVersionNumber();
+  }
+
+  /** 获取版本号时间戳（兼容性方法） */
+  getVersionNumber(): string {
     return this.versionNumber;
   }
 
-  private loadAppKey(config: XRNConfigType) {
-    if (this.platform === Platform.iOS) {
-      this.appKey = config.iosUpdateAppKey[this.buildType];
-    } else if (this.platform === Platform.Android) {
-      const keyInfo = config.androidUpdateAppKey[this.buildType];
-      this.appKey = keyInfo?.[this.channel] || keyInfo?.default;
-    } else if (this.platform === Platform.Harmony) {
-      this.appKey = config.harmonyUpdateAppKey[this.buildType];
-    }
-    if (!this.appKey) {
-      throw new Error("appKey 不存在，请检查 xrn.config.json 配置");
-    }
+  /** 获取最小支持版本 */
+  get minSupportedVersion(): string {
+    return this.versionManager.getMinSupportedVersion();
   }
 
-  // eslint-disable-next-line @typescript-eslint/require-await
-  async loadConfig() {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const configJson = require(
-      `${this.rootPath}/xrn.config.json`
-    ) as XRNConfigType;
-
-    this.useLocalBundleConfig = configJson.useLocalBundleConfig ?? true;
-    this.unpacking = configJson.unpacking ?? true;
-
-    // 如果外面传递了版本就用外部传递的版本，否则用配置文件中的版本
-    this.version = this.version || configJson.appVersion;
-    if (this.version.length <= 0) {
-      throw new Error("版本号存在问题");
-    }
-
-    this.nativeProjectName = configJson.appName;
-    this.project = this.project || this.nativeProjectName;
-
-    if (this.useLocalBundleConfig) {
-      const bundlesConfig = configJson.bundleConfig;
-      const bundleArray = bundlesConfig.bundles;
-      const bundleDefaultOptions: DefaultOptions = bundlesConfig.defaultOptions;
-
-      this.subBundle = bundleArray.map((bundleInfo) => {
-        let enableCache = bundleInfo.enableCache ?? true;
-        // 生产环境不启用缓存
-        if (isProd(this.buildEnv)) {
-          enableCache = false;
-        }
-
-        return {
-          name: bundleInfo.name,
-          branchName: this.branchName,
-          gitUrl: bundleInfo.gitUrl,
-          bundleType:
-            (bundleInfo.bundleType as BundleType) ??
-            bundleDefaultOptions.bundleType,
-          prepareCommand:
-            bundleInfo.prepareCommand ?? bundleDefaultOptions.prepareCommand,
-
-          useCommonBundle: bundleInfo.useCommonBundle ?? true,
-          bundlePackageRelativePath: bundleInfo.bundlePackageRelativePath,
-          checkNativeDep: bundleInfo.checkNativeDep ?? true,
-          writeLocaleLangs: bundleInfo.writeLocaleLangs ?? true,
-          enableCache,
-        };
-      });
-    } else {
-      // TODO: 从远程获取 bundle 配置
-    }
-
-    this.loadAppKey(configJson);
-    // this.nativeConfig = loadNativeConfig(this.rootPath);
-    this.packageJson = readPackageJsonSync(this.rootPath);
-
-
-    const { nativeDeps, duplicateDeps } = getAllNativeDeps(
-      this.rootPath,
-      [Platform.Android, Platform.iOS, Platform.Harmony],
-      DEPENDENCIES_CHECK_WHITELIST[this.platform]
-    );
-    if (duplicateDeps.length > 0) {
-      logger.warn(`原生仓库检测到重复依赖：${duplicateDeps.join(",")}`);
-      // throw new Error(`检测到重复依赖：${duplicateDeps.join(",")}`);
-    }
-    this.nativeDeps = nativeDeps;
+  /** 是否强制更新 */
+  get forceUpdate(): boolean {
+    return this.versionManager.isForceUpdate();
   }
 
-  getBuildContextReport() {
+  /** 获取 package.json */
+  get packageJson(): PackageJson {
+    return this.dependencyManager.getPackageJson();
+  }
+
+  /** 获取已加载的 xrn.config.json */
+  get xrnConfig(): ReturnType<ConfigManager["getConfig"]> {
+    return this.configManager.getConfig();
+  }
+
+  /** 获取原生依赖 */
+  get nativeDeps(): Record<string, DepInfo> {
+    return this.dependencyManager.getNativeDeps();
+  }
+
+  /** 获取 react-native config 依赖 */
+  get reactNativeConfigDeps(): Record<string, DepInfo> {
+    return this.dependencyManager.getReactNativeConfigDeps();
+  }
+
+  /** 获取 core 版本 */
+  get coreVersion(): string {
+    return this.dependencyManager.getCoreVersion();
+  }
+
+  /** 获取当前 CLI 版本 */
+  get cliVersion(): string {
+    return require("../../package.json").version;
+  }
+
+  /** 获取 bundle 列表 */
+  get subBundle(): Array<RepInfo> {
+    return this.configManager.getSubBundles();
+  }
+
+  // ==================== 工具方法 ====================
+
+  /**
+   * 获取构建上下文报告
+   */
+  getBuildContextReport(): string {
     return [
       `project: ${this.project}`,
       `platform: ${this.platform}`,
       `version: ${this.version}`,
+      `cliVersion: ${this.cliVersion}`,
       `buildEnv: ${this.buildEnv}`,
       `buildType: ${this.buildType}`,
       `branchName: ${this.branchName}`,
@@ -265,17 +358,22 @@ export class BuildJobContext {
       `iosSimulator: ${this.iosSimulator}`,
       `verbose: ${this.verbose}`,
       `skip: ${this.skip}`,
+      `hermes: ${this.hermes}`,
       `nativeProjectName: ${this.nativeProjectName}`,
       `rootPath: ${this.rootPath}`,
-      `subBundle: ${this.subBundle.map((item) => item.name).join(", ")}`,
+      `subBundle: ${this.configManager.getBundleNames()}`,
     ].join("\n");
   }
 
-  getTags() {
+  /**
+   * 获取标签（用于日志）
+   */
+  getTags(): Record<string, any> {
     return {
       project: this.project,
-      platform: this.platform,
+      appPlatform: this.platform,
       version: this.version,
+      cliVersion: this.cliVersion,
       buildEnv: this.buildEnv,
       buildType: this.buildType,
       branchName: this.branchName,
@@ -288,11 +386,15 @@ export class BuildJobContext {
       skip: this.skip,
       nativeProjectName: this.nativeProjectName,
       rootPath: this.rootPath,
+      buildUrl: process.env.BUILD_URL,
     };
   }
 
-  logInfo() {
-    logger.debug("构建参数：\n" + this.getBuildContextReport());
+  /**
+   * 输出构建信息
+   */
+  logInfo(): void {
+    logger.info("构建参数：\n" + this.getBuildContextReport());
   }
 }
 

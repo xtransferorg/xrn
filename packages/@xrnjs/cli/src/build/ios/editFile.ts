@@ -3,8 +3,9 @@ import { BuildEnv, BuildType } from "../typing";
 import fs from "fs-extra";
 import { getRemoteFileUrl } from "../utils/ftp";
 import { buildJobContext } from "../BuildJobContext";
-import path from 'path'
+import path from "path";
 import logger from "../../utlis/logger";
+import { XcodeConfigMode, xcodeprojChange } from "./xcodeproj";
 
 // 更新导出选项
 export function updateExportOptions(
@@ -32,10 +33,6 @@ export function updateExportOptions(
 
   if (buildEnv != BuildEnv.prod && !iosSimulator) {
     const appURL = getRemoteFileUrl(apkName);
-    const displayImageURL =
-      "https://ftp.xtrfr.cn/atta-app-rn/ios/resources/milk_cat_57_57.png";
-    const fullSizeImageURL =
-      "https://ftp.xtrfr.cn/atta-app-rn/ios/resources/milk_cat_512_512.png";
 
     let exportOptionsContent = fs.readFileSync(
       `${iOSArchivePath}/ExportOptions.plist`,
@@ -47,11 +44,11 @@ export function updateExportOptions(
     );
     exportOptionsContent = exportOptionsContent.replace(
       /(<key>displayImageURL<\/key>.*?<string>).*?(<\/string>)/gs,
-      (_, prefix, suffix) => `${prefix}${displayImageURL}${suffix}`
+      (_, prefix, suffix) => `${prefix}${""}${suffix}`
     );
     exportOptionsContent = exportOptionsContent.replace(
       /(<key>fullSizeImageURL<\/key>.*?<string>).*?(<\/string>)/gs,
-      (_, prefix, suffix) => `${prefix}${fullSizeImageURL}${suffix}`
+      (_, prefix, suffix) => `${prefix}${""}${suffix}`
     );
     // 将更新后的内容写回文件
     fs.writeFileSync(
@@ -147,7 +144,7 @@ export function editEnvInfo() {
 
   const currentEnvDotFile = `${rootPath}/${envDotName}`;
   if (buildEnv !== BuildEnv.prod && buildEnv !== BuildEnv.staging) {
-    logger.debug("=============  修改.env 配置  =============");
+    logger.info("=============  修改.env 配置  =============");
 
     // 读取 .env 文件内容
     let envContent = fs.readFileSync(currentEnvDotFile, "utf8");
@@ -157,10 +154,28 @@ export function editEnvInfo() {
 
     // 将更新后的内容写回 .env.staging 文件
     fs.writeFileSync(currentEnvDotFile, envContent, "utf8");
-
   }
   // updateAppKeyInEnvFile(currentEnvDotFile);
   return { envDotName };
+}
+
+export async function editCommonBundleHash() {
+  if (buildJobContext.meta.hash) {
+    await xcodeprojChange(
+      XcodeConfigMode.Debug,
+      "COMMON_BUNDLE_HASH",
+      buildJobContext.meta.hash
+    );
+    await xcodeprojChange(
+      XcodeConfigMode.Release,
+      "COMMON_BUNDLE_HASH",
+      buildJobContext.meta.hash
+    );
+  } else {
+    if (buildJobContext.unpacking) {
+      throw new Error("unpacking is true, but meta.hash is empty");
+    }
+  }
 }
 
 // function updateAppKeyInEnvFile(currentEnvDotFile: string) {
@@ -176,4 +191,3 @@ export function editEnvInfo() {
 //   fs.writeFileSync(currentEnvDotFile, envContent, "utf8");
 //   return envContent;
 // }
-

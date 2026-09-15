@@ -1,0 +1,15 @@
+diff --git a/node_modules/axios/lib/core/AxiosHeaders.js b/node_modules/axios/lib/core/AxiosHeaders.js
+index 558ad8f..bd2c230 100644
+--- a/node_modules/axios/lib/core/AxiosHeaders.js
++++ b/node_modules/axios/lib/core/AxiosHeaders.js
+@@ -83,7 +83,9 @@ class AxiosHeaders {
+       const lHeader = normalizeHeader(_header);
+ 
+       if (!lHeader) {
+-        throw new Error('header name must be a non-empty string');
++        // throw new Error('header name must be a non-empty string');
++        // 解决鸿蒙 responseHeader为空时，卡白屏问题，官方解决方案：https://github.com/axios/axios/pull/10875
++        return;
+       }
+ 
+       const key = utils.findKey(self, lHeader);

@@ -5,10 +5,12 @@ import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.Promise
+import com.facebook.react.module.annotations.ReactModule
 import java.lang.Error
 
+@ReactModule(name = XRNNativeStorageModule.NAME)
 class XRNNativeStorageModule(reactContext: ReactApplicationContext) :
-    ReactContextBaseJavaModule(reactContext) {
+    NativeXRNNativeStorageModuleSpec(reactContext) {
 
     override fun getName(): String {
         return NAME
@@ -16,7 +18,7 @@ class XRNNativeStorageModule(reactContext: ReactApplicationContext) :
 
 
     @ReactMethod
-    fun getItem(key: String?, promise: Promise) {
+    override fun getItem(key: String?, promise: Promise) {
         if (key.isNullOrBlank()) {
             promise.resolve(null)
         } else {
@@ -31,7 +33,7 @@ class XRNNativeStorageModule(reactContext: ReactApplicationContext) :
      * 同步方法
      */
     @ReactMethod(isBlockingSynchronousMethod = true)
-    fun getItemSync(key: String?): String {
+    override fun getItemSync(key: String?): String {
         return if (key.isNullOrBlank()) {
             ""
         } else {
@@ -41,7 +43,7 @@ class XRNNativeStorageModule(reactContext: ReactApplicationContext) :
     }
 
     @ReactMethod
-    fun setItem(key: String?, value: String?, promise: Promise) {
+    override fun setItem(key: String?, value: String?, promise: Promise) {
         if (key.isNullOrBlank()) {
             promise.reject(Error("Key不允许为空"))
         } else {
@@ -55,17 +57,17 @@ class XRNNativeStorageModule(reactContext: ReactApplicationContext) :
      * 同步方法，iOS 不支持返回 boolean 类型，所以统一返回 String 类型
      */
     @ReactMethod(isBlockingSynchronousMethod = true)
-    fun setItemSync(key: String?, value: String?): String {
+    override fun setItemSync(key: String?, value: String?): Boolean {
         return if (key.isNullOrBlank()) {
-            "false"
+            false
         } else {
             SPUtils.getInstance(SP_NAME).put(key, value ?: "", true)
-            "true"
+            true
         }
     }
 
     @ReactMethod
-    fun removeItem(key: String?, promise: Promise) {
+    override fun removeItem(key: String?, promise: Promise) {
         if (key.isNullOrBlank()) {
             promise.reject(Error("Key不允许为空"))
         } else {
@@ -79,17 +81,17 @@ class XRNNativeStorageModule(reactContext: ReactApplicationContext) :
      * 同步方法，iOS 不支持返回 boolean 类型，所以统一返回 String 类型
      */
     @ReactMethod(isBlockingSynchronousMethod = true)
-    fun removeItemSync(key: String?): String {
+    override fun removeItemSync(key: String?): Boolean {
         return if (key.isNullOrBlank()) {
-            "false"
+            false
         } else {
             SPUtils.getInstance(SP_NAME).remove(key, true)
-            "true"
+            true
         }
     }
 
     companion object {
-        private const val NAME = "XRNNativeStorageModule"
+        const val NAME = "XRNNativeStorageModule"
 
         const val SP_NAME = "NativeStorageModule"
     }

@@ -11,6 +11,12 @@ import { useNavRightButton } from "../../hooks/navigation";
 import styles from "./style";
 import StarRating from "react-native-star-rating-widget";
 import { nativeToast } from "../../utils/toast";
+import {
+  sensorsFundClick,
+  sensorsFundPageView,
+} from "../../utils/sensorsTrack";
+import { ROUTES } from "../..";
+import openURLInBrowser from 'react-native/Libraries/Core/Devtools/openURLInBrowser';
 
 const reasons = [
   "设计风格不美观",
@@ -42,6 +48,10 @@ const FeedBack: React.FC = (props: any) => {
   const [sceneText, setSceneText] = useState(SCENE_PREFIX);
   const [suggestionText, setSuggestionText] = useState(SUGGESTING_PREFIX);
   const [contactText, setContactText] = useState(CONTACT_PREFIX);
+
+  useEffect(() => {
+    sensorsFundPageView({ module_name: `devtools_${ROUTES.FeedBack}` });
+  }, []);
 
   const _handleTagPress = (tag: string) => {
     setSelectedTags((prevSelected) =>
@@ -91,12 +101,30 @@ const FeedBack: React.FC = (props: any) => {
       devtools_contact: contactText,
       devtools_efficiency_percent: selectedPercent ? selectedPercent : "",
     };
+    sensorsFundClick(trackObj);
     nativeToast("反馈成功，谢谢配合 ☺");
     navigation?.goBack();
   };
 
+  const _doc = () => {
+    const docUrl =
+      "https://alidocs.dingtalk.com/i/nodes/mExel2BLV542xqERsXXRdB04Wgk9rpMq?iframeQuery=utm_source%3Dportal%26utm_medium%3Dportal_recent&rnd=0.8873220246798134";
+    openURLInBrowser(docUrl);
+  };
+
+  const renderRightButton = () => {
+    return (
+      __DEV__ ? 
+      <TouchableOpacity style={styles.rightBtnBox} onPress={() => _doc()}>
+        <Text style={styles.rightBtnText}>反馈文档</Text>
+      </TouchableOpacity> : <View></View>
+    );
+  };
+
+  const rightButton = useNavRightButton(renderRightButton);
+
   return (
-    <Page title="功能反馈" hideHeader>
+    <Page title="功能反馈" rightButton={rightButton}>
       <ScrollView style={styles.container}>
         <View style={styles.rateBox}>
           <Text style={styles.rateTitle}>

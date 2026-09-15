@@ -1,4 +1,5 @@
 import { CommonActions, NavigationState } from '@react-navigation/native';
+import { appendDefaultParams } from '../utils';
 
 export function navigate({
   routeName,
@@ -21,8 +22,8 @@ export function navigate({
 
   return CommonActions.navigate({
     name: routeName,
-    key: key,
-    params: params,
+    key,
+    params: appendDefaultParams(params),
     merge,
   });
 }

@@ -1,19 +1,3 @@
-/**
- * Generate a command string from base command and options object
- * Converts an options object into command-line arguments string
- * Handles boolean flags and value-based options appropriately
- * 
- * @param baseCommand - The base command to execute
- * @param options - Object containing command options and their values
- * @returns Formatted command string ready for execution
- * 
- * @example
- * generateCommandString("npm install", { 
- *   save: true, 
- *   package: "react-native" 
- * })
- * // Returns: "npm install --save --package 'react-native'"
- */
 export const generateCommandString = (
     baseCommand: string,
     options: Record<string, any>

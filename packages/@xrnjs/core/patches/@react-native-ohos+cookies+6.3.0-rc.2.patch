@@ -1,0 +1,14 @@
+diff --git a/node_modules/@react-native-ohos/cookies/harmony/rn_cookies/src/main/ets/CookiesModule.ts b/node_modules/@react-native-ohos/cookies/harmony/rn_cookies/src/main/ets/CookiesModule.ts
+index 927cd1d..28eec11 100644
+--- a/node_modules/@react-native-ohos/cookies/harmony/rn_cookies/src/main/ets/CookiesModule.ts
++++ b/node_modules/@react-native-ohos/cookies/harmony/rn_cookies/src/main/ets/CookiesModule.ts
+@@ -62,6 +62,9 @@ export class CookiesModule extends TurboModule {
+           for (let i = 0 ; i < queryCookieArray.length; i++) {
+             let name = queryCookieArray[i].split('=')[0];
+             let value = queryCookieArray[i].split('=')[1];
++            if (typeof name === 'string') {
++              name = name.trim();
++            }
+             cookies[name] = { name: name, value: value } as Cookie;
+           }
+           resolve(cookies);

@@ -1,4 +1,4 @@
-// TypeScript type definitions for the startApp module
+// 定义参数的 TypeScript 类型接口
 
 import { StartBusinessArgs } from "../build/bundle/startBusinessBundle";
 
@@ -12,55 +12,6 @@ export enum DeviceType {
   HARMONY = "harmony",
 }
 
-/**
- * Configuration options for XRN app operations
- */
-export interface XrnOptions {
-  /** Specific app version to install */
-  appVersion?: string;
-  /** Development server port */
-  port?: number;
-  /** Target device type */
-  deviceType?: DeviceType;
-  /** Git branch name for app version selection */
-  branch: string;
-  /** Whether to open in new tab */
-  newTab?: boolean;
-  /** Whether to install the app */
-  install?: "true" | "false";
-  /** Enable verbose logging */
-  verbose?: boolean;
-  /** App package name/bundle identifier */
-  packageName?: string;
-  /** Project name */
-  project?: string;
-}
-
-/**
- * Extended start arguments including remote deployment options
- */
-export interface XrnStartArgs extends StartBusinessArgs {
-  /** Whether to use remote app versions */
-  remote?: boolean;
-  /** Specific app version to install */
-  appVersion?: string;
-  /** Development server port */
-  port?: number;
-  /** Target device type */
-  deviceType?: DeviceType;
-  /** Git branch name for app version selection */
-  branch?: string;
-  /** Whether to open in new tab */
-  newTab?: boolean;
-  /** Whether to install the app */
-  install?: "true" | "false";
-  /** App package name/bundle identifier */
-  packageName?: string;
-}
-
-/**
- * Information about an app version
- */
 export interface AppInfo {
   /** App name */
   name: string;
@@ -70,18 +21,42 @@ export interface AppInfo {
   filePath?: string;
   /** App version string */
   version?: string;
-  /** App bundle identifier/package name */
+}
+
+export interface XrnOptions {
+  appVersion?: string;
+  port?: number;
+  deviceType?: DeviceType;
+  branch: string;
+  newTab?: boolean;
+  install?: "true" | "false";
+  verbose?: boolean;
+  packageName?: string;
+  nativeRoot?: string;
+  project?: string;
+}
+
+export interface XrnStartArgs extends StartBusinessArgs {
+  /** Whether to use remote app versions */
+  appVersion?: string;
+  port?: number;
+  deviceType?: DeviceType;
+  branch?: string;
+  newTab?: boolean;
+  install?: "true" | "false";
+  packageName?: string;
+  nativeRoot?: string;
+}
+
+export interface FtpApp {
+  name: string;
+  link: string;
+  version: string;
   appBundleId?: string;
 }
 
-/**
- * Standard response format for API calls
- */
 export interface CommonResponse<T> {
-  /** Whether the operation was successful */
   success: boolean;
-  /** Response message */
   message: string;
-  /** Response data */
   data: T;
 }

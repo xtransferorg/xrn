@@ -14,7 +14,11 @@ createBundleHash() {
         fullPath=$1$2/$file
         relPath=${fullPath//$code_push_dir/}
         if [ -f $fullPath ]; then
-            hash=$(cat $fullPath | md5)
+            if [[ "$OSTYPE" == "darwin"* ]]; then
+                hash=$(cat $fullPath | md5)
+            else
+                hash=$(cat $fullPath | md5sum | awk -F ' ' '{print$1}')
+            fi
             echo " $relPath $hash" >> $bundleHashFile
         fi
     done
@@ -72,7 +76,15 @@ diffBundleHash() {
                 # 此外，node.js 调用shell脚本后  不会产生shell脚本中的日志，这一点要赶紧调研加上，否则太难调试了。
 
                 # codepush 是linux环境 所以sed -i 不需要加 "" ，否则语法错误 
-                sed -i 's/'$baseHash'/'$timestamp'/g' $bundleHashFile
+                # sed -i 's/'$baseHash'/'$timestamp'/g' $bundleHashFile
+                if [[ "$OSTYPE" == "darwin"* ]]; then
+                  sed -i '' 's/'$baseHash'/'$timestamp'/g' $bundleHashFile
+                #   sed -i.bak "s#${baseHash}#${timestamp}#g" "$bundleHashFile" && rm -f "${bundleHashFile}.bak"
+                else
+                  sed -i 's/'$baseHash'/'$timestamp'/g' $bundleHashFile
+                fi
+                # sed -i.bak "s#${baseHash}#${timestamp}#g" "$bundleHashFile" && rm -f "${bundleHashFile}.bak"
+
             fi
         fi
     done

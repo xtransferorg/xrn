@@ -8,11 +8,11 @@
 #ifndef XTMultiBundle_h
 #define XTMultiBundle_h
 
-#import "RCTBridge+XTExtension.h"
-#import "RCTBridge+XTPrivate.h"
-#import "RCTRootView+XTExtension.h"
 #import "XTBundleData.h"
 #import "XTMultiBundleManager.h"
 #import "XTMultiBundleProtocol.h"
+#import "XTBundlePreloadQueue.h"
+#import "XTJSRuntimeContext.h"
+#import "XTJSBridgePool.h"
 
 #endif /* XTMultiBundle_h */

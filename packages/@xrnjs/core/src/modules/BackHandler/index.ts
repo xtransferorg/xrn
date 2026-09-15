@@ -1,11 +1,11 @@
-import { useRef, useEffect } from 'react'
-import { BackHandler, ToastAndroid } from 'react-native'
-import { useNavigation } from '@xrnjs/navigation'
-import { XRNAppUtils } from '@xrnjs/app-utils'
+import { useRef, useEffect } from "react";
+import { BackHandler, ToastAndroid } from "react-native";
+import { useNavigation } from "@xrnjs/navigation";
+import { XRNAppUtils } from "@xrnjs/app-utils";
 
 interface DoubleBackExitOptions {
-	interval?: number
-	message?: string
+  interval?: number;
+  message?: string;
 }
 
 /**
@@ -23,28 +23,28 @@ interface DoubleBackExitOptions {
  * ```
  */
 export const useDoubleBackExit = (options: DoubleBackExitOptions) => {
-	const navigation = useNavigation()
-	const lastBackPressed = useRef(0)
-	const { interval = 2000, message = '再按一次退出应用' } = options
+  const navigation = useNavigation();
+  const lastBackPressed = useRef(0);
+  const { interval = 2000, message = "再按一次退出应用" } = options;
 
-	useEffect(() => {
-		const handleBackPress = () => {
-			if (navigation.canGoBack()) return false
+  useEffect(() => {
+    const handleBackPress = () => {
+      if (navigation.canGoBack()) return false;
 
-			const now = Date.now()
-			if (now - lastBackPressed.current < interval) {
-				XRNAppUtils.exitApp()
-			} else {
-				lastBackPressed.current = now
-				ToastAndroid.show(message, ToastAndroid.SHORT)
-			}
-			return true
-		}
+      const now = Date.now();
+      if (now - lastBackPressed.current < interval) {
+        XRNAppUtils.exitApp();
+      } else {
+        lastBackPressed.current = now;
+        ToastAndroid.show(message, ToastAndroid.SHORT);
+      }
+      return true;
+    };
 
-		BackHandler.addEventListener('hardwareBackPress', handleBackPress)
+		const unsubscribe = BackHandler.addEventListener('hardwareBackPress', handleBackPress)
 
 		return () => {
-			BackHandler.removeEventListener('hardwareBackPress', handleBackPress)
+			unsubscribe.remove();
 		}
 	}, [interval, message, navigation])
 }

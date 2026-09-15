@@ -1,5 +1,5 @@
 {
-  "name": "xrn-loading",
+  "name": "@xrnjs/loading",
   "version": "1.0.0",
   "description": "Please describe the basic information.",
   "main": "index.ets",

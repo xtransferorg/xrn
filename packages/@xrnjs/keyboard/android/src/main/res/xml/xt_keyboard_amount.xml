@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Keyboard xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    app:keyWidth="33.3%p"
+    app:keyHeight="50dp"
+    app:horizontalGap="4dp"
+    app:verticalGap="4dp">
+
+    <!-- 第一行（默认：¥10、¥100、¥1000、完成） -->
+    <Row app:keyHeight="56dp" app:horizontalGap="0dp">
+        <Key app:codes="-1001" app:keyLabel="0" app:keyWidth="25%p" />
+        <Key app:codes="-1002" app:keyLabel="00" app:keyWidth="25%p" />
+        <Key app:codes="-1003" app:keyLabel="000" app:keyWidth="25%p" />
+        <Key app:codes="66" app:keyLabel="完成" app:keyWidth="25%p" />
+    </Row>
+
+    <!-- 第二行 -->
+    <Row>
+        <Key app:codes="8" app:keyLabel="1" app:keyOutputText="1" />
+        <Key app:codes="9" app:keyLabel="2" app:keyOutputText="2"/>
+        <Key app:codes="10" app:keyLabel="3" app:keyOutputText="3"/>
+    </Row>
+
+    <!-- 第三行 -->
+    <Row>
+        <Key app:codes="11" app:keyLabel="4" app:keyOutputText="4"/>
+        <Key app:codes="12" app:keyLabel="5" app:keyOutputText="5"/>
+        <Key app:codes="13" app:keyLabel="6" app:keyOutputText="6"/>
+    </Row>
+
+    <!-- 第四行 -->
+    <Row>
+        <Key app:codes="14" app:keyLabel="7" app:keyOutputText="7"/>
+        <Key app:codes="15" app:keyLabel="8" app:keyOutputText="8"/>
+        <Key app:codes="16" app:keyLabel="9" app:keyOutputText="9"/>
+    </Row>
+
+    <!-- 第五行（千分位、0、删除） -->
+    <Row>
+        <Key app:codes="158" app:keyLabel="." />
+        <Key app:codes="7" app:keyLabel="0" app:keyOutputText="0"/>
+        <Key app:codes="67" app:keyIcon="@drawable/ic_keyboard_del" app:isRepeatable="true" />
+    </Row>
+
+</Keyboard>

@@ -5,20 +5,19 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.preference.PreferenceManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.XRNDebugToolsModule.databinding.ActivityXtDevQrcodeScanBinding
 import com.blankj.utilcode.util.AppUtils
 import com.blankj.utilcode.util.ToastUtils
 import com.journeyapps.barcodescanner.BarcodeResult
 import com.journeyapps.barcodescanner.camera.CameraSettings
 import org.json.JSONException
 import org.json.JSONObject
+import xrn.modules.debugtools.databinding.ActivityXtDevQrcodeScanBinding
 import xrn.modules.multibundle.bundle.BundleInfoManager
-import xrn.modules.multibundle.devsupport.XDevInternalSettings
-import xrn.modules.multibundle.devsupport.XPackageConnectionSettings
+import xrn.modules.multibundle.devsupport.XRNDeveloperSettings
+import xrn.modules.multibundle.devsupport.XRNPackageConnectionSettings
 
 /**
  * Dev面板二维码扫描页面
@@ -140,8 +139,8 @@ class XTDevQRCodeScanActivity: AppCompatActivity() {
     }
 
     fun setDebugServerIP(host: String?) {
-        val sp = PreferenceManager.getDefaultSharedPreferences(applicationContext)
-        sp.edit().putString(XPackageConnectionSettings.PREFS_DEBUG_SERVER_IP_KEY, host).apply()
+        val sp = XRNPackageConnectionSettings.getDebugPreferences(applicationContext)
+        sp.edit().putString(XRNPackageConnectionSettings.PREFS_DEBUG_SERVER_IP_KEY, host).apply()
     }
 
 
@@ -161,7 +160,7 @@ class XTDevQRCodeScanActivity: AppCompatActivity() {
                     ToastUtils.showShort("未找到对应的 bundleName")
                     return false
                 }
-                XDevInternalSettings.instance(bundleName)?.setBundleDebugEnabled(true)
+                XRNDeveloperSettings.instance(bundleName)?.setBundleDebugEnabled(true)
                 ToastUtils.showShort("ip地址绑定成功，重启APP生效！")
                 Handler(
                     Looper.getMainLooper()).postDelayed({

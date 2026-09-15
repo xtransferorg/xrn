@@ -9,7 +9,7 @@ const RadarAnimation = () => {
     Animated.loop(
       Animated.timing(rotateAnim, {
         toValue: 1,
-        duration: 3000,
+        duration: 3000, // 控制扫描速度
         easing: Easing.linear,
         useNativeDriver: true,
       })
@@ -24,17 +24,21 @@ const RadarAnimation = () => {
   return (
     <View style={{ alignItems: "center", justifyContent: "center" }}>
       <Svg width="120" height="120" viewBox="0 0 100 100">
+        {/* 画圆形雷达 */}
         <Circle cx="50" cy="50" r="45" stroke="#EA3841" strokeWidth="1" fill="none" />
         <Circle cx="50" cy="50" r="30" stroke="#EA3841" strokeWidth="1" fill="none" />
         <Circle cx="50" cy="50" r="15" stroke="#EA3841" strokeWidth="1" fill="none" />
 
+        {/* 画十字线 */}
         <Line x1="50" y1="5" x2="50" y2="95" stroke="#EA3841" strokeWidth="1" />
         <Line x1="5" y1="50" x2="95" y2="50" stroke="#EA3841" strokeWidth="1" />
 
+        {/* 画小点 */}
         <Circle cx="30" cy="30" r="3" fill="#EA3841" />
         <Circle cx="70" cy="40" r="3" fill="#EA3841" />
       </Svg>
 
+      {/* 旋转扫描区域 */}
       <Animated.View
         style={{
           position: "absolute",

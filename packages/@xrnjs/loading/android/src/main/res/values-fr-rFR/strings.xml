@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="updating">Mise à jour, veuillez tenir une seconde …</string>
+    <string name="loading">"Chargement…"</string>
+    <string name="error_boundary_retry">Réessayer</string>
+    <string name="error_boundary_page_not_found">Désolé, la page que vous essayez de consulter n\'existe pas.</string>
+    <string name="error_boundary_network_error">Oups ! Une erreur s\'est produite. Veuillez réessayer.</string>
+</resources>

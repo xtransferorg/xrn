@@ -1,11 +1,13 @@
-import { NativeModules, Platform } from "react-native";
-import { InitialState } from "../react-navigation";
+import { Platform } from "@xrnjs/modules-core";
+
 import { finishBundle } from "../../native/NavigationModule";
+import { XRNBundleNavigation } from "../../native/XRNBundleNavigation";
+import { InitialState } from "../react-navigation";
 
 export const goBack = (navigation?: { goBack: () => void } | null) => {
   if (Platform.OS === "ios") {
     // Page页面侧滑被禁止时，点击返回按钮返回上一级页面时，需要重置侧滑手势状态
-    NativeModules.BundleNavigation.gestureEnabled(true);
+    XRNBundleNavigation?.gestureEnabled?.(true);
   }
 
   if (navigation) {

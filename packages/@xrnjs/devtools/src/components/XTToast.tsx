@@ -12,7 +12,7 @@ import {
 interface ToastProps {
   visible: boolean;
   message: string;
-  duration?: number;
+  duration?: number; // 默认 2000ms
   onClose: () => void;
 }
 
@@ -28,13 +28,16 @@ const XTToast: React.FC<ToastProps> = ({
 
   useEffect(() => {
     if (visible) {
+      // 淡入
       Animated.timing(fadeAnim, {
         toValue: 1,
         duration: 200,
         useNativeDriver: true,
       }).start();
 
+      // 延迟关闭
       const timer = setTimeout(() => {
+        // 淡出
         Animated.timing(fadeAnim, {
           toValue: 0,
           duration: 200,

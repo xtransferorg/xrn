@@ -1,5 +1,5 @@
 import { RNInstance } from "@rnoh/react-native-openharmony";
-import { getRNInstance } from "xrn-multi-bundle";
+import { getRNInstance } from "@xrnjs/multi-bundle";
 import { getNavTopParam, ModuleRouteParams } from "../native/NavHelper";
 
 export function getNativeTopReactInstance(): RNInstance | undefined {

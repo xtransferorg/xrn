@@ -5,20 +5,25 @@ export interface Spec extends TurboModule {
   navPushBundleProject(
     bundleName: string,
     moduleName?: string,
-    params?: string
-  ): void;
+    params?: string,
+  ): boolean;
 
   navReplaceBundleProject(
     bundleName: string,
     moduleName?: string,
-    params?: string
-  ): void;
+    params?: string,
+  ): boolean;
 
-  publishSingleBundleEvent(eventName: string, params?: string): void;
+  publishSingleBundleEvent(eventName: string, params?: string): boolean;
 
-  publishAllBundleEvent(eventName: string, params?: string): void;
+  publishAllBundleEvent(eventName: string, params?: string): boolean;
 
-  goBack(): void;
+  goBack(): boolean;
+
+  gestureEnabled?(enable: boolean): boolean;
+
+  addListener?(eventName: string): void;
+  removeListeners?(count: number): void;
 }
 
 export default TurboModuleRegistry.get<Spec>("BundleNavigation") as Spec | null;

@@ -1,10 +1,11 @@
 package xrn.modules.navigation.reactnative.handler
 
+import android.app.Activity
 import xrn.modules.navigation.reactnative.bean.NavigationAction
 
 
 interface IActionHandler {
 
-    fun handle(originAction: NavigationAction): Boolean
+    fun handle(currentActivity: Activity, originAction: NavigationAction): Boolean
 
 }

@@ -1,0 +1,13 @@
+diff --git a/node_modules/@react-native-ohos/react-native-vision-camera/harmony/vision_camera/src/main/ets/manager/ScanManager.ts b/node_modules/@react-native-ohos/react-native-vision-camera/harmony/vision_camera/src/main/ets/manager/ScanManager.ts
+index 767229c..8c1b9b0 100644
+--- a/node_modules/@react-native-ohos/react-native-vision-camera/harmony/vision_camera/src/main/ets/manager/ScanManager.ts
++++ b/node_modules/@react-native-ohos/react-native-vision-camera/harmony/vision_camera/src/main/ets/manager/ScanManager.ts
+@@ -27,7 +27,7 @@ export default class ScanManager {
+     width: 0, height: 0
+   };
+   private codeType =
+-    ['unknown', 'aztec', 'codabar', 'code-39', 'code-93', 'code-128', 'data-matrix', 'ean-8', 'ean-13', 'itf',
++    ['unknown', 'aztec', 'codabar', 'code-39', 'code-93', 'code-128', 'data-matrix', 'ean-8', 'ean-13', 
+   'itf-14' ,'pdf-417', 'qr', 'upc-a', 'upc-e']
+   private isScanEnd: boolean = true;
+   private ctx!: RNOHContext;

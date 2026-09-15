@@ -65,6 +65,7 @@ static MBProgressHUD *_lottieHud = nil;
   if (_lottieHud) {
     return;
   }
+  _isComplete = NO;
   
   [_lottieHud hideAnimated:NO];
   _lottieHud = nil;
@@ -95,6 +96,7 @@ static MBProgressHUD *_lottieHud = nil;
 
 - (void)hideLoading {
   if (_hud) {
+    _isComplete = NO;
     [_hud hideAnimated:YES];
     _hud = nil;
   }
@@ -102,26 +104,34 @@ static MBProgressHUD *_lottieHud = nil;
 
 - (void)hideLottieLoading {
   if (_lottieHud) {
+    _isComplete = NO;
     [self.lottie removeAnimation];
     [_lottieHud hideAnimated:NO];
     _lottieHud = nil;
   }
 }
 
+static BOOL _isComplete = NO;
+
 - (void)updateProgress:(CGFloat)progress {
   if (_lottieHud) {
+    if (_isComplete) {
+      return;
+    }
     self.progressView.hidden = NO;
     self.tipLabel.frame = CGRectMake(-100, 25, 200, 20);
     // js传的值是0-100
     self.progress = progress / 100;
     if (self.progress >= 1.0) {
       self.progress = 1.0;
+      _isComplete = YES;
     }
     [self.progressView setProgress:self.progress animated:YES];
   }
 }
 
 - (UIView *)customLoadingView {
+  _isComplete = NO;
   self.progress = 0.0;
   [self.progressView setProgress:0.0 animated:NO];
   self.progressView.hidden = YES;
@@ -165,7 +175,7 @@ static MBProgressHUD *_lottieHud = nil;
   if (!_tipLabel) {
     _tipLabel = [[UILabel alloc] init];
     _tipLabel.frame = CGRectMake(-100, 0, 200, 20);
-    _tipLabel.text = @"loading...";
+    _tipLabel.text = NSLocalizedString(@"bundle_loading_tip", @"loading...");
     _tipLabel.font = [UIFont systemFontOfSize:16];
     _tipLabel.textAlignment = NSTextAlignmentCenter;
     _tipLabel.textColor = [UIColor blackColor];

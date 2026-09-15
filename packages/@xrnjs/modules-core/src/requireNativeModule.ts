@@ -1,5 +1,6 @@
 import { NativeModules, TurboModuleRegistry } from "react-native";
 
+import { createModuleProxy } from "./ModuleProxy";
 import Platform from "./Platform";
 
 const isHarmony = Platform.OS === "harmony";
@@ -13,23 +14,31 @@ const isHarmony = Platform.OS === "harmony";
  * @returns Object representing the native module.
  * @throws Error when there is no native module with given name.
  */
-export function requireNativeModule<ModuleType = any>(
-  moduleName: string
+export function requireNativeModule<ModuleType>(
+  moduleName: string,
 ): ModuleType {
   const nativeModule = requireOptionalNativeModule<ModuleType>(moduleName);
 
-  if (!isHarmony && !nativeModule) {
+  const module = createModuleProxy(moduleName, nativeModule);
+
+  if (!isHarmony && !module) {
     throw new Error(`Cannot find native module '${moduleName}'`);
   }
+  return module;
+}
 
-  /*
-  if (isHarmony) {
-    console.log("获取鸿蒙native module");
+export function isNativeModuleMethodAvailable(
+  moduleName: string,
+  methodName: string,
+): boolean {
+  const modTarget =
+    requireOptionalNativeModule<Record<string, unknown>>(moduleName);
+  if (!modTarget) {
+    return false;
   }
-  */
-
-  //@ts-ignore
-  return nativeModule;
+  return (
+    methodName in modTarget && typeof modTarget[methodName] !== "undefined"
+  );
 }
 
 /**
@@ -39,11 +48,11 @@ export function requireNativeModule<ModuleType = any>(
  * @param moduleName Name of the requested native module.
  * @returns Object representing the native module or `null` when it cannot be found.
  */
-export function requireOptionalNativeModule<ModuleType = any>(
-  moduleName: string
+function requireOptionalNativeModule<ModuleType = any>(
+  moduleName: string,
 ): ModuleType | null {
   const resolvedTurboModule = TurboModuleRegistry?.get(
-    moduleName
+    moduleName,
   ) as ModuleType | null;
   if (resolvedTurboModule) {
     return resolvedTurboModule;

@@ -14,6 +14,7 @@
 #import "XTNativeRouterManager.h"
 #import "BundleNavigation.h"
 #import "XRNNavigation.h"
+#import "XTNavigationLifecycleProtocol.h"
 #import "XTViewControllerProtocol.h"
 #import "JSONUtils.h"
 #import "XTBundleViewControllerProtocol.h"

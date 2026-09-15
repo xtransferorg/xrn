@@ -21,7 +21,7 @@ export type StackRouterStateIntercept<
   extraData?: StackRouterInterceptExtraData,
 ) => boolean;
 
-export default function StackRouter(intercept?: StackRouterStateIntercept) {
+export default function StackRouter(id?: string, intercept?: StackRouterStateIntercept) {
   return (options: StackRouterOptions) => {
     const originStackRouter = OriginStackRouter(options);
 
@@ -44,12 +44,35 @@ export default function StackRouter(intercept?: StackRouterStateIntercept) {
         return nextState;
       }, */
 
+      getInitialState(options) {
+        const initialState = originStackRouter.getInitialState(options);
+        return {
+          ...initialState,
+          key: id || initialState.key
+        };
+      },
+
+      getRehydratedState(partialState, options) {
+        if (partialState.stale === false) {
+          return partialState;
+        }
+
+        const rehydratedState = originStackRouter.getRehydratedState(
+          partialState,
+          options
+        );
+        return {
+          ...rehydratedState,
+          key: id || rehydratedState.key
+        };
+      },
+
       getStateForAction(state, action, options) {
         const prevState = state;
         const nextState = originStackRouter.getStateForAction(
           state,
           action,
-          options,
+          options
         );
 
         if (intercept && intercept(action, prevState, nextState) === false) {
@@ -57,7 +80,7 @@ export default function StackRouter(intercept?: StackRouterStateIntercept) {
         }
 
         return nextState;
-      },
+      }
     };
 
     return router;

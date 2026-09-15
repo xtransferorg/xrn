@@ -93,7 +93,7 @@ function StackNavigator({
       StackActionHelpers<ParamListBase>,
       StackNavigationOptions,
       StackNavigationEventMap
-    >(StackRouter(intercept), {
+    >(StackRouter(id, intercept), {
       id,
       initialRouteName,
       children,

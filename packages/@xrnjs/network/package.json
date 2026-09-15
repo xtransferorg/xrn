@@ -1,0 +1,88 @@
+{
+  "name": "@xrnjs/network",
+  "version": "0.1.0",
+  "description": "网络请求",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "autoDeployAPIDocs": true,
+  "scripts": {
+    "build": "xrn-module build",
+    "clean": "xrn-module clean",
+    "lint": "xrn-module lint",
+    "prepare": "npx xrn-module prepare",
+    "xrn-module": "xrn-module"
+  },
+  "files": [
+    "src",
+    "build",
+    "android",
+    "ios",
+    "harmony/*.har",
+    "harmony/xrn_network",
+    "!harmony/xrn_network/oh_modules",
+    "!harmony/xrn_network/build",
+    "!harmony/xrn_network/.hvigor",
+    "cpp",
+    "*.podspec",
+    "!ios/build",
+    "!android/build",
+    "!android/gradle",
+    "!android/gradlew",
+    "!android/gradlew.bat",
+    "!android/local.properties",
+    "!**/__tests__",
+    "!**/__fixtures__",
+    "!**/__mocks__",
+    "!**/.*"
+  ],
+  "keywords": [
+    "react-native",
+    "xrn",
+    "xrn-network",
+    "XRNNetwork"
+  ],
+  "repository": "https://github.com/xtransferorg/xrn",
+  "bugs": {
+    "url": "https://github.com/xtransferorg/xrn/issues"
+  },
+  "author": "",
+  "license": "MIT",
+  "homepage": "https://xtransferorg.github.io/versions/latest/sdk/network",
+  "devDependencies": {
+    "@types/react": "^18.0.25",
+    "nodemon": "^3.1.1",
+    "xrn-module-scripts": "*",
+    "xrn-tools": "*"
+  },
+  "peerDependencies": {
+    "@xrnjs/modules-core": "*",
+    "@xrnjs/multi-bundle": "*",
+    "@xrnjs/navigation": "*",
+    "react": "*",
+    "react-native": "*"
+  },
+  "harmony": {
+    "codegenConfig": {
+      "specPaths": [
+        "./src"
+      ]
+    }
+  },
+  "codegenConfig": {
+    "name": "XRNNetworkModuleSpec",
+    "type": "modules",
+    "jsSrcsDir": "./src",
+    "android": {
+      "javaPackageName": "xrn.modules.network"
+    }
+  },
+  "xrnMeta": {
+    "name": "XRNNetwork",
+    "title": "网络请求",
+    "showName": "XRNNetwork",
+    "group": "网络通信",
+    "description": "网络请求",
+    "packageName": "xrn-network",
+    "sdkPath": "network/xrn-network"
+  }
+}

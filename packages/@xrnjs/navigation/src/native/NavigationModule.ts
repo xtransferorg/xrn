@@ -14,7 +14,18 @@ const routerWithTitle = (routerConfigs: Array<any>) => {
   return {};
 };
 
-const completeParams = (params?: Params) => {
+const currentTime = () => new Date().getTime();
+
+const completeParams = (params: Params = {}) => {
+  const initialRouteParams = (params as any).initialRouteParams || {};
+  return Object.assign({}, params, {
+    initialRouteParams: Object.assign({}, initialRouteParams, {
+      _startTime: currentTime(),
+    }),
+  });
+};
+
+const completeEventParams = (params?: Params) => {
   return JSON.stringify(params || {});
 };
 
@@ -35,20 +46,26 @@ function finishBundle(): void {
  * @param params - 启动参数。
  * @throws {Error} 如果未提供 bundleName。
  *
- * @deprecated 请使用 `navigation.navigate()`。
+ * @deprecated 请使用 `navigation.navigate()`。参考文档修改代码：https://alidocs.dingtalk.com/i/nodes/r1R7q3QmWe7OEgkziOy0qY7aJxkXOEP2
  */
 function navigateBundle(
   bundleName: string,
   moduleName?: string,
   params?: Params
 ) {
+  console.warn("navigateBundle 已废弃，请使用 navigation.navigate()");
+
   if (!bundleName) {
     throw Error("bundleName不能为空");
   }
   XRNBundleNavigation.navPushBundleProject(
     bundleName,
     moduleName,
-    safeStringifyNavigationParams(bundleName, moduleName, params)
+    safeStringifyNavigationParams(
+      bundleName,
+      moduleName,
+      completeParams(params)
+    )
   );
 }
 
@@ -60,20 +77,26 @@ function navigateBundle(
  * @param params - 启动参数。
  * @throws {Error} 如果未提供 bundleName。
  *
- * @deprecated 请使用 `navigation.replace()`。
+ * @deprecated 请使用 `navigation.replace()`。参考文档修改代码：https://alidocs.dingtalk.com/i/nodes/r1R7q3QmWe7OEgkziOy0qY7aJxkXOEP2
  */
 function replaceBundle(
   bundleName: string,
   moduleName?: string,
   params?: Params
 ) {
+  console.warn("replaceBundle 已废弃，请使用 navigation.replace()");
+
   if (!bundleName) {
     throw Error("bundleName不能为空");
   }
   XRNBundleNavigation.navReplaceBundleProject(
     bundleName,
     moduleName,
-    safeStringifyNavigationParams(bundleName, moduleName, params)
+    safeStringifyNavigationParams(
+      bundleName,
+      moduleName,
+      completeParams(params)
+    )
   );
 }
 
@@ -90,7 +113,7 @@ function pushEvent(eventName: string, payload?: Params) {
   }
   XRNBundleNavigation.publishSingleBundleEvent(
     eventName,
-    completeParams(payload)
+    completeEventParams(payload)
   );
 }
 
@@ -105,7 +128,10 @@ function pushAllEvent(eventName: string, payload?: Params) {
   if (!eventName) {
     throw Error("eventName不能为空");
   }
-  XRNBundleNavigation.publishAllBundleEvent(eventName, completeParams(payload));
+  XRNBundleNavigation.publishAllBundleEvent(
+    eventName,
+    completeEventParams(payload)
+  );
 }
 
 /**
@@ -117,6 +143,17 @@ const getCurrentModuleInfo = async () => {
   return await XRNNavigation.getCurrentModuleInfo();
 };
 
+const setShouldInterceptSideSwipe = (
+  shouldIntercept: boolean,
+  routeKey: string
+) => {
+  XRNNavigation.setShouldInterceptSideSwipe(shouldIntercept, routeKey);
+};
+
+const confirmShouldSideSwipePop = () => {
+  XRNNavigation.confirmShouldSideSwipePop();
+};
+
 export {
   routerWithTitle,
   replaceBundle,
@@ -125,4 +162,6 @@ export {
   pushEvent,
   pushAllEvent,
   getCurrentModuleInfo,
+  setShouldInterceptSideSwipe,
+  confirmShouldSideSwipePop,
 };

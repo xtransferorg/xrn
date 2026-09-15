@@ -123,8 +123,13 @@ class ImageModuleImpl(val appContext: AppContext) : ImageModule {
         promise: Promise
     ) {
         MainScope().launch {
-            withContext(Dispatchers.IO) {
-                ImageLoadTask(appContext, source, options ?: ImageLoadOptions()).load(promise)
+            try {
+                val image = withContext(Dispatchers.IO) {
+                    ImageLoadTask(appContext, source, options ?: ImageLoadOptions()).load()
+                }
+                promise.resolve(image)
+            } catch (e: Exception) {
+                promise.reject(e)
             }
         }
     }

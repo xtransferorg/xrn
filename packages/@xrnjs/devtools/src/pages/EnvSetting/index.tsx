@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Modal,
-  Platform,
   Text,
   TextInput,
   TouchableOpacity,
@@ -10,15 +9,17 @@ import {
 } from "react-native";
 import env from "react-native-config";
 import { XRNAppUtils } from "@xrnjs/app-utils";
-import { Page } from "../../components/Page";
-import RequestManager from "./Network";
-import styles from "./style";
-import { getItemSync, setItemSync } from "../../utils/storage";
-import XTToast from "../../components/XTToast";
-import { ROUTES } from "../..";
-import { bundleList } from "../../utils/bundleManager";
 
-const platform = Platform.OS;
+import styles from "./style";
+import { ROUTES } from "../..";
+import { ResetCodePushKey } from "./ResetCodePushKey";
+import { Page } from "../../components/Page";
+import {
+  sensorsFundClick,
+  sensorsFundPageView,
+} from "../../utils/sensorsTrack";
+import { getItemSync } from "../../utils/storage";
+import { nativeToast } from "../../utils/toast";
 
 const DevSetting: React.FC = () => {
   const envUrl = env.ENV_NAME || "";
@@ -30,18 +31,18 @@ const DevSetting: React.FC = () => {
   const [selection, setSelection] = useState({ start: 0, end: 0 });
   const [loading, setLoading] = useState(false);
 
-  const [toastVisible, setToastVisible] = useState(false);
-  const [toastMsg, setToastMsg] = useState('');
+  if (value === "prod") {
+    nativeToast("不允许手动设置prod环境哦~");
+  }
 
-  const showToast = (msg: string, duration = 3000) => {
-    setToastMsg(msg);
-    setToastVisible(true);
-  };
+  useEffect(() => {
+    sensorsFundPageView({ module_name: `devtools_${ROUTES.EnvSetting}` });
+  }, []);
 
   useEffect(() => {
     setTimeout(() => {
       const position = _findFirstAndLastNumberPosition(value);
-      console.log(`postion, start=${position.start}, end=${position.end}`);
+      // console.log(`postion, start=${position.start}, end=${position.end}`);
       if (position.start === -1 && position.end === -1) {
         setSelection({ start: value.length, end: value.length });
       } else {
@@ -50,8 +51,9 @@ const DevSetting: React.FC = () => {
     }, 500);
   }, []);
 
+  // 计算url字符串中环境数字出现的位置
   const _findFirstAndLastNumberPosition = (
-    envName: string
+    envName: string,
   ): { start: number; end: number } => {
     let firstIndex: number | null = null;
     let lastIndex: number | null = null;
@@ -72,73 +74,34 @@ const DevSetting: React.FC = () => {
     return { start: -1, end: -1 };
   };
 
-  const _confirmClick = () => {
-    setItemSync("spUtils", "DEV_ENV_NAME", value);
-
-    // 切换codepush
-    _changeCodePushDevelopmentKey();
-  };
-
-  const _parseEnv = (envName: string): string | null => {
-    if (envName.startsWith("api-")) {
-      return envName.slice(4);
+  const _confirmClick = async () => {
+    if (value === "prod") {
+      nativeToast("不允许手动设置prod环境哦~");
+      return;
     }
-    return envName;
-  };
 
-  const _parseCodePushDevelopmentKey = (data: any): string | undefined => {
-    return data?.deployments?.[0]?.key;
-  };
-
-  const _changeCodePushDevelopmentKey = async () => {
-    setLoading(true);
-    const bundles = await bundleList();
-    const env = _parseEnv(value);
-    const urls = bundles.map((item: any) => {
-      const url = `http://cp.xxxx/apps/${item?.bundleName}-${platform}-${env}/deployments/`;
-      return url;
-    });
-
-    const manager = new RequestManager(1, 5000);
     try {
-      const results = await manager.executeRequests(urls);
-      setLoading(false);
+      setLoading(true);
+      await ResetCodePushKey(value);
 
-      for (let index = 0; index < bundles.length; index++) {
-        const element = bundles[index];
-        const requestRes = results[index];
-
-        if (!__DEV__) {
-          if (requestRes?.data?.error === "406") {
-            showToast(`${env}环境的codepush key未创建！`)
-            return;
-          } else if (requestRes?.data?.error) {
-            showToast(`请求${env}环境的codepush key失败`)
-            return;
-          }
-        }
-
-        const developmentKey = _parseCodePushDevelopmentKey(requestRes?.data) || "";
-        console.log(`developmentKey：${element?.bundleName}`, developmentKey);
-        setItemSync(
-          "dev_support",
-          `${element?.bundleName}-codepush-key`,
-          developmentKey,
-        );
-      }
-
-      showToast(`环境切换成功，重新APP后生效~`)
+      nativeToast(`环境切换成功，重新APP后生效~`);
       setTimeout(() => {
         XRNAppUtils.exitApp();
       }, 3000);
     } catch (error) {
+      console.log("ResetCodePushKey failed:", error);
+    } finally {
       setLoading(false);
-      console.error("Error during requests:", error);
     }
+
+    sensorsFundClick({
+      button_name: "devtools_btn_click",
+      devtools_click_btn_name: "设置环境页 保存并重启",
+    });
   };
 
   return (
-    <Page title="设置环境" hideHeader>
+    <Page title="设置环境">
       <View style={styles.container}>
         <View style={styles.content}>
           <Text style={styles.tipStyle}>设置环境，不需要带api-</Text>
@@ -175,12 +138,6 @@ const DevSetting: React.FC = () => {
           </View>
         </View>
       </Modal>
-      <XTToast
-        visible={toastVisible}
-        message={toastMsg}
-        duration={3000}
-        onClose={() => setToastVisible(false)}
-      />
     </Page>
   );
 };

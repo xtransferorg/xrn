@@ -18,6 +18,10 @@ import { nativeToast } from "../../utils/toast";
 import StorageUtil from "../../utils/StorageUtil";
 import StorageKeys from "../../constants/StorageKeys";
 import { BrowsingHistory } from "./type";
+import {
+  sensorsFundClick,
+  sensorsFundPageView,
+} from "../../utils/sensorsTrack";
 import { ROUTES } from "../..";
 import URLParse from "url-parse";
 import { navigateBundle } from "../../core/navigate";
@@ -27,30 +31,42 @@ const AppLinking: React.FC = (props: any) => {
   const textInputRef = useRef<TextInput>(null);
   const [value, onChangeText] = useState<string>("");
 
+  useEffect(() => {
+    sensorsFundPageView({ module_name: `devtools_${ROUTES.AppLinking}` });
+  }, []);
+
   const _copyUrl = useCallback(() => {
     Clipboard.setString(
-      "xrn://xrn/v1/sub-bundle/sub-bundle/demo"
+      "xtransfer://xtransfer/v1/xt-app-fund/Exchange/FxRate?where=widget_trend_medium&baseCurrency=USD&targetCurrency=CNY&type=DAY"
     );
     nativeToast("复制成功！");
+    sensorsFundClick({
+      button_name: "devtools_btn_click",
+      devtools_click_btn_name: "任意门 复制url",
+    });
   }, []);
 
   const _linkingUrl = () => {
-    if (value.includes("xrn://xrn/v1")) {
+    if (value.includes("xtransfer://xtransfer/v1")) {
       _saveUrlToStorage(value);
 
       const { query } = URLParse(value, true);
-      const [bundleName, moduleName, pageName] = parseSchemeURL(value) ?? [];
+      const [bundleName, moduleName, pageName] = parseXTransferURL(value) ?? [];
       navigateBundle(bundleName, moduleName, {
         initialRouteName: pageName,
         initialRouteParams: query,
+      });
+      sensorsFundClick({
+        button_name: "devtools_btn_click",
+        devtools_click_btn_name: "任意门 openUrl",
       });
     } else {
       nativeToast("url 格式不正确！");
     }
   };
 
-  const parseSchemeURL = useCallback((url: string) => {
-    const regex = /xrn:\/\/xrn\/v1\/([^\/]+)\/([^\/]+)\/([^\/?]+)/;
+  const parseXTransferURL = useCallback((url: string) => {
+    const regex = /xtransfer:\/\/xtransfer\/v1\/([^\/]+)\/([^\/]+)\/([^\/?]+)/;
     const match = url.match(regex);
     if (match) {
       return [match[1], match[2], match[3]];
@@ -59,7 +75,7 @@ const AppLinking: React.FC = (props: any) => {
   }, []);
 
   const _formatBrowsingHistoryObj = useCallback((url: string) => {
-    const parseObj = parseSchemeURL(url);
+    const parseObj = parseXTransferURL(url);
     if (parseObj) {
       const [bundleName, moduleName, pageName] = parseObj;
       const newHistory: BrowsingHistory = {
@@ -100,6 +116,10 @@ const AppLinking: React.FC = (props: any) => {
 
   const _routeHistory = useCallback(() => {
     navigation?.navigate("SchemeHistory");
+    sensorsFundClick({
+      button_name: "devtools_btn_click",
+      devtools_click_btn_name: "任意门 跳转历史搜索列表",
+    });
   }, []);
 
   const renderRightButton = () => {
@@ -116,7 +136,7 @@ const AppLinking: React.FC = (props: any) => {
   const rightButton = useNavRightButton(renderRightButton);
 
   return (
-    <Page title="任意门" rightButton={rightButton} hideHeader>
+    <Page title="任意门" rightButton={rightButton}>
       <ScrollView>
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss}>
           <View style={styles.container}>
@@ -126,11 +146,13 @@ const AppLinking: React.FC = (props: any) => {
               </Text>
               <Text style={styles.urlRule}>scheme url拼接规则：</Text>
               <Text style={styles.urlStr}>
-              xrn://xrn/v1/bundleName/moduleName/pageName?params
+                xtransfer://xtransfer/v1/bundleName/moduleName/pageName?params
               </Text>
               <Text style={styles.exampleUrl}>url示例 (点击可复制)：</Text>
               <TouchableOpacity onPress={() => _copyUrl()}>
-                <Text style={styles.urlStr}>xrn://xrn/v1/sub-bundle/sub-bundle/demo</Text>
+                <Text style={styles.urlStr}>
+                  xtransfer://xtransfer/v1/xt-app-fund/Exchange/FxRate?where=widget_trend_medium&baseCurrency=USD&targetCurrency=CNY&type=DAY
+                </Text>
               </TouchableOpacity>
               <TextInput
                 ref={textInputRef}

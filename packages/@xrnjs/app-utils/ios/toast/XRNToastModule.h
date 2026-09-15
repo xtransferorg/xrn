@@ -6,12 +6,10 @@
 //  Copyright © 2025 Facebook. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
-#import <React/RCTBridgeModule.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface XRNToastModule : NSObject<RCTBridgeModule>
+@interface XRNToastModule : NSObject
 
 @end
 

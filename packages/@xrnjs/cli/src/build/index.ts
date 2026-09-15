@@ -1,64 +1,84 @@
 #!/usr/bin/env node
 
-import { Platform, BuildType } from "./typing";
+import { BuildType, TimingTrackerStage } from "./typing";
 import { buildJobContext } from "./BuildJobContext";
+import { timingTracker } from "./TimingTracker";
 import logger from "../utlis/logger";
 import { prepareBundle } from "./bundle/prepareBundle";
+import {
+  generateNativeBaseLine,
+  moveCommonBundleToBaseLine,
+  generateSvgBaseLine,
+  generateSignatureBaseLine,
+  generateBundleResources,
+} from "../codePush/diff";
 import { execShellCommand } from "./utils/shell";
-import { publishFirstCodePush } from "../codePush/publishFirst";
-import { AndroidBuilder } from "./builders/AndroidBuilder";
-import { IOSBuilder } from "./builders/IOSBuilder";
-import { HarmonyBuilder } from "./builders/HarmonyBuilder";
-import { BaseBuilder } from "./builders/BaseBuilder";
-import { DEFAULT_META_CONFIG } from "./constants/meta";
+import { getBuilder } from "./builders";
+import { prepareCommonBundle } from "./bundle/prepareCommonBundle";
+import fs from "fs-extra";
+import path from "path";
 
-/**
- * Main build function for creating app packages
- * Orchestrates the complete build process including bundle preparation, 
- * platform-specific building, and optional CodePush publishing
- * 
- * @returns Promise resolving to build results
- * @throws Error and exits process if build fails
- */
+// ========== 主流程重构 =============
+
 export async function build() {
+  timingTracker.time(TimingTrackerStage.TOTAL);
+
   try {
-    const { rootPath, buildType, shouldFirstCodePush, skipBundle } =
+    const { rootPath, buildType, shouldFirstCodePush, buildEnv } =
       buildJobContext;
 
-    // Prepare bundle
-    let meta = DEFAULT_META_CONFIG;
-    if (!skipBundle) {
-      const { meta: m } = await prepareBundle();
-      meta = m;
-    }
+    // 打印当前仓库 commit hash
+    const commitId = await execShellCommand(`git rev-parse HEAD`, {
+      cwd: rootPath,
+    });
+    logger.info("当前仓库 commit hash: " + commitId);
+
+
+    // 清理各平台的 bundle 产物目录
+    const builder = getBuilder();
+    await builder.cleanBundleDir();
+
+    // 准备 bundle
+    const meta = await prepareCommonBundle();
     buildJobContext.meta = meta;
 
-    // Publish first CodePush if needed for release builds
-    if (buildType === BuildType.RELEASE && shouldFirstCodePush) {
-      await publishFirstCodePush();
-    }
+    // 构建 bundle
+    await prepareBundle();
 
-    // Create platform-specific builder
-    let builder: BaseBuilder;
-    switch (buildJobContext.platform) {
-      case Platform.Android:
-        builder = new AndroidBuilder(buildJobContext, meta);
-        break;
-      case Platform.iOS:
-        builder = new IOSBuilder(buildJobContext, meta);
-        break;
-      case Platform.Harmony:
-        builder = new HarmonyBuilder(buildJobContext, meta);
-        break;
-      default:
-        throw new Error("不支持的平台类型");
-    }
-
+    // 构建原生包
     const buildResults = await builder.run();
+
+    if (buildJobContext.nativeRoot) {
+      await fs.ensureDir(buildJobContext.nativeRoot);
+      for (const result of buildResults) {
+        if (!result.filePath || result.fileName.endsWith(".manifest")) continue;
+        await fs.copy(result.filePath, path.join(buildJobContext.nativeRoot, result.fileName), { overwrite: true });
+      }
+      logger.info(`安装包已复制到原生工程根目录: ${buildJobContext.nativeRoot}`);
+    }
+
+    // 生成原生基线依赖和 common meta 文件
+    await generateNativeBaseLine(rootPath, meta);
+
+    if (buildJobContext.unpacking) {
+      await moveCommonBundleToBaseLine(rootPath);
+    }
+
+    if (buildJobContext.buildType === BuildType.RELEASE) {
+      await generateSvgBaseLine(rootPath, buildJobContext);
+      await generateBundleResources();
+    }
+    await generateSignatureBaseLine(rootPath, buildJobContext);
+    // await commitDiffHash(rootPath, buildJobContext);
+
+    logger.info("构建完成");
+
+    timingTracker.timeEnd(TimingTrackerStage.TOTAL);
 
     return buildResults;
   } catch (error) {
-    console.error(error);
+    logger.error(error);
+    timingTracker.timeEnd(TimingTrackerStage.TOTAL);
     process.exit(1);
   }
 }

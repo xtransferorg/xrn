@@ -1,25 +1,16 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import * as Log from "./utils/log";
-import logger from "../utlis/logger";
 
 const CTRL_C = "\u0003";
 
-/**
- * Abstract key stroke interceptor for handling keyboard input in interactive CLI
- * Manages raw mode input handling and provides a clean interface for key press events
- */
+/** An abstract key stroke interceptor. */
 export class KeyPressHandler {
   private isInterceptingKeyStrokes = false;
   private isHandlingKeyPress = false;
 
   constructor(public onPress: (key: string) => Promise<void>) {}
 
-  /**
-   * Create an interaction listener for handling pause/resume events
-   * This is useful for supporting interactive prompts and other input scenarios
-   * 
-   * @returns A listener function that can be used to handle interaction state changes
-   */
+  /** Start observing interaction pause listeners. */
   createInteractionListener() {
     // Support observing prompts.
     let wasIntercepting = false;
@@ -39,12 +30,6 @@ export class KeyPressHandler {
     return listener;
   }
 
-  /**
-   * Internal handler for key press events
-   * Prevents multiple simultaneous key press handling and manages the processing state
-   * 
-   * @param key - The pressed key character
-   */
   private handleKeypress = async (key: string) => {
     // Prevent sending another event until the previous event has finished.
     if (this.isHandlingKeyPress && key !== CTRL_C) {
@@ -52,18 +37,16 @@ export class KeyPressHandler {
     }
     this.isHandlingKeyPress = true;
     try {
-      logger.info(`Key pressed: ${key}`);
+      console.log(`Key pressed: ${key}`);
       await this.onPress(key);
     } catch (error) {
+      // Log.error(error)
     } finally {
       this.isHandlingKeyPress = false;
     }
   };
 
-  /**
-   * Start intercepting all key strokes and passing them to the input `onPress` method
-   * Enables raw mode on stdin to capture individual key presses
-   */
+  /** Start intercepting all key strokes and passing them to the input `onPress` method. */
   startInterceptingKeyStrokes() {
     if (this.isInterceptingKeyStrokes) {
       return;
@@ -83,10 +66,7 @@ export class KeyPressHandler {
     stdin.on("data", this.handleKeypress);
   }
 
-  /**
-   * Stop intercepting all key strokes
-   * Disables raw mode and removes event listeners
-   */
+  /** Stop intercepting all key strokes. */
   stopInterceptingKeyStrokes() {
     if (!this.isInterceptingKeyStrokes) {
       return;

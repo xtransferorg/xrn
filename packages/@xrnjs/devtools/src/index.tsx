@@ -7,14 +7,13 @@ import DebugCenter from "./pages/DebugCenter";
 import DeviceInfo from "./pages/DeviceInfo";
 import EnvSetting from "./pages/EnvSetting";
 import RouteInfo from "./pages/RouteInfo";
-import DebugCommon from "./pages/DebugCommon";
 import SchemeHistory from "./pages/AppLinking/History/SchemeHistory";
 import NetworkInfo from "./pages/Network";
 import NetworkDetail from "./pages/Network/NetworkDetail";
 import ScanQRPage from "./pages/ScanPage";
 import FeedBack from "./pages/FeedBack";
+import NetworkDiagnosis from "./pages/NetDiagnosis";
 import CodepushInfo from "./pages/BundleInfo";
-import NetworkDiagnosis from "./pages/NetDiagnosis"
 
 export enum ROUTES {
   DebugCenter = "DebugCenter", // debug面板中心
@@ -24,14 +23,14 @@ export enum ROUTES {
   AppInfo = "AppInfo", // App信息
   AppLinking = "AppLinking", // 任意门
   RouteInfo = "RouteInfo", // 路由信息
-  DebugCommon = "DebugCommon", // common包调试支持
   SchemeHistory = "SchemeHistory", // 任意门路由历史
   NetworkInfo = "NetworkInfo", // 网络日志列表
   NetworkDetail = "NetworkDetail", // 网络日志详情
-  NetworkDiagnosis = "NetworkDiagnosis", // 网络诊断
   ScanQRPage = "ScanQRPage", // 扫描二维码
   FeedBack = "FeedBack", // 评分反馈
+  NetworkDiagnosis = "NetworkDiagnosis", // 网络诊断
   CodepushInfo = "CodepushInfo", // bundle codepush 信息
+  CookieSetting = "CookieSetting", // 设置Cookie
 }
 
 export const DebugPanelRouters = [
@@ -64,10 +63,6 @@ export const DebugPanelRouters = [
     component: RouteInfo,
   },
   {
-    path: ROUTES.DebugCommon,
-    component: DebugCommon,
-  },
-  {
     path: ROUTES.SchemeHistory,
     component: SchemeHistory,
   },
@@ -80,10 +75,6 @@ export const DebugPanelRouters = [
     component: NetworkDetail,
   },
   {
-    path: ROUTES.NetworkDiagnosis,
-    component: NetworkDiagnosis,
-  },
-  {
     path: ROUTES.ScanQRPage,
     component: ScanQRPage,
   },
@@ -92,11 +83,14 @@ export const DebugPanelRouters = [
     component: FeedBack,
   },
   {
+    path: ROUTES.NetworkDiagnosis,
+    component: NetworkDiagnosis,
+  },
+  {
     path: ROUTES.CodepushInfo,
     component: CodepushInfo,
   },
 ];
 
-startNetworkLogging({
-  // ignoredUrls: [''],
-});
+console.log("开启网络日志收集🐯🐯🐯");
+startNetworkLogging({});

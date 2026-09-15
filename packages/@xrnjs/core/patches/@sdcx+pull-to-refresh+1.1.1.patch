@@ -1,0 +1,234 @@
+diff --git a/node_modules/@sdcx/pull-to-refresh/ios/RNPullToRefreshHeader.mm b/node_modules/@sdcx/pull-to-refresh/ios/RNPullToRefreshHeader.mm
+index e1281df..4fe3558 100644
+--- a/node_modules/@sdcx/pull-to-refresh/ios/RNPullToRefreshHeader.mm
++++ b/node_modules/@sdcx/pull-to-refresh/ios/RNPullToRefreshHeader.mm
+@@ -66,6 +66,7 @@ - (instancetype)initWithFrame:(CGRect)frame {
+ }
+ 
+ - (void)prepareForRecycle {
++	[self restoreScrollViewContentInsetIfNeeded];
+ 	[super prepareForRecycle];
+ 	_isInitialRender = YES;
+ 	_hasObserver = NO;
+@@ -74,19 +75,37 @@ - (void)prepareForRecycle {
+ }
+ 
+ - (void)dealloc {
+-	// Ensure observer removed to avoid crashes
++	[self restoreScrollViewContentInsetIfNeeded];
+ 	[self removeObserver];
+ }
+ 
++- (void)restoreScrollViewContentInsetIfNeeded {
++	if (_state == RNRefreshStateRefreshing && self.scrollView) {
++		UIEdgeInsets insets = self.scrollView.contentInset;
++		self.scrollView.contentInset = UIEdgeInsetsMake(self.topInset, insets.left, insets.bottom, insets.right);
++	}
++}
++
+ - (void)updateState:(const facebook::react::State::Shared &)state oldState:(const facebook::react::State::Shared &)oldState {
+ 	[super updateState:state oldState:oldState];
+ }
+ 
+ - (void)updateLayoutMetrics:(const facebook::react::LayoutMetrics &)layoutMetrics oldLayoutMetrics:(const facebook::react::LayoutMetrics &)oldLayoutMetrics {
+ 	[super updateLayoutMetrics:layoutMetrics oldLayoutMetrics:oldLayoutMetrics];
+-	RCTLogInfo(@"pull-to-refresh-frame:%f", layoutMetrics.frame.origin.y);
++	
++	CGFloat height = self.bounds.size.height;
++	if (height > 0) {
++		CGFloat correctY = -height + self.progressViewOffset;
++		CGRect frame = self.frame;
++		if (fabs(frame.origin.y - correctY) > 0.5) {
++			self.frame = CGRectMake(frame.origin.x, correctY, frame.size.width, frame.size.height);
++		}
++	}
++	
+ 	if (layoutMetrics.frame.origin.y < self.progressViewOffset) {
+ 		self.hidden = NO;
++	} else if (layoutMetrics.frame.origin.y == self.progressViewOffset && self.state == RNRefreshStateIdle) {
++		self.hidden = YES;
+ 	}
+ 
+ 	if (self.scrollView) {
+@@ -144,6 +163,7 @@ - (void)willMoveToWindow:(UIWindow *)newWindow {
+ 		[self attachToNearestScrollViewIfNeeded];
+ 		[self addObserver];
+ 	} else {
++		[self restoreScrollViewContentInsetIfNeeded];
+ 		[self removeObserver];
+ 	}
+ }
+@@ -173,7 +193,7 @@ - (void)attachToNearestScrollViewIfNeeded {
+ 	}
+ 
+ 	if (found && found != self.scrollView) {
+-		RCTLogInfo(@"[pull-to-refresh] attaching header to nearest UIScrollView: %@", found);
++		// RCTLogInfo(@"[pull-to-refresh] attaching header to nearest UIScrollView: %@", found);
+ 		[self setScrollView:found];
+ 		[self removeFromSuperview];
+ 		[self.scrollView addSubview:self];
+@@ -309,6 +329,7 @@ - (void)endRefreshing {
+ }
+ 
+ - (void)setState:(RNRefreshState)state {
++	// NSLog(@"setStateAAA：%ld", state);
+ 	if (_isInitialRender) {
+ 		_state = state;
+ 		return;
+@@ -331,7 +352,7 @@ - (void)setState:(RNRefreshState)state {
+ 		return;
+ 	}
+ 	
+-	RCTLogInfo(@"[pull-to-refresh] ReleaseToRefresh");
++	// RCTLogInfo(@"[pull-to-refresh] ReleaseToRefresh");
+ 	[self eventEmitter].onStateChanged({
+ 		.state = static_cast<int>(state)
+ 	});
+@@ -339,7 +360,7 @@ - (void)setState:(RNRefreshState)state {
+ 
+ - (void)settleToRefreshing {
+ 	[self animateToRefreshingState:^(BOOL finished) {
+-		RCTLogInfo(@"[pull-to-refresh] Refreshing");
++		// RCTLogInfo(@"[pull-to-refresh] Refreshing");
+ 		[self eventEmitter].onStateChanged({
+ 			.state = static_cast<int>(RNRefreshStateRefreshing)
+ 		});
+@@ -349,11 +370,12 @@ - (void)settleToRefreshing {
+ 
+ - (void)settleToIdle {
+ 	[self animateToIdleState:^(BOOL finished) {
+-		RCTLogInfo(@"[pull-to-refresh] None");
++		// RCTLogInfo(@"[pull-to-refresh] None");
+ 		[self eventEmitter].onStateChanged({
+ 			.state = static_cast<int>(RNRefreshStateIdle)
+ 		});
+ 		
++		self.hidden = YES;
+ 	}];
+ }
+ 
+@@ -363,6 +385,9 @@ - (void)animateToIdleState:(void (^ __nullable)(BOOL finished))completion {
+ 		if (!scrollView) return;
+ 		UIEdgeInsets insets = scrollView.contentInset;
+ 		scrollView.contentInset = UIEdgeInsetsMake(self.topInset, insets.left, insets.bottom, insets.right);
++		if (scrollView.contentOffset.y < -self.topInset) {
++			scrollView.contentOffset = CGPointMake(scrollView.contentOffset.x, -self.topInset);
++		}
+ 	} completion:completion];
+ }
+ 
+diff --git a/node_modules/@sdcx/pull-to-refresh/src/Footer/PullToRefreshFooterNativeComponent.ts b/node_modules/@sdcx/pull-to-refresh/src/Footer/PullToRefreshFooterNativeComponent.ts
+index 6852452..df6685f 100644
+--- a/node_modules/@sdcx/pull-to-refresh/src/Footer/PullToRefreshFooterNativeComponent.ts
++++ b/node_modules/@sdcx/pull-to-refresh/src/Footer/PullToRefreshFooterNativeComponent.ts
+@@ -1,23 +1,24 @@
+-import type { HostComponent, ViewProps, CodegenTypes } from 'react-native';
+-import { codegenNativeComponent } from 'react-native';
++import type { HostComponent, ViewProps } from 'react-native';
++import type { DirectEventHandler, WithDefault, Float, Int32 } from 'react-native/Libraries/Types/CodegenTypes';
++import codegenNativeComponent from 'react-native/Libraries/Utilities/codegenNativeComponent';
+ 
+ export interface StateChangedEventPayload {
+-	state: CodegenTypes.Int32;
++	state: Int32;
+ }
+ 
+ export interface OffsetChangedEventPayload {
+-	offset: CodegenTypes.Float;
++	offset: Float;
+ }
+ 
+ interface RefreshingEventPayload {}
+ 
+ export interface NativeProps extends ViewProps {
+-	onRefresh?: CodegenTypes.DirectEventHandler<RefreshingEventPayload>;
+-	onStateChanged?: CodegenTypes.DirectEventHandler<StateChangedEventPayload>;
+-	onOffsetChanged?: CodegenTypes.DirectEventHandler<OffsetChangedEventPayload>;
+-	refreshing?: CodegenTypes.WithDefault<boolean, false>;
+-	noMoreData?: CodegenTypes.WithDefault<boolean, false>;
+-	manual?: CodegenTypes.WithDefault<boolean, false>;
++	onRefresh?: DirectEventHandler<RefreshingEventPayload>;
++	onStateChanged?: DirectEventHandler<StateChangedEventPayload>;
++	onOffsetChanged?: DirectEventHandler<OffsetChangedEventPayload>;
++	refreshing?: WithDefault<boolean, false>;
++	noMoreData?: WithDefault<boolean, false>;
++	manual?: WithDefault<boolean, false>;
+ }
+ 
+ export default codegenNativeComponent<NativeProps>('PullToRefreshFooter', {
+diff --git a/node_modules/@sdcx/pull-to-refresh/src/Header/PullToRefreshHeaderNativeComponent.ts b/node_modules/@sdcx/pull-to-refresh/src/Header/PullToRefreshHeaderNativeComponent.ts
+index 1493843..f3b7669 100644
+--- a/node_modules/@sdcx/pull-to-refresh/src/Header/PullToRefreshHeaderNativeComponent.ts
++++ b/node_modules/@sdcx/pull-to-refresh/src/Header/PullToRefreshHeaderNativeComponent.ts
+@@ -1,22 +1,23 @@
+-import type { HostComponent, ViewProps, CodegenTypes } from 'react-native';
+-import { codegenNativeComponent } from 'react-native';
++import type { HostComponent, ViewProps } from 'react-native';
++import type { DirectEventHandler, WithDefault, Float, Int32 } from 'react-native/Libraries/Types/CodegenTypes';
++import codegenNativeComponent from 'react-native/Libraries/Utilities/codegenNativeComponent';
+ 
+ export interface StateChangedEventPayload {
+-	state: CodegenTypes.Int32;
++	state: Int32;
+ }
+ 
+ export interface OffsetChangedEventPayload {
+-	offset: CodegenTypes.Float;
++	offset: Float;
+ }
+ 
+ interface RefreshingEventPayload {}
+ 
+ export interface NativeProps extends ViewProps {
+-	onRefresh?: CodegenTypes.DirectEventHandler<RefreshingEventPayload>;
+-	onStateChanged?: CodegenTypes.DirectEventHandler<StateChangedEventPayload>;
+-	onOffsetChanged?: CodegenTypes.DirectEventHandler<OffsetChangedEventPayload>;
+-	refreshing?: CodegenTypes.WithDefault<boolean, false>;
+-	progressViewOffset?: CodegenTypes.Float | undefined;
++	onRefresh?: DirectEventHandler<RefreshingEventPayload>;
++	onStateChanged?: DirectEventHandler<StateChangedEventPayload>;
++	onOffsetChanged?: DirectEventHandler<OffsetChangedEventPayload>;
++	refreshing?: WithDefault<boolean, false>;
++	progressViewOffset?: Float | undefined;
+ }
+ 
+ export default codegenNativeComponent<NativeProps>('PullToRefreshHeader', {
+diff --git a/node_modules/@sdcx/pull-to-refresh/src/PullToRefresh/PullToRefreshNativeComponent.ts b/node_modules/@sdcx/pull-to-refresh/src/PullToRefresh/PullToRefreshNativeComponent.ts
+index 3f2ad87..9cdebca 100644
+--- a/node_modules/@sdcx/pull-to-refresh/src/PullToRefresh/PullToRefreshNativeComponent.ts
++++ b/node_modules/@sdcx/pull-to-refresh/src/PullToRefresh/PullToRefreshNativeComponent.ts
+@@ -1,8 +1,9 @@
+-import type { HostComponent, ViewProps, CodegenTypes } from 'react-native';
+-import { codegenNativeComponent } from 'react-native';
++import type { HostComponent, ViewProps } from 'react-native';
++import type { WithDefault } from 'react-native/Libraries/Types/CodegenTypes';
++import codegenNativeComponent from 'react-native/Libraries/Utilities/codegenNativeComponent';
+ 
+ export interface NativeProps extends ViewProps {
+-	requestDisallowInterceptTouchEvent?: CodegenTypes.WithDefault<boolean, true>;
++	requestDisallowInterceptTouchEvent?: WithDefault<boolean, true>;
+ }
+ 
+ export default codegenNativeComponent<NativeProps>('PullToRefresh') as HostComponent<NativeProps>;
+diff --git a/node_modules/@sdcx/pull-to-refresh/src/Header/index.tsx b/node_modules/@sdcx/pull-to-refresh/src/Header/index.tsx
+index fb56e4e..046d41b 100644
+--- a/node_modules/@sdcx/pull-to-refresh/src/Header/index.tsx
++++ b/node_modules/@sdcx/pull-to-refresh/src/Header/index.tsx
+@@ -1,5 +1,5 @@
+ import React, { Component, ReactNode } from 'react';
+-import { findNodeHandle, NativeSyntheticEvent, UIManager, ViewProps } from 'react-native';
++import { findNodeHandle, NativeSyntheticEvent, UIManager, ViewProps, Platform } from 'react-native';
+ import {
+ 	PullToRefreshOffsetChangedEvent,
+ 	PullToRefreshState,
+@@ -35,6 +35,10 @@ class PullToRefreshHeader extends Component<NativePullToRefreshHeaderProps> {
+ 	_onRefresh = () => {
+ 		this._lastNativeRefreshing = true;
+ 		this.props?.onRefresh?.();
++		if (Platform.OS === 'ios') {
++			// 解决在ios下，重新触发下拉刷新bug
++			return;
++		}
+ 		this.forceUpdate();
+ 	};
+ 

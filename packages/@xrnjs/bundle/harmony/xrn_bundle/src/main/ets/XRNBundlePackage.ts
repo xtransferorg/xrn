@@ -9,19 +9,28 @@ import type {
 import { TM } from "@rnoh/react-native-openharmony/generated/ts";
 import { XRNBundleModule } from './XRNBundleModule';
 import { RNPackageContext } from "@rnoh/react-native-openharmony/src/main/ets/RNOH/RNPackage";
+import { BundleInfoUpdatable } from '@xrnjs/modules-core/ts'
 
-class XRNBundleModulesFactory extends TurboModulesFactory {
+class XRNBundleModulesFactory extends TurboModulesFactory implements BundleInfoUpdatable {
 
   bundleName: string
+  serverUrl: string
+  commonHash: string
 
-  constructor(ctx: TurboModuleContext, bundleName: string) {
+  constructor(ctx: TurboModuleContext, bundleName: string, serverUrl: string, commonHash: string) {
     super(ctx)
     this.bundleName = bundleName;
+    this.serverUrl = serverUrl;
+    this.commonHash = commonHash;
+  }
+
+  updateBundleInfo(bundleName: string): void {
+    this.bundleName = bundleName
   }
 
   createTurboModule(name: string): TurboModule | null {
     if (name === TM.XRNBundleModule.NAME) {
-      return new XRNBundleModule(this.ctx, this.bundleName);
+      return new XRNBundleModule(this.ctx, this.bundleName, this.serverUrl, this.commonHash);
     }
     return null;
   }
@@ -34,13 +43,17 @@ class XRNBundleModulesFactory extends TurboModulesFactory {
 export class XRNBundlePackage extends RNPackage {
 
   bundleName: string
+  serverUrl: string
+  commonHash: string
 
-  constructor(ctx: RNPackageContext, bundleName: string) {
+  constructor(ctx: RNPackageContext, bundleName: string, serverUrl: string, commonHash: string) {
     super(ctx);
     this.bundleName = bundleName;
+    this.serverUrl = serverUrl;
+    this.commonHash = commonHash;
   }
 
   createTurboModulesFactory(ctx: TurboModuleContext): TurboModulesFactory {
-    return new XRNBundleModulesFactory(ctx, this.bundleName);
+    return new XRNBundleModulesFactory(ctx, this.bundleName, this.serverUrl, this.commonHash);
   }
 }

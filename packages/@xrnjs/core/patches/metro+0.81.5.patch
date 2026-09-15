@@ -1,0 +1,190 @@
+diff --git a/node_modules/metro/src/HmrServer.js b/node_modules/metro/src/HmrServer.js
+index 2335c1d..96fb878 100644
+--- a/node_modules/metro/src/HmrServer.js
++++ b/node_modules/metro/src/HmrServer.js
+@@ -228,6 +228,17 @@ class HmrServer {
+   async _prepareMessage(group, options, changeEvent) {
+     const logger = !options.isInitialUpdate ? changeEvent?.logger : null;
+     try {
++      if (this._config.onDynamicHmrConfig) {
++        const platform = group.clientUrl?.query?.platform;
++        const config = await this._config.onDynamicHmrConfig(this._config, {
++          platform,
++        });
++        Object.assign(this._config, config);
++        if (!config.isInitialed) {
++          // 已经初始化过了，不需要再初始化，否则会导致 ID 重置，HMR 失效
++          this._createModuleId = this._config.serializer.createModuleIdFactory();
++        }
++      }
+       const revPromise = this._bundler.getRevision(group.revisionId);
+       if (!revPromise) {
+         return {
+diff --git a/node_modules/metro/src/Server.js b/node_modules/metro/src/Server.js
+index ec933c0..25f7031 100644
+--- a/node_modules/metro/src/Server.js
++++ b/node_modules/metro/src/Server.js
+@@ -565,6 +565,12 @@ class Server {
+             transformedFileCount,
+             totalFileCount,
+           });
++        if (this._config.onBuildBundleEvent) {
++          this._config.onBuildBundleEvent("bundle_transform_progressed", {
++            transformedFileCount,
++            totalFileCount,
++          });
++        }
+         };
+       }
+       this._reporter.update({
+@@ -596,6 +602,9 @@ class Server {
+         bundlePerfLogger: buildContext.bundlePerfLogger,
+         requestStartTimestamp,
+       };
++      if (this._config.onBuildBundleEvent) {
++        this._config.onBuildBundleEvent("bundle_build_started", startContext);
++      }
+       const logEntry = log(
+         createActionStartEntry(createStartEntry(startContext))
+       );
+@@ -614,6 +623,13 @@ class Server {
+           type: "bundle_build_failed",
+           bundleOptions,
+         });
++        if (this._config.onBuildBundleEvent) {
++          this._config.onBuildBundleEvent("bundle_build_failed", {
++            buildNumber,
++            bundleOptions,
++            error,
++          });
++        }
+         this._reporter.update({
+           error,
+           type: "bundling_error",
+@@ -639,6 +655,9 @@ class Server {
+         buildID: getBuildID(buildNumber),
+         type: "bundle_build_done",
+       });
++      if (this._config.onBuildBundleEvent) {
++        this._config.onBuildBundleEvent("bundle_build_done", endContext);
++      }
+       log(
+         createActionEndEntry({
+           ...logEntry,
+@@ -684,6 +703,13 @@ class Server {
+           bundle_url: entryFile,
+         },
+       });
++      if (this._config.onDynamicConfig) {
++        const config = await this._config.onDynamicConfig(this._config, {
++          platform: transformOptions.platform,
++        });
++        Object.assign(this._config, config);
++        this._createModuleId = this._config.serializer.createModuleIdFactory();
++      }
+       const revPromise = this._bundler.getRevisionByGraphId(graphId);
+       bundlePerfLogger.point("resolvingAndTransformingDependencies_start");
+       bundlePerfLogger.annotate({
+@@ -942,6 +968,9 @@ class Server {
+         ) {
+           continue;
+         }
++        if (/xt-app-common\.[bundle|jsbundle]/.test(file)) {
++          continue;
++        }
+         const fileAbsolute = path.resolve(this._config.projectRoot, file ?? "");
+         try {
+           return {
+diff --git a/node_modules/metro/src/lib/TerminalReporter.js b/node_modules/metro/src/lib/TerminalReporter.js
+index 63f4b5b..4f9f4d7 100644
+--- a/node_modules/metro/src/lib/TerminalReporter.js
++++ b/node_modules/metro/src/lib/TerminalReporter.js
+@@ -84,19 +84,24 @@ class TerminalReporter {
+   _logInitializing(port, hasReducedPerformance) {
+     const logo = [
+       "",
+-      "                        ▒▒▓▓▓▓▒▒",
+-      "                     ▒▓▓▓▒▒░░▒▒▓▓▓▒",
+-      "                  ▒▓▓▓▓░░░▒▒▒▒░░░▓▓▓▓▒",
+-      "                 ▓▓▒▒▒▓▓▓▓▓▓▓▓▓▓▓▓▒▒▒▓▓",
+-      "                 ▓▓░░░░░▒▓▓▓▓▓▓▒░░░░░▓▓",
+-      "                 ▓▓░░▓▓▒░░░▒▒░░░▒▓▒░░▓▓",
+-      "                 ▓▓░░▓▓▓▓▓▒▒▒▒▓▓▓▓▒░░▓▓",
+-      "                 ▓▓░░▓▓▓▓▓▓▓▓▓▓▓▓▓▒░░▓▓",
+-      "                 ▓▓▒░░▒▒▓▓▓▓▓▓▓▓▒░░░▒▓▓",
+-      "                  ▒▓▓▓▒░░░▒▓▓▒░░░▒▓▓▓▒",
+-      "                     ▒▓▓▓▒░░░░▒▓▓▓▒",
+-      "                        ▒▒▓▓▓▓▒▒",
+-      "",
++      `                                                            
++XXXXXXX       XXXXXXX     RRRRRRRRRRRRRRRRR        NNNNNNNN        NNNNNNNN
++X:::::X       X:::::X     R::::::::::::::::R       N:::::::N       N::::::N
++X:::::X       X:::::X     R::::::RRRRRR:::::R      N::::::::N      N::::::N
++X::::::X     X::::::X     RR:::::R     R:::::R     N:::::::::N     N::::::N
++XXX:::::X   X:::::XXX       R::::R     R:::::R     N::::::::::N    N::::::N
++   X:::::X X:::::X          R::::R     R:::::R     N:::::::::::N   N::::::N
++    X:::::X:::::X           R::::RRRRRR:::::R      N:::::::N::::N  N::::::N
++     X:::::::::X            R:::::::::::::RR       N::::::N N::::N N::::::N
++     X:::::::::X            R::::RRRRRR:::::R      N::::::N  N::::N:::::::N
++    X:::::X:::::X           R::::R     R:::::R     N::::::N   N:::::::::::N
++   X:::::X X:::::X          R::::R     R:::::R     N::::::N    N::::::::::N
++XXX:::::X   X:::::XXX       R::::R     R:::::R     N::::::N     N:::::::::N
++X::::::X     X::::::X     RR:::::R     R:::::R     N::::::N      N::::::::N
++X:::::X       X:::::X     R::::::R     R:::::R     N::::::N       N:::::::N
++X:::::X       X:::::X     R::::::R     R:::::R     N::::::N        N::::::N
++XXXXXXX       XXXXXXX     RRRRRRRR     RRRRRRR     NNNNNNNN         NNNNNNN
++                        `,
+       "",
+     ];
+     const color = hasReducedPerformance ? chalk.red : chalk.blue;
+diff --git a/node_modules/metro/src/lib/createWebsocketServer.js b/node_modules/metro/src/lib/createWebsocketServer.js
+index e6f683c..b05bf11 100644
+--- a/node_modules/metro/src/lib/createWebsocketServer.js
++++ b/node_modules/metro/src/lib/createWebsocketServer.js
+@@ -1,5 +1,6 @@
+ "use strict";
+ 
++var boxen = _interopRequireDefault(require("boxen"));
+ var _ws = _interopRequireDefault(require("ws"));
+ function _interopRequireDefault(e) {
+   return e && e.__esModule ? e : { default: e };
+@@ -25,6 +26,17 @@ module.exports = function createWebsocketServer({ websocketServer }) {
+       websocketServer.onClientError && websocketServer.onClientError(client, e);
+     });
+     ws.on("close", () => {
++      console.log(" ");
++      console.log(
++        boxen.default("APP 已断开，请重新启动 APP", {
++          title: "app socket",
++          titleAlignment: "center",
++          padding: 2,
++          borderColor: "red",
++          borderStyle: "round",
++          fullscreen: (width, height) => [width, height - 1],
++        })
++      );
+       websocketServer.onClientDisconnect &&
+         websocketServer.onClientDisconnect(client);
+       connected = false;
+diff --git a/node_modules/metro/src/lib/getPrependedScripts.js b/node_modules/metro/src/lib/getPrependedScripts.js
+index 1045a67..c7240fc 100644
+--- a/node_modules/metro/src/lib/getPrependedScripts.js
++++ b/node_modules/metro/src/lib/getPrependedScripts.js
+@@ -25,7 +25,7 @@ async function getPrependedScripts(
+     type: "script",
+   };
+   const dependencies = await deltaBundler.getDependencies(
+-    [defaults.moduleSystem, ...polyfillModuleNames],
++    [...polyfillModuleNames],
+     {
+       resolve: await transformHelpers.getResolveDependencyFn(
+         bundler,
+@@ -33,7 +33,7 @@ async function getPrependedScripts(
+         resolverOptions
+       ),
+       transform: await transformHelpers.getTransformFn(
+-        [defaults.moduleSystem, ...polyfillModuleNames],
++        [...polyfillModuleNames],
+         bundler,
+         deltaBundler,
+         config,

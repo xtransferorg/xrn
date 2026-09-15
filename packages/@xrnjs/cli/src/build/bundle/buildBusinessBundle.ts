@@ -17,6 +17,8 @@ interface BuildBusinessBundleConfig {
   assetsDest?: string;
   verbose?: boolean;
   dev?: boolean;
+  hermes?: boolean;
+  baseBytecodeFilePath?: string;
 }
 
 export async function buildBusinessBundle({
@@ -27,30 +29,32 @@ export async function buildBusinessBundle({
   assetsDest,
   verbose,
   dev,
+  hermes = true,
   sourcemapOutput,
   meta,
-  env
+  env,
+  baseBytecodeFilePath,
 }: BuildBusinessBundleConfig) {
-
-  let ENV_NAME = 'dev';
+  let ENV_NAME = "dev";
   if (isProd(env)) {
-    ENV_NAME = 'prod';
+    ENV_NAME = "prod";
   }
   process.env.ENV_NAME = ENV_NAME;
 
   const startTemplateManager = await StartTemplateManager.create(root);
-  await startTemplateManager.assertIndexTsModify()
-
+  await startTemplateManager.assertIndexTsModify();
   await invalidatePatch(path.resolve(root, "patches"), meta);
   await execBuildCore("core/business.js", {
-    platform: platform,
-    bundleName: getBundleName(platform, name),
-    output: output,
-    basePath: root,
-    assetsDest: assetsDest,
-    metaJson: meta,
-    verbose: verbose ? "1" : "0",
-    dev: dev ? "1" : "0",
-    sourcemapOutput
+      platform: platform,
+      bundleName: getBundleName(platform, name),
+      output: output,
+      basePath: root,
+      assetsDest: assetsDest,
+      metaJson: meta,
+      verbose: verbose ? "1" : "0",
+      dev: dev ? "1" : "0",
+      hermes: hermes ? "1" : "0",
+      sourcemapOutput,
+      baseBytecodeFilePath,
   });
 }

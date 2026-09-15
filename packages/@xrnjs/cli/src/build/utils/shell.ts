@@ -3,7 +3,6 @@ import ora from "ora";
 import { promisify } from "util";
 import logger from "../../utlis/logger";
 import { buildJobContext } from "../BuildJobContext";
-import * as Sentry from "@sentry/node";
 
 export const execAsync = promisify(exec);
 
@@ -13,7 +12,7 @@ export const execInherit = (
   command,
   options: { cwd?: string } = {}
 ): Promise<{ stdout: string; stderr: string }> => {
-  logger.debug(`执行命令：${command}`);
+  logger.info(`执行命令：${command}`);
   return execShPromise(command, { stdio: "inherit", ...options });
 };
 
@@ -21,7 +20,6 @@ export function execShellCommand(
   command: string,
   config?: {
     cwd: string;
-    oraName?: string
     env?: NodeJS.ProcessEnv;
     log?: boolean;
   },
@@ -29,10 +27,10 @@ export function execShellCommand(
 ): Promise<string> {
   const defaultPath = process.cwd();
   let execLoad: ora.Ora;
-  logger.debug(`执行命令：${command}`);
+  logger.info(`执行命令：${command}`);
   const log = config?.log ?? buildJobContext.verbose ?? true;
-  if (config?.oraName) {
-    execLoad = ora(config.oraName).start();
+  if (log) {
+    execLoad = ora(command).start();
   }
   return new Promise((resolve, reject) => {
     exec(
@@ -47,7 +45,9 @@ export function execShellCommand(
         if (error) {
           execLoad?.fail();
           logger.error(error);
-          Sentry.captureException(error);
+          logger.info(
+            "如果有不清楚，请先查阅项目错误手册"
+          );
           reject(needError ? stderr : null);
         } else {
           // log && logger.info(stdout);
