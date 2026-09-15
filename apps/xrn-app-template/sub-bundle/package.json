@@ -17,7 +17,6 @@
   },
   "resolutions": {
     "react-native-view-shot": "4.0.3",
-    "@react-native-community/push-notification-ios": "1.11.0",
-    "@xrnjs/navigation": "file:.yalc/@xrnjs/navigation"
+    "@react-native-community/push-notification-ios": "1.11.0"
   }
 }

@@ -4396,9 +4396,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@xrnjs/navigation@file:.yalc/@xrnjs/navigation::locator=main-bundle%40workspace%3A.":
+"@xrnjs/navigation@npm:0.1.0":
   version: 0.1.0
-  resolution: "@xrnjs/navigation@file:.yalc/@xrnjs/navigation#.yalc/@xrnjs/navigation::hash=e1b474&locator=main-bundle%40workspace%3A."
+  resolution: "@xrnjs/navigation@npm:0.1.0"
   dependencies:
     "@react-navigation/bottom-tabs": 6.6.1
     "@react-navigation/native": 6.1.18
@@ -4416,7 +4416,7 @@ __metadata:
     react-native-reanimated: "*"
     react-native-safe-area-context: "*"
     react-native-screens: "*"
-  checksum: fa266000ed966b118887ed05be7af966901f4252241802f5bf197f5dda8114f50b09f823bc59d68787b12cd74f41e99488761ba48e46c14cab9740484315f5fb
+  checksum: 721401636a349ec6b1d3367033f501694357759fe88bf6986677ed4290e996a33c588417a02772095c91802841f5db90f5dcf0d263e81b80aba962237d138664
   languageName: node
   linkType: hard
 
