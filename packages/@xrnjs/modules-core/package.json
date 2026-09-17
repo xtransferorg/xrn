@@ -1,13 +1,17 @@
 {
   "name": "@xrnjs/modules-core",
-  "version": "0.0.2",
-  "description": "xrn-modules-core",
-  "main": "./build/index.js",
-  "types": "./build/index.d.ts",
+  "version": "0.1.0",
+  "description": "@xrnjs/modules-core",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
   "scripts": {
-    "build": "tsc",
-    "clean": "rm -rf build",
+    "build": "xrn-module build",
+    "clean": "xrn-module clean",
+    "lint": "xrn-module lint",
     "prepare": "yarn clean && yarn build",
+    "xrn-module": "xrn-module",
+    "yalcPublish": "xrn-module yalcPublish",
+    "add-demo-screen-to-xrngo": "yarn prepare && xrn-tools add-demo-screen-to-xrngo",
     "watch": "nodemon --ignore build/ --watch ./src -C -e js,jsx,ts,tsx,css,less --debug -x 'yalc publish --push'"
   },
   "files": [
@@ -24,6 +28,11 @@
     "!android/gradlew",
     "!android/gradlew.bat",
     "!android/local.properties",
+    "harmony/*.har",
+    "harmony/xrn_modules_core",
+    "!harmony//xrn_modules_core/oh_modules",
+    "!harmony//xrn_modules_core/build",
+    "!harmony//xrn_modules_core/.hvigor",
     "!**/__tests__",
     "!**/__fixtures__",
     "!**/__mocks__",
@@ -32,25 +41,21 @@
   "keywords": [
     "react-native",
     "xrn",
-    "xrn-modules-core",
-    "XRNCore",
-    "xrnjs"
+    "@xrnjs/modules-core",
+    "XRNCore"
   ],
-  "publishConfig": {
-    "access": "public"
-  },
   "repository": "https://github.com/xtransferorg/xrn",
   "bugs": {
     "url": "https://github.com/xtransferorg/xrn/issues"
   },
   "author": "XRN",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "homepage": "https://github.com/xtransferorg/xrn#readme",
   "peerDependencies": {
     "react": "*",
     "react-native": "*"
   },
   "devDependencies": {
-    "typescript": "^5.1.3"
+    "xrn-module-scripts": "*"
   }
 }

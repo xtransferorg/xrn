@@ -38,6 +38,14 @@ export type XRNDebugToolsType = {
    */
   getPerfMonitorIsShown():Promise<boolean>;
   /**
+   * 内存泄漏检测（仅状态开关/占位）
+   */
+  toggleMemoryLeak(): Promise<boolean>;
+  /**
+   * 内存泄漏检测开关状态
+   */
+  getMemoryLeakIsShown(): Promise<boolean>;
+  /**
    * ping
    * @param host 
    */

@@ -1,7 +1,5 @@
 import { Platform } from "react-native";
-import { NativeModules } from "react-native";
-
-const NativeKeyboard = NativeModules.XRNKeyboard;
+import { XRNKeyboard } from '@xrnjs/keyboard'
 
 export enum AndroidSoftInputMode {
   SOFT_INPUT_MASK_STATE = 15,
@@ -28,11 +26,11 @@ export enum AndroidSoftInputMode {
  * @platform android
  */
 export const setSoftInputMode = async (
-  mode: AndroidSoftInputMode
+  mode: string
 ): Promise<boolean> => {
   if (Platform.OS !== "android") {
     return Promise.resolve(false);
   }
 
-  return await NativeKeyboard.setSoftInputMode(mode);
+  return (await XRNKeyboard.setSoftInputMode(mode));
 };

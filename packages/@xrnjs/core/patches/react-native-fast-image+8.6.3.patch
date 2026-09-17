@@ -1,0 +1,36 @@
+diff --git a/node_modules/react-native-fast-image/RNFastImage.podspec b/node_modules/react-native-fast-image/RNFastImage.podspec
+index db0fada..935b054 100644
+--- a/node_modules/react-native-fast-image/RNFastImage.podspec
++++ b/node_modules/react-native-fast-image/RNFastImage.podspec
+@@ -16,6 +16,6 @@ Pod::Spec.new do |s|
+   s.source_files  = "ios/**/*.{h,m}"
+ 
+   s.dependency 'React-Core'
+-  s.dependency 'SDWebImage', '~> 5.11.1'
++  s.dependency 'SDWebImage', '5.20.0'
+   s.dependency 'SDWebImageWebPCoder', '~> 0.8.4'
+ end
+diff --git a/node_modules/react-native-fast-image/android/build.gradle b/node_modules/react-native-fast-image/android/build.gradle
+index 5b21cd5..1fc33f4 100644
+--- a/node_modules/react-native-fast-image/android/build.gradle
++++ b/node_modules/react-native-fast-image/android/build.gradle
+@@ -20,6 +20,9 @@ buildscript {
+ apply plugin: 'com.android.library'
+ 
+ android {
++
++    namespace "com.dylanvann.fastimage"
++
+     compileSdkVersion safeExtGet('compileSdkVersion', 28)
+     buildToolsVersion safeExtGet('buildToolsVersion', '28.0.3')
+     defaultConfig {
+@@ -28,6 +31,9 @@ android {
+         versionCode 1
+         versionName "1.0"
+     }
++    buildFeatures {
++        buildConfig true
++    }
+     sourceSets {
+         main {
+             java {

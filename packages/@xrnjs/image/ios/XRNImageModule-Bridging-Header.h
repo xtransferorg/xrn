@@ -8,3 +8,4 @@
 #import "ExpoImageSource.h"
 #import "ExpoImageTransition.h"
 #import "ExpoImageContentPosition.h"
+#import <react/renderer/components/XrnExpoImageViewSpec/EventEmitters.h>

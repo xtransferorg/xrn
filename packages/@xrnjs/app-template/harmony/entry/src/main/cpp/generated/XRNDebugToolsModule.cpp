@@ -23,9 +23,19 @@ XRNDebugToolsModule::XRNDebugToolsModule(const ArkTSTurboModule::Context ctx, co
         ARK_ASYNC_METHOD_METADATA(getInspectorIsShown, 0),
         ARK_ASYNC_METHOD_METADATA(togglePerfMonitor, 0),
         ARK_ASYNC_METHOD_METADATA(getPerfMonitorIsShown, 0),
+        ARK_ASYNC_METHOD_METADATA(toggleMemoryLeak, 0),
+        ARK_ASYNC_METHOD_METADATA(getMemoryLeakIsShown, 0),
         ARK_ASYNC_METHOD_METADATA(pingStart, 1),
         ARK_ASYNC_METHOD_METADATA(dnsStart, 1),
         ARK_ASYNC_METHOD_METADATA(proxyInfo, 1),
+        ARK_METHOD_METADATA(registerDevBundle, 2),
+        ARK_ASYNC_METHOD_METADATA(getBundleDebugConfig, 1),
+        ARK_METHOD_METADATA(setBundleDebugConfig, 2),
+        ARK_METHOD_METADATA(getNativeStorageSync, 2),
+        ARK_METHOD_METADATA(setNativeStorageSync, 3),
+        ARK_METHOD_METADATA(getBundleHostIPSync, 0),
+        ARK_METHOD_METADATA(setBundleHostIP, 1),
+        ARK_METHOD_METADATA(openConnection, 3),
     };
 }
 

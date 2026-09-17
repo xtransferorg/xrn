@@ -8,31 +8,20 @@ import qrcode from 'qrcode-terminal'
 
 import readline from 'readline'
 
-/** Bullet point character used in command table display */
 export const BLT = '\u203A'
 
-/**
- * Print help information showing available commands
- * Displays a simple help message with the question mark command
- */
 export const printHelp = (): void => {
   logCommandsTable([{ key: '?', msg: '显示所有提示' }])
 }
 
-/**
- * Print the main usage table with available commands
- * Shows different commands based on platform and server status
- * 
- * @param devServerActive - Whether the development server is currently active
- */
 export function printUsage(devServerActive: boolean) {
   const isMac = process.platform === 'darwin'
 
   logCommandsTable([
-    // { key: 's', msg: '启动开发服务器' },
     { key: 'p', msg: '显示二维码和服务地址' },
-    { key: 'r', msg: 'reload load', disabled: !devServerActive },
-    // { key: 'd', msg: 'open developer menu', disabled: !devServerActive },
+    { key: 'r', msg: 'reload app(s)', disabled: !devServerActive },
+    { key: 'd', msg: 'open Dev Menu', disabled: !devServerActive },
+    { key: 'j', msg: 'open DevTools', disabled: !devServerActive },
     { key: 'a', msg: '在安卓真机或模拟器中打开', disabled: false },
     isMac && { key: 'i', msg: '在iOS模拟器打开', disabled: false },
     isMac && { key: 'o', msg: '在iOS真机打开', disabled: false },
@@ -40,23 +29,10 @@ export function printUsage(devServerActive: boolean) {
   ])
 }
 
-/**
- * Generate and display a QR code for the given URL
- * Uses qrcode-terminal to render the QR code in the terminal
- * 
- * @param url - The URL to encode in the QR code
- */
 export function printQRCode(url: string) {
   qrcode.generate(url, { small: true }, code => Log.log(code))
 }
 
-/**
- * Log a formatted command table to the console
- * Displays commands with keys, messages, and status information
- * Handles disabled commands by dimming their appearance
- * 
- * @param ui - Array of command objects with key, message, status, and disabled properties
- */
 function logCommandsTable(ui: (false | { key?: string; msg?: string; status?: string; disabled?: boolean })[]) {
   Log.log(
     ui
@@ -79,14 +55,10 @@ function logCommandsTable(ui: (false | { key?: string; msg?: string; status?: st
   )
 }
 
-/**
- * Display a status message at the bottom of the terminal
- * Moves cursor to the last line and shows a help prompt
- * Used to keep important information visible during interactive sessions
- */
+
 export function keepStatusAtBottom() {
-  readline.cursorTo(process.stdout, 0, process.stdout.rows - 1); // Move to the last line
-  readline.clearLine(process.stdout, 0); // Clear the current line
+  readline.cursorTo(process.stdout, 0, process.stdout.rows - 1); // 移动到最后一行
+  readline.clearLine(process.stdout, 0); // 清除当前行
   process.stdout.write("输入 ? 显示所有提示");
   // logCommandsTable([{ key: '?', msg: '显示所有提示' }])
 }

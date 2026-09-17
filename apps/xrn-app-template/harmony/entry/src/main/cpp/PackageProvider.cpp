@@ -19,8 +19,17 @@
 #include "PermissionsPackage.h"
 #include "ReanimatedPackage.h"
 #include "PdfViewPackage.h"
+#include "DocumentPickerPackage.h"
+#include "RNDeviceInfoPackage.h"
+#include "RNConfigPackage.h"
+#include "GetRandomValuesPackage.h"
+#include "WebViewPackage.h"
+#include "CameraRollPackage.h"
+#include "BlobUtilPackage.h"
+#include "ImageResizerPackage.h"
+#include "RNLocalizePackage.h"
+#include "OrientationLockerPackage.h"
 // #include "BackgroundTimerPackage.h"
-// #include "DocumentPickerPackage.h"
 using namespace rnoh;
 
 std::vector<std::shared_ptr<Package>> PackageProvider::getPackages(Package::Context ctx) {
@@ -45,7 +54,16 @@ std::vector<std::shared_ptr<Package>> PackageProvider::getPackages(Package::Cont
         std::make_shared<PermissionsPackage>(ctx),
         std::make_shared<ReanimatedPackage>(ctx),
         std::make_shared<PdfViewPackage>(ctx),
+        std::make_shared<DocumentPickerPackage>(ctx),
+        std::make_shared<RNDeviceInfoPackage>(ctx),
+        std::make_shared<RNConfigPackage>(ctx),
+        std::make_shared<GetRandomValuesPackage>(ctx),
+        std::make_shared<WebViewPackage>(ctx),
+        std::make_shared<CameraRollPackage>(ctx),
+        std::make_shared<RNBlobUtilPackage>(ctx),
+        std::make_shared<ImageResizerPackage>(ctx),
+        std::make_shared<RNLocalizePackage>(ctx),
+        std::make_shared<OrientationLockerPackage>(ctx),
 //         std::make_shared<BackgroundTimerPackage>(ctx),
-//         std::make_shared<DocumentPickerPackage>(ctx),
     };
 }

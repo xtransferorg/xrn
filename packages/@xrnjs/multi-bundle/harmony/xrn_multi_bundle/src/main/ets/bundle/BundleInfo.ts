@@ -1,45 +1,55 @@
 import { BundleInfoHook } from "./BundleInfoManager"
 
 /**
- * Bundle information.
+ * Bundle 信息
+ * 静态数据
  */
 export class BundleInfo {
 
   static BUNDLE_TYPE_MAIN = "main"
+  static BUNDLE_TYPE_REMOTE = "remote"
+
+  static DELIVERY_TYPE_INNER = "INNER"
+  static DELIVERY_TYPE_DYNAMIC = "DYNAMIC"
+  static DELIVERY_TYPE_LOCAL = "LOCAL"
+
+  static DYNAMIC_UNKNOWN_PORT = 1
 
   private static TAG = "BundleInfo"
 
   /**
-   * Name of the bundle.
+   * bundle name
    */
   readonly bundleName: string = ""
   /**
-   * Type of the bundle (e.g., main).
+   * 是否主bundle
    */
   readonly bundleType: string = ""
   /**
-   * Default module name, required for the main bundle.
+   * module 名，main bundle 需要配置
    */
   readonly defaultModuleName: string = ""
   /**
-   * List of all module names.
+   * 所有的 moduleName
    */
   private readonly moduleNames: string[] = []
   /**
-   * Initial CodePush deployment key.
+   * CodePush Key
    */
   private readonly codePushKey: string = ""
   /**
-   * Local development server port.
+   * 本地服务端口
    */
-  private readonly port: number = 8081
+  private port: number = 8081
+
+  private readonly deliveryType: string = BundleInfo.DELIVERY_TYPE_INNER
 
   /**
-   * Optional hook for overriding default behavior.
+   * hook
    */
   private hook: BundleInfoHook | undefined
 
-  constructor(bundleName: string, bundleType: string, defaultModuleName: string, moduleNames: string[], codePushKey: string, port: number) {
+  constructor(bundleName: string, bundleType: string, defaultModuleName: string, moduleNames: string[], codePushKey: string, port: number, deliveryType?: string) {
     if (bundleName.length == 0) {
       throw new Error(`${BundleInfo.TAG}.constructor:bundleName is empty`)
     }
@@ -49,12 +59,9 @@ export class BundleInfo {
     this.moduleNames = moduleNames || [];
     this.codePushKey = codePushKey
     this.port = port
+    this.deliveryType = deliveryType
   }
 
-  /**
-   * Adds a new module name (appKey) to the list if not already included.
-   * @param appKey
-   */
   addAppKey(appKey: string | undefined) {
     if (!appKey) {
       return;
@@ -64,31 +71,23 @@ export class BundleInfo {
     }
   }
 
-  /**
-   * Returns a copy of all module names.
-   * @returns
-   */
   getModuleNames(): string[] {
     return [...this.moduleNames];
   }
 
-  /**
-   * Sets a custom hook for overriding behavior.
-   * @param hook
-   */
   setHook(hook: BundleInfoHook | undefined) {
     this.hook = hook
   }
 
   /**
-   * Checks whether this bundle is the main bundle.
+   * 是否为 main bundle
    */
   isMainBundle(): boolean {
     return this.bundleType === BundleInfo.BUNDLE_TYPE_MAIN
   }
 
   /**
-   * Returns the initial CodePush deployment key.
+   * 返回初始配置的CodePushKey
    * @returns
    */
   getInitCodePushKey(): string {
@@ -96,7 +95,7 @@ export class BundleInfo {
   }
 
   /**
-   * Returns the CodePush deployment key, possibly overridden by the hook.
+   * 获取 CodePush key
    * @returns
    */
   getCodePushKey(): string {
@@ -108,15 +107,27 @@ export class BundleInfo {
   }
 
   /**
-   * Returns the local development server port.
+   * 获取本地服务端口
    * @returns
    */
   getLocalServerPort(): number {
+    if (this.hook?.hookLocalServerPort) {
+      return this.hook.hookLocalServerPort(this, this.port)
+    }
     return this.port
   }
 
   /**
-   * Returns the JS bundle file name, optionally overridden by the hook.
+   * 设置端口
+   * 主要用于 LocalBundle 设置
+   * @param port
+   */
+  setLocalServerPort(port: number) {
+    this.port = port;
+  }
+
+  /**
+   * 获取 js bundle 文件名
    * @returns
    */
   getJSBundleName(): string {
@@ -124,11 +135,14 @@ export class BundleInfo {
   }
 
   /**
-   * Returns the full local server URL for bundle loading.
+   * 获取 本地服务 url
    * @returns
    */
   getLocalServerUrl(): string {
     return this.hook?.hookLocalServerUrl?.(this) || `http://localhost:${this.getLocalServerPort()}/index.bundle?platform=harmony&dev=true&minify=false`
   }
 
+  getDeliveryType(): string {
+    return this.deliveryType
+  }
 }

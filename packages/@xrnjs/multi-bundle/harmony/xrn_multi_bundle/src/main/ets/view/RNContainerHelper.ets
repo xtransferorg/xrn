@@ -6,28 +6,14 @@ import { RN_INSTANCE_MANAGER } from "../bundle/RNInstanceManager"
 
 export let globalRNContainerOptions: RNContainerOptions
 
-/**
- * Initialize global RNContainer options.
- * @param options RNContainerOptions instance
- */
 export function initRNContainerOptions(options: RNContainerOptions) {
   globalRNContainerOptions = options
 }
 
-/**
- * Get the RNInstanceConfig for a given bundle.
- * If the RNInstance already exists, return it directly;
- * otherwise, create a new RNInstanceConfig via global options.
- *
- * Note: Inside RNApp, if `rnInstance` is provided, it will be reused.
- * Otherwise, a new instance will be created.
- * The internal condition in RNApp is based on the existence of `rnInstance` field.
- *
- * @param bundleName The name of the bundle
- * @returns RNInstanceConfig
- */
 export function getRNInstanceConfig(bundleName: string): RNInstanceConfig {
   let rnInstance = RN_INSTANCE_MANAGER.getRNInstanceByBundle(bundleName)
+  // RNApp 内部逻辑：如果传入了 RNInstance，则使用，不传就创建新的 RNInstance；
+  // RNApp 内部判断条件是是否有 rnInstance 字段
   if (rnInstance) {
     return { rnInstance }
   } else {
@@ -36,20 +22,15 @@ export function getRNInstanceConfig(bundleName: string): RNInstanceConfig {
   }
 }
 
-/**
- * Get the wrapped custom RN component builder for the specified bundle.
- * @param bundleName The name of the bundle
- * @returns Wrapped component builder if found; otherwise, undefined
- */
 export function getWrappedCustomRNComponentBuilder(bundleName: string): WrappedBuilder<[ComponentBuilderContext]> | undefined {
   const bundleInfo = BundleInfoManager.INSTANCE.getBundleInfo(bundleName)
   return globalRNContainerOptions.getWrappedCustomRNComponentBuilder(bundleInfo!)
 }
 
 /**
- * Get the JSBundleProvider for the specified bundle.
- * @param bundleName The name of the bundle
- * @returns JSBundleProvider instance or undefined
+ * 获取 JSBundleProvider
+ * @param bundleName
+ * @returns
  */
 export function getJSBundleProvider(bundleName: string): JSBundleProvider | undefined {
   return RN_INSTANCE_MANAGER.getJSBundleProviderByBundle(bundleName)

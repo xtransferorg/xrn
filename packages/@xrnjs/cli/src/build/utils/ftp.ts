@@ -1,31 +1,38 @@
+import path from "path";
 import { buildJobContext } from "../BuildJobContext";
-import logger from "../../utlis/logger";
 
 export const manifestPrefix = "itms-services://?action=download-manifest&url=";
 
-function getUploadPath(): string {
+function getFtpPath(): string {
   const { platform, buildType, branchName, project } = buildJobContext;
-  const ftpPath = `apps/${project}/${platform}/${buildType}/${branchName}/`;
+  const ftpPath = `atta-app-rn/v2/${project}/${platform}/${buildType}/${branchName}/`;
   return ftpPath;
 }
 
 export function getRemoteFileUrl(fileName: string) {
-  return `${getUploadDomain()}/${getUploadPath()}${fileName}`;
+  return `${getFtpDomain()}/${getFtpPath()}${fileName}`;
 }
 
-function getUploadDomain(): string {
-  // TODO 插件化配置
+export function getFtpDomain(): string {
   return "";
 }
 
-
-export async function uploadFileTo(localPath: string, remotePath: string) {
-  // TODO 插件化处理
-  // logger.warn('上传文件功能未实现');
-  return ''
+export async function uploadFileTo(filePath: string, ftpPath: string) {
+  return filePath;
 }
 
 export async function uploadFile(filePath: string) {
-  const ftpPath = getUploadPath();
+  const ftpPath = getFtpPath();
   return uploadFileTo(filePath, ftpPath);
+}
+
+export async function downloadFileFromFtp(ftpPath: string, outputPath: string) {
+  return path.join(outputPath, path.basename(ftpPath));
+}
+
+export async function deleteFromFtp(ftpPath: string) {
+}
+
+export async function checkFileExistInFtp(ftpPath: string) {
+  return false;
 }

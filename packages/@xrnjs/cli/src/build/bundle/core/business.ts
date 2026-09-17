@@ -1,7 +1,7 @@
 import type { MetaConfig } from "../interface";
 import { buildBundle } from "./core";
 import { Platform } from "../../../build/typing";
-import { generateBusiness } from "./config";
+import { generateBusinessBundleConfig } from "./config";
 import logger from "../../../utlis/logger";
 
 const {
@@ -12,7 +12,9 @@ const {
   assetsDest,
   verbose,
   dev,
+  hermes,
   sourcemapOutput,
+  baseBytecodeFilePath,
 } = process.env;
 
 process.on(
@@ -23,15 +25,16 @@ process.on(
 
       verbose === "1" && logger.debug(`metaJson: ${metaJson.id}`);
 
-      const metroConfig = generateBusiness(basePath, metaJson, false, {}, platform as Platform)();
+      const metroConfig = generateBusinessBundleConfig(basePath, metaJson, false, {}, platform as Platform)();
 
-      logger.debug(`开始构建 ${basePath} business bundle.`, {
+      logger.info(`开始构建 ${basePath} business bundle.`, {
         platform,
         bundleName,
         output,
         basePath,
         assetsDest,
         dev,
+        hermes,
         sourcemapOutput,
       });
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -44,6 +47,8 @@ process.on(
         assetsDest,
         dev,
         sourcemapOutput,
+        hermes,
+        baseBytecodeFilePath,
       }).then(() => {
         process.exit(0);
       });

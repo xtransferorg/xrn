@@ -1,0 +1,1721 @@
+diff --git a/node_modules/react-native/Libraries/Blob/FileReader.js b/node_modules/react-native/Libraries/Blob/FileReader.js
+index d689890..b36a291 100644
+--- a/node_modules/react-native/Libraries/Blob/FileReader.js
++++ b/node_modules/react-native/Libraries/Blob/FileReader.js
+@@ -10,6 +10,7 @@
+ 
+ import type Blob from './Blob';
+ 
++import Platform from '../Utilities/Platform';
+ import NativeFileReaderModule from './NativeFileReaderModule';
+ import {toByteArray} from 'base64-js';
+ import EventTarget from 'event-target-shim';
+@@ -141,6 +142,13 @@ class FileReader extends (EventTarget(...READER_EVENTS): typeof EventTarget) {
+       );
+     }
+ 
++    if (!blob.data && Platform.OS === 'android') {
++      throw new TypeError(
++        "Failed to execute 'readAsText' on 'FileReader': 'Blob.data' is null " +
++          blob,
++      );
++    }
++
+     NativeFileReaderModule.readAsText(blob.data, encoding).then(
+       (text: string) => {
+         if (this._aborted) {
+diff --git a/node_modules/react-native/Libraries/LinkingIOS/RCTLinkingManager.mm b/node_modules/react-native/Libraries/LinkingIOS/RCTLinkingManager.mm
+index ad75ed4..7e444be 100644
+--- a/node_modules/react-native/Libraries/LinkingIOS/RCTLinkingManager.mm
++++ b/node_modules/react-native/Libraries/LinkingIOS/RCTLinkingManager.mm
+@@ -154,17 +154,49 @@ - (void)handleOpenURLNotification:(NSNotification *)notification
+ 
+ RCT_EXPORT_METHOD(getInitialURL : (RCTPromiseResolveBlock)resolve reject : (__unused RCTPromiseRejectBlock)reject)
+ {
+-  NSURL *initialURL = nil;
+-  if (self.bridge.launchOptions[UIApplicationLaunchOptionsURLKey]) {
+-    initialURL = self.bridge.launchOptions[UIApplicationLaunchOptionsURLKey];
+-  } else {
+-    NSDictionary *userActivityDictionary =
+-        self.bridge.launchOptions[UIApplicationLaunchOptionsUserActivityDictionaryKey];
+-    if ([userActivityDictionary[UIApplicationLaunchOptionsUserActivityTypeKey] isEqual:NSUserActivityTypeBrowsingWeb]) {
+-      initialURL = ((NSUserActivity *)userActivityDictionary[@"UIApplicationLaunchOptionsUserActivityKey"]).webpageURL;
+-    }
+-  }
+-  resolve(RCTNullIfNil(initialURL.absoluteString));
++	NSURL *initialURL = nil;
++	NSUserDefaults *sharedDefaults = [[NSUserDefaults alloc] initWithSuiteName:@"group.cn.xtransfer.www.xtappapp"];
++	NSString *quickcutUrlStr = [sharedDefaults stringForKey:@"AppdelegateQuickCutUrlStrKey"];
++  NSString *processLaunchAppUrl = [[NSUserDefaults standardUserDefaults] objectForKey:@"PROCESS_LAUNCH_APP"];
++	if (self.bridge.launchOptions[UIApplicationLaunchOptionsURLKey]) {
++		initialURL = self.bridge.launchOptions[UIApplicationLaunchOptionsURLKey];
++	} else if (self.bridge.launchOptions[UIApplicationLaunchOptionsRemoteNotificationKey]) {
++			NSString *pushJsonStr = @"";
++			NSDictionary *remotePushInfo = self.bridge.launchOptions[UIApplicationLaunchOptionsRemoteNotificationKey];
++			if ([remotePushInfo allKeys]) {
++					pushJsonStr = remotePushInfo[@"route"] ?: @"";
++			}
++			resolve(RCTNullIfNil(pushJsonStr));
++			return;
++	} else if (self.bridge.launchOptions[UIApplicationLaunchOptionsShortcutItemKey]) {
++			UIApplicationShortcutItem *shortcutItem = self.bridge.launchOptions[UIApplicationLaunchOptionsShortcutItemKey];
++			NSString *urlStr = (NSString *)shortcutItem.userInfo[@"url"];
++			resolve(RCTNullIfNil(urlStr));
++			return;
++	} else if (quickcutUrlStr.length > 0) {
++			resolve(RCTNullIfNil(quickcutUrlStr));
++			[sharedDefaults removeObjectForKey:@"AppdelegateQuickCutUrlStrKey"];
++			[sharedDefaults synchronize];
++			return;
++  } else if (processLaunchAppUrl.length > 0) {
++      [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"PROCESS_LAUNCH_APP"];
++      [[NSUserDefaults standardUserDefaults] synchronize];
++      resolve(RCTNullIfNil(processLaunchAppUrl));
++      return;
++    } else {
++		NSDictionary *userActivityDictionary =
++				self.bridge.launchOptions[UIApplicationLaunchOptionsUserActivityDictionaryKey];
++		if ([userActivityDictionary[UIApplicationLaunchOptionsUserActivityTypeKey] isEqual:NSUserActivityTypeBrowsingWeb]) {
++			initialURL = ((NSUserActivity *)userActivityDictionary[@"UIApplicationLaunchOptionsUserActivityKey"]).webpageURL;
++		}
++	}
++		NSString *linkStr = initialURL ? initialURL.absoluteString : @"";
++			if ([linkStr containsString:@"wx30036d8bd2684191://"]) {
++					linkStr = [[NSUserDefaults standardUserDefaults] objectForKey:@"wx_link_extinfo"];
++					[[NSUserDefaults standardUserDefaults] removeObjectForKey:@"wx_link_extinfo"];
++					[[NSUserDefaults standardUserDefaults] synchronize];
++			}
++		resolve(RCTNullIfNil(linkStr));
+ }
+ 
+ RCT_EXPORT_METHOD(openSettings : (RCTPromiseResolveBlock)resolve reject : (__unused RCTPromiseRejectBlock)reject)
+diff --git a/node_modules/react-native/Libraries/Modal/Modal.d.ts b/node_modules/react-native/Libraries/Modal/Modal.d.ts
+index 21fca65..c916e4e 100644
+--- a/node_modules/react-native/Libraries/Modal/Modal.d.ts
++++ b/node_modules/react-native/Libraries/Modal/Modal.d.ts
+@@ -50,6 +50,29 @@ export interface ModalBaseProps {
+    * Defaults to `white` if not provided and transparent is `false`. Ignored if `transparent` is `true`.
+    */
+   backdropColor?: ColorValue | undefined;
++
++    /**
++   * 输入法和键盘之间额外的间隔
++   * softInputMode 为 pan / auto 时有效
++   */
++    space?: number | null | undefined;
++
++    /**
++     * 软键盘模式
++     * resize: 键盘弹起时，窗口调整宽高
++     * pan: 键盘弹起时，宽高不调整，窗口整体上移
++     */
++    softInputMode?: 'resize' | 'pan' | 'auto' | null | undefined;
++  
++    /**
++     * 弹窗顶部留白高度
++     */
++    modalHeaderSpace?: number | null | undefined;
++
++    /**
++     * Modal弹出是否在当前window上显示，默认false
++     */
++    presentInCurrentWindow?: boolean | null | undefined;
+ }
+ 
+ export interface ModalPropsIOS {
+diff --git a/node_modules/react-native/Libraries/Modal/Modal.js b/node_modules/react-native/Libraries/Modal/Modal.js
+index 345191a..8c082c6 100644
+--- a/node_modules/react-native/Libraries/Modal/Modal.js
++++ b/node_modules/react-native/Libraries/Modal/Modal.js
+@@ -120,6 +120,29 @@ export type Props = $ReadOnly<{|
+    */
+   visible?: ?boolean,
+ 
++  /**
++ * 输入法和键盘之间额外的间隔
++ * softInputMode 为 pan / auto 时有效
++ */
++  space?: ?number,
++
++  /**
++   * 软键盘模式
++   * resize: 键盘弹起时，窗口调整宽高
++   * pan: 键盘弹起时，宽高不调整，窗口整体上移
++   */
++  softInputMode?: ?('resize' | 'pan' | 'auto'),
++
++  /**
++   * 弹窗顶部留白高度
++   */
++  modalHeaderSpace?: ?number,
++
++   /**
++   * Modal弹出是否在当前window上显示，默认false
++   */
++  presentInCurrentWindow?: ?boolean,
++
+   /**
+    * The `onRequestClose` callback is called when the user taps the hardware
+    * back button on Android or the menu button on Apple TV.
+@@ -316,6 +339,10 @@ class Modal extends React.Component<Props, State> {
+         onShow={this.props.onShow}
+         onDismiss={onDismiss}
+         visible={this.props.visible}
++        space={this.props.space}
++        softInputMode={this.props.softInputMode}
++        modalHeaderSpace={this.props.modalHeaderSpace}
++        presentInCurrentWindow={this.props.presentInCurrentWindow}
+         statusBarTranslucent={this.props.statusBarTranslucent}
+         navigationBarTranslucent={this.props.navigationBarTranslucent}
+         identifier={this._identifier}
+diff --git a/node_modules/react-native/Libraries/PermissionsAndroid/PermissionsAndroid.d.ts b/node_modules/react-native/Libraries/PermissionsAndroid/PermissionsAndroid.d.ts
+index 9e70bdd..8b71714 100644
+--- a/node_modules/react-native/Libraries/PermissionsAndroid/PermissionsAndroid.d.ts
++++ b/node_modules/react-native/Libraries/PermissionsAndroid/PermissionsAndroid.d.ts
+@@ -10,9 +10,10 @@
+ export interface Rationale {
+   title: string;
+   message: string;
+-  buttonPositive: string;
++  buttonPositive?: string | undefined;
+   buttonNegative?: string | undefined;
+   buttonNeutral?: string | undefined;
++  icon?: React.ReactNode | undefined;
+ }
+ 
+ export type Permission =
+diff --git a/node_modules/react-native/Libraries/ReactNative/AppRegistry.js b/node_modules/react-native/Libraries/ReactNative/AppRegistry.js
+index 6c18c8d..1744699 100644
+--- a/node_modules/react-native/Libraries/ReactNative/AppRegistry.js
++++ b/node_modules/react-native/Libraries/ReactNative/AppRegistry.js
+@@ -200,6 +200,12 @@ const AppRegistry = {
+         () => msg,
+       );
+     }
++    if (!runnables[appKey] || typeof runnables[appKey] !== 'function') {
++      if (appParameters) {
++        appParameters.appKey = appKey;
++      }
++      appKey = 'xt-app-404';
++    }
+     invariant(
+       runnables[appKey],
+       `"${appKey}" has not been registered. This can happen if:\n` +
+diff --git a/node_modules/react-native/Libraries/Renderer/shims/ReactNativeViewConfigRegistry.js b/node_modules/react-native/Libraries/Renderer/shims/ReactNativeViewConfigRegistry.js
+index d1da444..0dc8a86 100644
+--- a/node_modules/react-native/Libraries/Renderer/shims/ReactNativeViewConfigRegistry.js
++++ b/node_modules/react-native/Libraries/Renderer/shims/ReactNativeViewConfigRegistry.js
+@@ -73,11 +73,15 @@ function processEventTypes(viewConfig: ViewConfig): void {
+  * The callback is deferred until the view is actually rendered.
+  */
+ export function register(name: string, callback: () => ViewConfig): string {
+-  invariant(
+-    !viewConfigCallbacks.has(name),
+-    'Tried to register two views with the same name %s',
+-    name,
+-  );
++  const shouldSkipDuplicateInvariant =
++    typeof name === 'string' && /xrn/i.test(name);
++  if (!shouldSkipDuplicateInvariant) {
++    invariant(
++      !viewConfigCallbacks.has(name),
++      'Tried to register two views with the same name %s',
++      name,
++    );
++  }
+   invariant(
+     typeof callback === 'function',
+     'View config getter callback for component `%s` must be a function (received `%s`)',
+diff --git a/node_modules/react-native/Libraries/Utilities/Dimensions.js b/node_modules/react-native/Libraries/Utilities/Dimensions.js
+index e5775a9..14af4a1 100644
+--- a/node_modules/react-native/Libraries/Utilities/Dimensions.js
++++ b/node_modules/react-native/Libraries/Utilities/Dimensions.js
+@@ -17,6 +17,8 @@ import NativeDeviceInfo, {
+   type DisplayMetrics,
+   type DisplayMetricsAndroid,
+ } from './NativeDeviceInfo';
++import Platform from './Platform'
++import StatusBar from '../Components/StatusBar/StatusBar'
+ import invariant from 'invariant';
+ 
+ const eventEmitter = new EventEmitter<{
+@@ -46,6 +48,20 @@ class Dimensions {
+   static get(dim: string): DisplayMetrics | DisplayMetricsAndroid {
+     // $FlowFixMe[invalid-computed-prop]
+     invariant(dimensions[dim], 'No dimension set for key ' + dim);
++
++    // 处理 Android 15 以上，窗口高度包含状态栏高度的问题
++    if (
++      Platform.OS === 'android' &&
++      dim === 'window' &&
++      Platform.Version >= 35
++    ) {
++      const originalDimensions = dimensions[dim];
++      return {
++        ...originalDimensions,
++        height: originalDimensions.height - (StatusBar.currentHeight || 0),
++      };
++    }
++
+     return dimensions[dim];
+   }
+ 
+@@ -115,7 +131,17 @@ class Dimensions {
+ RCTDeviceEventEmitter.addListener(
+   'didUpdateDimensions',
+   (update: DimensionsPayload) => {
+-    Dimensions.set(update);
++    // 处理 Android 15 以上，窗口高度包含状态栏高度的问题
++    if (Platform.OS === 'android' && Platform.Version >= 35) {
++      const newUpdate = {...update};
++      if (newUpdate.window) {
++        newUpdate.window.height =
++          newUpdate.window.height - (StatusBar.currentHeight || 0);
++      }
++      Dimensions.set(newUpdate);
++    } else {
++      Dimensions.set(update);
++    }
+   },
+ );
+ Dimensions.set(NativeDeviceInfo.getConstants().Dimensions);
+diff --git a/node_modules/react-native/Libraries/Utilities/Platform.d.ts b/node_modules/react-native/Libraries/Utilities/Platform.d.ts
+index 7f7dc61..1f8af8e 100644
+--- a/node_modules/react-native/Libraries/Utilities/Platform.d.ts
++++ b/node_modules/react-native/Libraries/Utilities/Platform.d.ts
+@@ -16,6 +16,7 @@ export type PlatformOSType =
+   | 'macos'
+   | 'windows'
+   | 'web'
++  | 'harmony' // RNOH: patch
+   | 'native';
+ type PlatformConstants = {
+   isTesting: boolean;
+@@ -96,11 +97,33 @@ interface PlatformWebStatic extends PlatformStatic {
+   OS: 'web';
+ }
+ 
++// begin RNOH: patch
++export type PlatformHarmonyConstants = PlatformConstants & {
++  deviceType:
++    | 'default'
++    | 'phone'
++    | 'wearable'
++    | 'liteWearable'
++    | 'tablet'
++    | 'tv'
++    | 'car'
++    | 'smartVision';
++  osFullName: string;
++  Model: string;
++};
++
++export interface PlatformHarmonyStatic extends PlatformStatic {
++  OS: 'harmony';
++  constants: PlatformHarmonyConstants;
++}
++// end RNOH: patch
++
+ export type Platform =
+   | PlatformIOSStatic
+   | PlatformAndroidStatic
+   | PlatformWindowsOSStatic
+   | PlatformMacOSStatic
+-  | PlatformWebStatic;
++  | PlatformWebStatic
++  | PlatformHarmonyStatic; // RNOH: patch
+ 
+ export const Platform: Platform;
+diff --git a/node_modules/react-native/React/Fabric/Mounting/ComponentViews/Modal/RCTModalHostViewComponentView.mm b/node_modules/react-native/React/Fabric/Mounting/ComponentViews/Modal/RCTModalHostViewComponentView.mm
+index 9205fa3..4734ae8 100644
+--- a/node_modules/react-native/React/Fabric/Mounting/ComponentViews/Modal/RCTModalHostViewComponentView.mm
++++ b/node_modules/react-native/React/Fabric/Mounting/ComponentViews/Modal/RCTModalHostViewComponentView.mm
+@@ -10,6 +10,7 @@
+ #import <React/RCTBridge+Private.h>
+ #import <React/RCTModalManager.h>
+ #import <React/UIView+React.h>
++#import <React/RCTUtils.h>
+ #import <react/renderer/components/modal/ModalHostViewComponentDescriptor.h>
+ #import <react/renderer/components/modal/ModalHostViewState.h>
+ #import <react/renderer/components/rncore/EventEmitters.h>
+@@ -104,7 +105,13 @@ @implementation RCTModalHostViewComponentView {
+   BOOL _shouldAnimatePresentation;
+   BOOL _shouldPresent;
+   BOOL _isPresented;
++  BOOL _isDismissing;
++  BOOL _presentInCurrentWindow;
++  NSString *_softInputMode;
++  NSNumber *_space;
++  NSNumber *_modalHeaderSpace;
+   UIView *_modalContentsSnapshot;
++  UIWindow *_modalWindow;
+ }
+ 
+ - (instancetype)initWithFrame:(CGRect)frame
+@@ -114,6 +121,7 @@ - (instancetype)initWithFrame:(CGRect)frame
+     _shouldAnimatePresentation = YES;
+ 
+     _isPresented = NO;
++    _isDismissing = NO;
+   }
+ 
+   return self;
+@@ -133,8 +141,35 @@ - (void)presentViewController:(UIViewController *)modalViewController
+                      animated:(BOOL)animated
+                    completion:(void (^)(void))completion
+ {
+-  UIViewController *controller = [self reactViewController];
+-  [controller presentViewController:modalViewController animated:animated completion:completion];
++  dispatch_async(dispatch_get_main_queue(), ^{
++    // visible 已关则不再 present（避免 dismiss 动画未结束又触发展示）
++    if (!self->_shouldPresent || self->_isDismissing) {
++      if (completion) {
++        completion();
++      }
++      return;
++    }
++
++    UIViewController *controller = nil;
++    if (self->_presentInCurrentWindow) {
++      UIViewController *lastPresentedViewController = RCTKeyWindow().rootViewController;
++      UIViewController *presentedViewController = nil;
++      while (lastPresentedViewController != nil) {
++        presentedViewController = lastPresentedViewController;
++        lastPresentedViewController = lastPresentedViewController.presentedViewController;
++      }
++      controller = presentedViewController;
++    } else {
++      self->_modalWindow = [[UIWindow alloc] initWithFrame:UIScreen.mainScreen.bounds];
++      self->_modalWindow.windowLevel = UIWindowLevelAlert;
++      UIViewController *newViewController = [[UIViewController alloc] init];
++      self->_modalWindow.rootViewController = newViewController;
++      [self->_modalWindow makeKeyAndVisible];
++      controller = newViewController;
++    }
++
++    [controller presentViewController:modalViewController animated:animated completion:completion];
++  });
+ }
+ 
+ - (void)dismissViewController:(UIViewController *)modalViewController
+@@ -142,11 +177,38 @@ - (void)dismissViewController:(UIViewController *)modalViewController
+                    completion:(void (^)(void))completion
+ {
+   _modalContentsSnapshot = [self.viewController.view snapshotViewAfterScreenUpdates:NO];
+-  [modalViewController dismissViewControllerAnimated:animated completion:completion];
++  _isDismissing = YES;
++
++  dispatch_async(dispatch_get_main_queue(), ^{
++    dispatch_block_t completionBlock = ^{
++      self->_isPresented = NO;
++      self->_isDismissing = NO;
++      if (completion) {
++        completion();
++      }
++      if (self->_modalWindow != nil) {
++        self->_modalWindow.hidden = YES;
++        self->_modalWindow = nil;
++      }
++      // dismiss 结束后再根据 visible 补一次 present/dismiss 对齐
++      [self ensurePresentedOnlyIfNeeded];
++    };
++
++    if (modalViewController.presentingViewController == nil) {
++      completionBlock();
++      return;
++    }
++
++    [modalViewController.presentingViewController dismissViewControllerAnimated:animated completion:completionBlock];
++  });
+ }
+ 
+ - (void)ensurePresentedOnlyIfNeeded
+ {
++  if (_isDismissing) {
++    return;
++  }
++
+   BOOL shouldBePresented = !_isPresented && _shouldPresent && self.window;
+   if (shouldBePresented) {
+     self.viewController.presentationController.delegate = self;
+@@ -160,19 +222,18 @@ - (void)ensurePresentedOnlyIfNeeded
+                          eventEmitter->onShow(ModalHostViewEventEmitter::OnShow{});
+                        }
+                      }];
++    return;
+   }
+ 
+   BOOL shouldBeHidden = _isPresented && (!_shouldPresent || !self.superview);
+   if (shouldBeHidden) {
+-    _isPresented = NO;
+-    // To animate dismissal of view controller, snapshot of
+-    // view hierarchy needs to be added to the UIViewController.
+     UIView *snapshot = _modalContentsSnapshot;
+ 
+     if (_shouldPresent) {
+       [self.viewController.view addSubview:snapshot];
+     }
+ 
++    // 不在 dismiss 开始时置 _isPresented=NO，等 UIKit 完成后再改（见 dismiss completionBlock）
+     [self dismissViewController:self.viewController
+                        animated:_shouldAnimatePresentation
+                      completion:^{
+@@ -237,6 +298,7 @@ - (void)prepareForRecycle
+   _state.reset();
+   _viewController = nil;
+   _isPresented = NO;
++  _isDismissing = NO;
+   _shouldPresent = NO;
+ }
+ 
+@@ -253,7 +315,10 @@ - (void)updateProps:(const Props::Shared &)props oldProps:(const Props::Shared &
+   self.viewController.modalTransitionStyle = transitionStyle;
+ 
+   self.viewController.modalPresentationStyle = presentationConfiguration(newProps);
+-
++  _presentInCurrentWindow = newProps.presentInCurrentWindow;
++  _softInputMode = [NSString stringWithUTF8String:newProps.softInputMode.c_str()];
++  _space = @(newProps.space);
++  _modalHeaderSpace = @(newProps.modalHeaderSpace);
+   _shouldPresent = newProps.visible;
+   [self ensurePresentedOnlyIfNeeded];
+ 
+diff --git a/node_modules/react-native/React/Fabric/Mounting/ComponentViews/TextInput/RCTTextInputComponentView.mm b/node_modules/react-native/React/Fabric/Mounting/ComponentViews/TextInput/RCTTextInputComponentView.mm
+index d2ace94..24eef2c 100644
+--- a/node_modules/react-native/React/Fabric/Mounting/ComponentViews/TextInput/RCTTextInputComponentView.mm
++++ b/node_modules/react-native/React/Fabric/Mounting/ComponentViews/TextInput/RCTTextInputComponentView.mm
+@@ -338,6 +338,8 @@ - (void)prepareForRecycle
+   _lastStringStateWasUpdatedWith = nil;
+   _ignoreNextTextInputCall = NO;
+   _didMoveToWindow = NO;
++  _backedTextInputView.inputView = nil;
++  _backedTextInputView.inputAccessoryView = nil;
+   [_backedTextInputView resignFirstResponder];
+ }
+ 
+diff --git a/node_modules/react-native/React/Views/RCTModalHostView.h b/node_modules/react-native/React/Views/RCTModalHostView.h
+index 2fcdcae..8bfe83e 100644
+--- a/node_modules/react-native/React/Views/RCTModalHostView.h
++++ b/node_modules/react-native/React/Views/RCTModalHostView.h
+@@ -18,8 +18,15 @@
+ 
+ @interface RCTModalHostView : UIView <RCTInvalidating, UIAdaptivePresentationControllerDelegate>
+ 
++// 'resize' | 'pan';
++@property (nonatomic, copy) NSString *softInputMode;
++@property (nonatomic, strong) NSNumber *space;
++@property (nonatomic, copy) NSString *scrollableViewTag;
++@property (nonatomic, strong) NSNumber *modalHeaderSpace;
++
+ @property (nonatomic, copy) NSString *animationType;
+ @property (nonatomic, assign) UIModalPresentationStyle presentationStyle;
++@property (nonatomic, assign) BOOL presentInCurrentWindow; /// 是否在当前window上显示，默认false
+ @property (nonatomic, assign, getter=isTransparent) BOOL transparent;
+ 
+ @property (nonatomic, copy) RCTDirectEventBlock onShow;
+@@ -36,12 +43,13 @@
+ 
+ @property (nonatomic, copy) NSArray<NSString *> *supportedOrientations;
+ @property (nonatomic, copy) RCTDirectEventBlock onOrientationChange;
++@property (nonatomic, strong) UIWindow *modalWindow;
+ 
+ // Fabric only
+ @property (nonatomic, copy) RCTDirectEventBlock onDismiss;
+ 
+ - (instancetype)initWithBridge:(RCTBridge *)bridge NS_DESIGNATED_INITIALIZER;
+-
++- (void)dismissModalViewControllerWithCompletion:(void (^)(void))completion;
+ @end
+ 
+ @protocol RCTModalHostViewInteractor <NSObject>
+@@ -52,5 +60,8 @@
+ - (void)dismissModalHostView:(RCTModalHostView *)modalHostView
+           withViewController:(RCTModalHostViewController *)viewController
+                     animated:(BOOL)animated;
++- (void)dismissModalHostViewWithCompletion:(RCTModalHostView *)modalHostView
++					withViewController:(RCTModalHostViewController *)viewController
++										animated:(BOOL)animated completion: (void (^)(void))completion;
+ 
+ @end
+diff --git a/node_modules/react-native/React/Views/RCTModalHostView.m b/node_modules/react-native/React/Views/RCTModalHostView.m
+index 5e1c2a6..c0452d3 100644
+--- a/node_modules/react-native/React/Views/RCTModalHostView.m
++++ b/node_modules/react-native/React/Views/RCTModalHostView.m
+@@ -40,6 +40,7 @@ - (instancetype)initWithBridge:(RCTBridge *)bridge
+     _modalViewController.view = containerView;
+     _touchHandler = [[RCTTouchHandler alloc] initWithBridge:bridge];
+     _isPresented = NO;
++		_modalViewController.modalHostView = self;
+ 
+     __weak typeof(self) weakSelf = self;
+     _modalViewController.boundsDidChangeBlock = ^(CGRect newBounds) {
+@@ -116,11 +117,16 @@ - (void)didUpdateReactSubviews
+ 
+ - (void)dismissModalViewController
+ {
+-  if (_isPresented) {
+-    [_delegate dismissModalHostView:self withViewController:_modalViewController animated:[self hasAnimationType]];
+-    _isPresented = NO;
+-    [self setVisible:NO];
+-  }
++	[self dismissModalViewControllerWithCompletion:nil];
++}
++
++- (void)dismissModalViewControllerWithCompletion:(void (^)(void))completion
++{
++	if (_isPresented) {
++		[_delegate dismissModalHostViewWithCompletion:self withViewController:_modalViewController animated:[self hasAnimationType] completion: completion];
++		_isPresented = NO;
++		[self setVisible:NO];
++	}
+ }
+ 
+ - (void)didMoveToWindow
+diff --git a/node_modules/react-native/React/Views/RCTModalHostViewController.h b/node_modules/react-native/React/Views/RCTModalHostViewController.h
+index b12b0f7..ec340e8 100644
+--- a/node_modules/react-native/React/Views/RCTModalHostViewController.h
++++ b/node_modules/react-native/React/Views/RCTModalHostViewController.h
+@@ -6,11 +6,14 @@
+  */
+ 
+ #import <UIKit/UIKit.h>
++#import "RCTModalHostView.h"
+ 
+ @interface RCTModalHostViewController : UIViewController
+ 
+ @property (nonatomic, copy) void (^boundsDidChangeBlock)(CGRect newBounds);
+ 
++@property RCTModalHostView* modalHostView;
++
+ @property (nonatomic, assign) UIInterfaceOrientationMask supportedInterfaceOrientations;
+ 
+ @end
+diff --git a/node_modules/react-native/React/Views/RCTModalHostViewManager.m b/node_modules/react-native/React/Views/RCTModalHostViewManager.m
+index eccf05f..99eff69 100644
+--- a/node_modules/react-native/React/Views/RCTModalHostViewManager.m
++++ b/node_modules/react-native/React/Views/RCTModalHostViewManager.m
+@@ -64,34 +64,64 @@ - (void)presentModalHostView:(RCTModalHostView *)modalHostView
+     if (self->_presentationBlock) {
+       self->_presentationBlock([modalHostView reactViewController], viewController, animated, completionBlock);
+     } else {
+-      [[modalHostView reactViewController] presentViewController:viewController
+-                                                        animated:animated
+-                                                      completion:completionBlock];
++			UIViewController* presentingViewController;
++      if (modalHostView.presentationStyle == UIModalPresentationPageSheet || modalHostView.presentationStyle == UIModalPresentationFormSheet || modalHostView.presentInCurrentWindow) {
++				UIViewController *lastPresentedViewController = RCTKeyWindow().rootViewController;
++				UIViewController *presentedViewController = nil;
++				while (lastPresentedViewController != nil) {
++					presentedViewController = lastPresentedViewController;
++					lastPresentedViewController = lastPresentedViewController.presentedViewController;
++				}
++				presentingViewController = presentedViewController;
++			} else {
++				modalHostView.modalWindow = [[UIWindow alloc] initWithFrame:UIScreen.mainScreen.bounds];
++				modalHostView.modalWindow.windowLevel = UIWindowLevelAlert;
++				UIViewController *newViewController = [[UIViewController alloc] init];
++				modalHostView.modalWindow.rootViewController = newViewController;
++				[modalHostView.modalWindow makeKeyAndVisible];
++				presentingViewController = newViewController;
++			}
++			[presentingViewController presentViewController:viewController animated:animated completion:completionBlock];
+     }
+   });
+ }
+ 
++- (void)dismissModalHostViewWithCompletion:(RCTModalHostView *)modalHostView
++					withViewController:(RCTModalHostViewController *)viewController
++										animated:(BOOL)animated completion:(void (^)(void))completion
++{
++	dispatch_block_t completionBlock = ^{
++		if (modalHostView.identifier) {
++			[[self.bridge moduleForClass:[RCTModalManager class]] modalDismissed:modalHostView.identifier];
++		}
++		if (completion) {
++			completion();
++		}
++		modalHostView.modalWindow = nil;
++	};
++	dispatch_async(dispatch_get_main_queue(), ^{
++		if (self->_dismissalBlock) {
++			self->_dismissalBlock([modalHostView reactViewController], viewController, animated, completionBlock);
++		} else {
++			if (viewController.presentedViewController != nil && [viewController.presentedViewController isKindOfClass:[RCTModalHostViewController class]]) {
++				RCTModalHostViewController* presentedModalViewController = (RCTModalHostViewController *)viewController.presentedViewController;
++				dispatch_block_t childModalCompletionBlock = ^{
++					[viewController.presentingViewController dismissViewControllerAnimated:animated completion:completionBlock];
++				};
++
++				[presentedModalViewController.modalHostView dismissModalViewControllerWithCompletion: childModalCompletionBlock];
++			} else {
++				[viewController.presentingViewController dismissViewControllerAnimated:animated completion:completionBlock];
++			}
++		}
++	});
++}
++
+ - (void)dismissModalHostView:(RCTModalHostView *)modalHostView
+           withViewController:(RCTModalHostViewController *)viewController
+                     animated:(BOOL)animated
+ {
+-  dispatch_block_t completionBlock = ^{
+-    if (modalHostView.identifier) {
+-      [[self.bridge moduleForClass:[RCTModalManager class]] modalDismissed:modalHostView.identifier];
+-    }
+-  };
+-  dispatch_async(dispatch_get_main_queue(), ^{
+-    if (self->_dismissalBlock) {
+-      self->_dismissalBlock([modalHostView reactViewController], viewController, animated, completionBlock);
+-    } else if (viewController.presentingViewController) {
+-      [viewController.presentingViewController dismissViewControllerAnimated:animated completion:completionBlock];
+-    } else {
+-      // Make sure to call the completion block in case the presenting view controller is nil
+-      // In an internal app we have a use case where a modal presents another view without bein dismissed
+-      // This, somehow, invalidate the presenting view controller and the modal remains always visible.
+-      completionBlock();
+-    }
+-  });
++	[self dismissModalHostViewWithCompletion:modalHostView withViewController:viewController animated:animated completion:nil];
+ }
+ 
+ - (RCTShadowView *)shadowView
+@@ -107,8 +137,15 @@ - (void)invalidate
+   _hostViews = nil;
+ }
+ 
++// 导出新属性
++RCT_EXPORT_VIEW_PROPERTY(softInputMode, NSString)
++RCT_EXPORT_VIEW_PROPERTY(space, NSNumber)
++RCT_EXPORT_VIEW_PROPERTY(scrollableViewTag, NSString)
++RCT_EXPORT_VIEW_PROPERTY(modalHeaderSpace, NSNumber)
++
+ RCT_EXPORT_VIEW_PROPERTY(animationType, NSString)
+ RCT_EXPORT_VIEW_PROPERTY(presentationStyle, UIModalPresentationStyle)
++RCT_EXPORT_VIEW_PROPERTY(presentInCurrentWindow, BOOL)
+ RCT_EXPORT_VIEW_PROPERTY(transparent, BOOL)
+ RCT_EXPORT_VIEW_PROPERTY(statusBarTranslucent, BOOL)
+ RCT_EXPORT_VIEW_PROPERTY(hardwareAccelerated, BOOL)
+diff --git a/node_modules/react-native/ReactCommon/jsc/JSCRuntime.cpp b/node_modules/react-native/ReactCommon/jsc/JSCRuntime.cpp
+index 6ea718b..36a2ce8 100644
+--- a/node_modules/react-native/ReactCommon/jsc/JSCRuntime.cpp
++++ b/node_modules/react-native/ReactCommon/jsc/JSCRuntime.cpp
+@@ -401,12 +401,12 @@ JSCRuntime::~JSCRuntime() {
+   // No need to unprotect nativeStateSymbol_ since the heap is getting torn down
+   // anyway
+   JSGlobalContextRelease(ctx_);
+-#ifndef NDEBUG
+-  assert(
+-      objectCounter_ == 0 && "JSCRuntime destroyed with a dangling API object");
+-  assert(
+-      stringCounter_ == 0 && "JSCRuntime destroyed with a dangling API string");
+-#endif
++//#ifndef NDEBUG
++//  assert(
++//      objectCounter_ == 0 && "JSCRuntime destroyed with a dangling API object");
++//  assert(
++//      stringCounter_ == 0 && "JSCRuntime destroyed with a dangling API string");
++//#endif
+ }
+ 
+ std::shared_ptr<const jsi::PreparedJavaScript> JSCRuntime::prepareJavaScript(
+diff --git a/node_modules/react-native/ReactCommon/react/renderer/components/rncore/Props.cpp b/node_modules/react-native/ReactCommon/react/renderer/components/rncore/Props.cpp
+index 2f1c07f..7fd2b36 100644
+--- a/node_modules/react-native/ReactCommon/react/renderer/components/rncore/Props.cpp
++++ b/node_modules/react-native/ReactCommon/react/renderer/components/rncore/Props.cpp
+@@ -121,6 +121,10 @@ ModalHostViewProps::ModalHostViewProps(
+     hardwareAccelerated(convertRawProp(context, rawProps, "hardwareAccelerated", sourceProps.hardwareAccelerated, {false})),
+     visible(convertRawProp(context, rawProps, "visible", sourceProps.visible, {false})),
+     animated(convertRawProp(context, rawProps, "animated", sourceProps.animated, {false})),
++    presentInCurrentWindow(convertRawProp(context, rawProps, "presentInCurrentWindow", sourceProps.presentInCurrentWindow, {false})),
++    softInputMode(convertRawProp(context, rawProps, "softInputMode", sourceProps.softInputMode, {""})),
++    space(convertRawProp(context, rawProps, "space", sourceProps.space, {0})),
++    modalHeaderSpace(convertRawProp(context, rawProps, "modalHeaderSpace", sourceProps.modalHeaderSpace, {0})),
+     supportedOrientations(convertRawProp(context, rawProps, "supportedOrientations", ModalHostViewSupportedOrientationsMaskWrapped{ .value = sourceProps.supportedOrientations }, {static_cast<ModalHostViewSupportedOrientationsMask>(ModalHostViewSupportedOrientations::Portrait)}).value),
+     identifier(convertRawProp(context, rawProps, "identifier", sourceProps.identifier, {0}))
+       {}
+diff --git a/node_modules/react-native/ReactCommon/react/renderer/components/rncore/Props.h b/node_modules/react-native/ReactCommon/react/renderer/components/rncore/Props.h
+index 8290990..e048357 100644
+--- a/node_modules/react-native/ReactCommon/react/renderer/components/rncore/Props.h
++++ b/node_modules/react-native/ReactCommon/react/renderer/components/rncore/Props.h
+@@ -353,6 +353,10 @@ class ModalHostViewProps final : public ViewProps {
+   bool hardwareAccelerated{false};
+   bool visible{false};
+   bool animated{false};
++  bool presentInCurrentWindow{false};
++  std::string softInputMode{""};
++  int space{0};
++  int modalHeaderSpace{0};
+   ModalHostViewSupportedOrientationsMask supportedOrientations{static_cast<ModalHostViewSupportedOrientationsMask>(ModalHostViewSupportedOrientations::Portrait)};
+   int identifier{0};
+ };
+diff --git a/node_modules/react-native/src/private/specs/components/RCTModalHostViewNativeComponent.js b/node_modules/react-native/src/private/specs/components/RCTModalHostViewNativeComponent.js
+index 58ec294..d794acd 100644
+--- a/node_modules/react-native/src/private/specs/components/RCTModalHostViewNativeComponent.js
++++ b/node_modules/react-native/src/private/specs/components/RCTModalHostViewNativeComponent.js
+@@ -139,6 +139,16 @@ type NativeProps = $ReadOnly<{|
+    * The `identifier` is the unique number for identifying Modal components.
+    */
+   identifier?: WithDefault<Int32, 0>,
++
++  // XT custom props for keyboard handling
++  softInputMode?: WithDefault<string, ''>,
++  space?: WithDefault<Int32, 0>,
++  modalHeaderSpace?: WithDefault<Int32, -1>,
++
++  /**
++   * Modal弹出是否在当前window上显示，默认false
++   */
++  presentInCurrentWindow?: WithDefault<boolean, false>,
+ |}>;
+ 
+ export default (codegenNativeComponent<NativeProps>('ModalHostView', {
+diff --git a/node_modules/react-native/Libraries/Renderer/implementations/ReactFabric-prod.js b/node_modules/react-native/Libraries/Renderer/implementations/ReactFabric-prod.js
+index 3e5cf86..f29a6d4 100644
+--- a/node_modules/react-native/Libraries/Renderer/implementations/ReactFabric-prod.js
++++ b/node_modules/react-native/Libraries/Renderer/implementations/ReactFabric-prod.js
+@@ -12,6 +12,7 @@
+  */
+ 
+ "use strict";
++
+ require("react-native/Libraries/ReactPrivate/ReactNativePrivateInitializeCore");
+ var ReactNativePrivateInterface = require("react-native/Libraries/ReactPrivate/ReactNativePrivateInterface"),
+   React = require("react"),
+@@ -1533,7 +1534,25 @@ var _nativeFabricUIManage = nativeFabricUIManager,
+   getViewConfigForType =
+     ReactNativePrivateInterface.ReactNativeViewConfigRegistry.get,
+   nextReactTag = 2;
+-registerEventHandler && registerEventHandler(dispatchEvent);
++  
++  if (ReactNativePrivateInterface.Platform.OS === 'ios') {
++    var __originalDispatchEvent = dispatchEvent;
++    var __guardedDispatchEvent = function () {
++      try {
++        return __originalDispatchEvent.apply(this, arguments);
++      } catch (err) {
++        try {
++          if (global.ErrorUtils && typeof global.ErrorUtils.reportError === 'function') {
++            global.ErrorUtils.reportError(err);
++          }
++        } catch (e) {}
++      }
++    };
++    registerEventHandler && registerEventHandler(__guardedDispatchEvent);
++  } else {
++    registerEventHandler && registerEventHandler(dispatchEvent);
++  }
++
+ function createTextInstance(
+   text,
+   rootContainerInstance,
+diff --git a/node_modules/react-native/Libraries/Network/RCTHTTPRequestHandler.mm b/node_modules/react-native/Libraries/Network/RCTHTTPRequestHandler.mm
+index 4a03533..811131b 100644
+--- a/node_modules/react-native/Libraries/Network/RCTHTTPRequestHandler.mm
++++ b/node_modules/react-native/Libraries/Network/RCTHTTPRequestHandler.mm
+@@ -8,11 +8,14 @@
+ #import <React/RCTHTTPRequestHandler.h>
+ 
+ #import <mutex>
++#import <objc/runtime.h>
+ 
++#import <React/RCTNetworkTask.h>
+ #import <React/RCTNetworking.h>
+ #import <ReactCommon/RCTTurboModule.h>
+ 
+ #import "RCTNetworkPlugins.h"
++#import "XTRNURLSessionHub.h"
+ 
+ @interface RCTHTTPRequestHandler () <NSURLSessionDataDelegate, RCTTurboModule>
+ 
+@@ -20,6 +23,79 @@ @interface RCTHTTPRequestHandler () <NSURLSessionDataDelegate, RCTTurboModule>
+ 
+ static NSURLSessionConfigurationProvider urlSessionConfigurationProvider;
+ 
++static char kXTHTTPMetricsRNRequestIDAssociationKeyStorage;
++const void *XTHTTPMetricsRNRequestIDAssociationKey = &kXTHTTPMetricsRNRequestIDAssociationKeyStorage;
++
++/// Absolute time in milliseconds since 1970-01-01 (Unix epoch), for JS `timing` milestones.
++static NSNumber *RCTXT_EpochMilliseconds(NSDate *date)
++{
++  if (date == nil) {
++    return nil;
++  }
++  double ms = [date timeIntervalSince1970] * 1000.0;
++  if (!isfinite(ms)) {
++    return nil;
++  }
++  return @(ms);
++}
++
++static void RCTXT_SetTimingMs(NSMutableDictionary *timing, NSString *key, NSDate *date)
++{
++  NSNumber *ms = RCTXT_EpochMilliseconds(date);
++  if (ms != nil) {
++    timing[key] = ms;
++  }
++}
++
++/// Nested payload for JS: `timing` (epoch ms) + `connection` (meta). Aligns with Android Resource Timing shape.
++static NSDictionary *RCTXT_NetworkMetricsPayload(NSURLSessionTaskTransactionMetrics *txn, NSURLSessionTaskMetrics *metrics)
++{
++  NSMutableDictionary *timing = [NSMutableDictionary dictionaryWithCapacity:16];
++  NSMutableDictionary *connection = [NSMutableDictionary dictionaryWithCapacity:8];
++
++  RCTXT_SetTimingMs(timing, @"fetchStart", txn.fetchStartDate);
++  RCTXT_SetTimingMs(timing, @"dnsStart", txn.domainLookupStartDate);
++  RCTXT_SetTimingMs(timing, @"dnsEnd", txn.domainLookupEndDate);
++  RCTXT_SetTimingMs(timing, @"connectStart", txn.connectStartDate);
++  RCTXT_SetTimingMs(timing, @"connectEnd", txn.connectEndDate);
++  RCTXT_SetTimingMs(timing, @"tlsStart", txn.secureConnectionStartDate);
++  RCTXT_SetTimingMs(timing, @"tlsEnd", txn.secureConnectionEndDate);
++  RCTXT_SetTimingMs(timing, @"requestStart", txn.requestStartDate);
++  RCTXT_SetTimingMs(timing, @"requestEnd", txn.requestEndDate);
++  RCTXT_SetTimingMs(timing, @"responseStart", txn.responseStartDate);
++  RCTXT_SetTimingMs(timing, @"responseEnd", txn.responseEndDate);
++  // Resource Timing `fetchEnd`: response fully received (NSURLSession has no separate fetchEndDate).
++  RCTXT_SetTimingMs(timing, @"fetchEnd", txn.responseEndDate);
++
++  // TCP: for HTTPS, from connect start to TLS start; for plain HTTP, full connect interval.
++  if (txn.connectStartDate != nil && txn.secureConnectionStartDate != nil) {
++    NSNumber *tcpStart = RCTXT_EpochMilliseconds(txn.connectStartDate);
++    NSNumber *tcpEnd = RCTXT_EpochMilliseconds(txn.secureConnectionStartDate);
++    if (tcpStart != nil && tcpEnd != nil && [tcpEnd doubleValue] >= [tcpStart doubleValue]) {
++      timing[@"tcpStart"] = tcpStart;
++      timing[@"tcpEnd"] = tcpEnd;
++    }
++  } else if (txn.connectStartDate != nil && txn.connectEndDate != nil && txn.secureConnectionStartDate == nil) {
++    NSNumber *tcpStart = RCTXT_EpochMilliseconds(txn.connectStartDate);
++    NSNumber *tcpEnd = RCTXT_EpochMilliseconds(txn.connectEndDate);
++    if (tcpStart != nil && tcpEnd != nil) {
++      timing[@"tcpStart"] = tcpStart;
++      timing[@"tcpEnd"] = tcpEnd;
++    }
++  }
++
++  connection[@"redirectCount"] = @(metrics.redirectCount);
++  connection[@"reusedConnection"] = txn.isReusedConnection ? @1 : @0;
++  connection[@"proxyConnection"] = txn.isProxyConnection ? @1 : @0;
++  connection[@"netType"] = txn.isCellular ? @"流量" : @"Wifi";
++  connection[@"remoteAddress"] = txn.remoteAddress ? : @"";
++
++  return @{
++    @"timing" : [timing copy],
++    @"connection" : [connection copy],
++  };
++}
++
+ void RCTSetCustomNSURLSessionConfigurationProvider(NSURLSessionConfigurationProvider provider)
+ {
+   urlSessionConfigurationProvider = provider;
+@@ -37,9 +113,11 @@ @implementation RCTHTTPRequestHandler {
+ 
+ - (void)invalidate
+ {
++  // 先置 nil 使 isValid 立即返回 NO，阻止并发的 sendRequest 再发新请求
+   std::lock_guard<std::mutex> lock(_mutex);
+-  [self->_session invalidateAndCancel];
+   self->_session = nil;
++  // 锁外调用，避免 Hub 派发 cancelled 回调时回抢 _mutex 死锁
++  [[XTRNURLSessionHub shared] unregisterOwner:self cancelTasks:YES];
+ }
+ 
+ // Needs to lock before call this method.
+@@ -66,8 +144,11 @@ - (BOOL)canHandleRequest:(NSURLRequest *)request
+ - (NSURLSessionDataTask *)sendRequest:(NSURLRequest *)request withDelegate:(id<RCTURLRequestDelegate>)delegate
+ {
+   std::lock_guard<std::mutex> lock(_mutex);
+-  // Lazy setup
+-  if (!_session && [self isValid]) {
++  if (![self isValid]) {
++    return nil;
++  }
++
++  if (_delegates == nil) {
+     // You can override default NSURLSession instance property allowsCellularAccess (default value YES)
+     //  by providing the following key to your RN project (edit ios/project/Info.plist file in Xcode):
+     // <key>ReactNetworkForceWifiOnly</key>    <true/>
+@@ -94,14 +175,19 @@ - (NSURLSessionDataTask *)sendRequest:(NSURLRequest *)request withDelegate:(id<R
+       [configuration setHTTPCookieStorage:[NSHTTPCookieStorage sharedHTTPCookieStorage]];
+     }
+     assert(configuration != nil);
+-    _session = [NSURLSession sessionWithConfiguration:configuration delegate:self delegateQueue:callbackQueue];
++
++    XTRNURLSessionHub *hub = [XTRNURLSessionHub shared];
++    [hub registerOwner:self delegate:self delegateQueue:callbackQueue];
++    _session = [hub sharedSessionWithConfiguration:configuration];
+ 
+     _delegates = [[NSMapTable alloc] initWithKeyOptions:NSPointerFunctionsStrongMemory
+                                            valueOptions:NSPointerFunctionsStrongMemory
+                                                capacity:0];
+   }
++
+   NSURLSessionDataTask *task = [_session dataTaskWithRequest:request];
+   [_delegates setObject:delegate forKey:task];
++  [[XTRNURLSessionHub shared] registerTask:task owner:self];
+   [task resume];
+   return task;
+ }
+@@ -112,6 +198,7 @@ - (void)cancelRequest:(NSURLSessionDataTask *)task
+     std::lock_guard<std::mutex> lock(_mutex);
+     [_delegates removeObjectForKey:task];
+   }
++  [[XTRNURLSessionHub shared] unregisterTask:task];
+   [task cancel];
+ }
+ 
+@@ -181,6 +268,41 @@ - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didComp
+   [delegate URLRequest:task didCompleteWithError:error];
+ }
+ 
++- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didFinishCollectingMetrics:(NSURLSessionTaskMetrics *)metrics {
++  NSURLSessionTaskTransactionMetrics *txn = metrics.transactionMetrics.lastObject;
++
++  if (!txn) {
++    return;
++  }
++
++  // 必须用当前 task 上的关联对象：handler 是单例，若写 self.requestId 会被并发请求互相覆盖，日志里就会大量重复。
++  NSNumber *requestId = objc_getAssociatedObject(task, XTHTTPMetricsRNRequestIDAssociationKey);
++  if (requestId == nil) {
++    return;
++  }
++  NSDictionary *payload = RCTXT_NetworkMetricsPayload(txn, metrics);
++  if (payload.count == 0) {
++    return;
++  }
++
++  id <RCTURLRequestDelegate> delegate = [self RCT_XT_delegateForURLSessionTask:task];
++  if (![delegate isKindOfClass:[RCTNetworkTask class]]) {
++    return;
++  }
++  RCTNetworkTask *networkTask = (RCTNetworkTask *)delegate;
++  RCTURLRequestNativeMetricsBlock metricsBlock = networkTask.nativeMetricsBlock;
++  if (metricsBlock == nil) {
++    return;
++  }
++  metricsBlock(requestId, payload);
++}
++
++- (nullable id<RCTURLRequestDelegate>)RCT_XT_delegateForURLSessionTask:(NSURLSessionTask *)task
++{
++  std::lock_guard<std::mutex> lock(_mutex);
++  return [_delegates objectForKey:task];
++}
++
+ - (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:
+     (const facebook::react::ObjCTurboModule::InitParams &)params
+ {
+diff --git a/node_modules/react-native/Libraries/Network/XTRNURLSessionHub.h b/node_modules/react-native/Libraries/Network/XTRNURLSessionHub.h
+new file mode 100644
+index 0000000..00fbbba
+--- /dev/null
++++ b/node_modules/react-native/Libraries/Network/XTRNURLSessionHub.h
+@@ -0,0 +1,41 @@
++/*
++ * Copyright (c) XTransfer. All rights reserved.
++ *
++ * RN 专用共享 NSURLSession。
++ *
++ * 背景：App 里可能有多个 JS Bridge（主包、子包等），每个 Bridge 各有一个 RCTHTTPRequestHandler。
++ * 若各自创建 NSURLSession，TCP/TLS 连接无法跨 Bridge 复用。
++ * 因此全进程只保留一个 NSURLSession，由本 Hub 持有。
++ *
++ * iOS 限制：一个 NSURLSession 只能有一个 delegate（回调接收者）。
++ * Hub 作为唯一 delegate，收到系统回调后，根据「路由表」转发给对应 Bridge 的 Handler。
++ *
++ * Native 侧 HTTP 走 XTNativeURLSessionHub（@xrnjs/network），与本 Hub 无关。
++ */
++
++#import <Foundation/Foundation.h>
++
++NS_ASSUME_NONNULL_BEGIN
++
++@interface XTRNURLSessionHub : NSObject
++
+++ (instancetype)shared;
++
++/// 全进程唯一的 RN NSURLSession；configuration 仅在首次创建时使用
++- (NSURLSession *)sharedSessionWithConfiguration:(NSURLSessionConfiguration *)configuration;
++
++/// 注册 Bridge 的 Handler（owner），并声明「该 Bridge 的回调应派发到哪个 queue」
++- (void)registerOwner:(id)owner delegate:(id)delegate delegateQueue:(NSOperationQueue *)delegateQueue;
++
++/// 注册一次 HTTP 请求：把 task 绑定到发起它的 owner（Bridge Handler）
++- (void)registerTask:(NSURLSessionTask *)task owner:(id)owner;
++
++/// 请求结束或取消时，从路由表移除 task
++- (void)unregisterTask:(NSURLSessionTask *)task;
++
++/// Bridge 销毁时注销 owner，可选取消该 Bridge 下所有进行中的 task
++- (void)unregisterOwner:(id)owner cancelTasks:(BOOL)cancelTasks;
++
++@end
++
++NS_ASSUME_NONNULL_END
+diff --git a/node_modules/react-native/Libraries/Network/XTRNURLSessionHub.mm b/node_modules/react-native/Libraries/Network/XTRNURLSessionHub.mm
+new file mode 100644
+index 0000000..c84878c
+--- /dev/null
++++ b/node_modules/react-native/Libraries/Network/XTRNURLSessionHub.mm
+@@ -0,0 +1,286 @@
++/*
++ * Copyright (c) XTransfer. All rights reserved.
++ *
++ * ── 核心概念 ──────────────────────────────────────────────────────────────
++ *     task  ──→  bridgeHandler（哪个 Bridge 的 Handler 发起的）
++ *     bridgeHandler ──→  delegate + callbackQueue（回调派发到哪）
++ *   收到 didReceiveData / didComplete 等回调 → 查表 → 转发到对应 Handler 的 queue。
++ *
++ * 【数据流示意】
++ *   Bridge A (Handler A) ──┐
++ *                          ├──→ XTRNURLSessionHub.sharedSessionWithConfiguration ──→ 网络
++ *   Bridge B (Handler B) ──┘              ↑
++ *                                         │ 系统回调先到 Hub
++ *                                         └── 查 _taskBridgeHandlers → 转发给 A 或 B
++ * ─────────────────────────────────────────────────────────────────────────
++ */
++
++#import "XTRNURLSessionHub.h"
++
++#import <mutex>
++
++/// 每个 Bridge Handler（RCTHTTPRequestHandler）的回调上下文
++@interface XTRNBridgeHandlerContext : NSObject
++
++@property (nonatomic, weak) id delegate;
++@property (nonatomic, strong) NSOperationQueue *delegateQueue;
++
++@end
++
++@implementation XTRNBridgeHandlerContext
++
++@end
++
++
++@interface XTRNURLSessionHub () <NSURLSessionDataDelegate, NSURLSessionTaskDelegate>
++
++@end
++
++@implementation XTRNURLSessionHub {
++  NSURLSession *_session;
++  NSOperationQueue *_sessionDelegateQueue;
++
++  /// Bridge Handler（RCTHTTPRequestHandler）→ 回调上下文（delegate + queue）
++  NSMapTable<id, XTRNBridgeHandlerContext *> *_bridgeHandlerContexts;
++
++  /// 路由表：task → Bridge Handler。每次发请求 registerTask，完成/取消 unregisterTask
++  NSMapTable<NSURLSessionTask *, id> *_taskBridgeHandlers;
++
++  std::mutex _mutex;
++}
++
+++ (instancetype)shared {
++  static XTRNURLSessionHub *instance;
++  static dispatch_once_t onceToken;
++  dispatch_once(&onceToken, ^{
++    instance = [[XTRNURLSessionHub alloc] init];
++  });
++  return instance;
++}
++
++- (instancetype)init {
++  self = [super init];
++  if (self) {
++    _bridgeHandlerContexts = [NSMapTable weakToStrongObjectsMapTable];
++    _taskBridgeHandlers = [NSMapTable strongToWeakObjectsMapTable];
++  }
++  return self;
++}
++
++#pragma mark - Session
++
++- (NSURLSession *)sharedSessionWithConfiguration:(NSURLSessionConfiguration *)configuration {
++  std::lock_guard<std::mutex> lock(_mutex);
++  if (_session != nil) {
++    return _session;
++  }
++
++  // Hub 自己当 Session delegate，所有 Bridge 的请求回调都先到这里
++  _sessionDelegateQueue = [NSOperationQueue new];
++  _sessionDelegateQueue.name = @"com.xt.rn.network.session";
++  _sessionDelegateQueue.maxConcurrentOperationCount = 1;
++
++  _session = [NSURLSession sessionWithConfiguration:configuration delegate:self delegateQueue:_sessionDelegateQueue];
++  return _session;
++}
++
++#pragma mark - Registration（路由表维护）
++
++- (void)registerOwner:(id)owner delegate:(id)delegate delegateQueue:(NSOperationQueue *)delegateQueue {
++  if (owner == nil || delegateQueue == nil) {
++    return;
++  }
++
++  // Handler 首次发请求时调用：记录「这个 Bridge 的回调应派发到 callbackQueue」
++  XTRNBridgeHandlerContext *context = [XTRNBridgeHandlerContext new];
++  context.delegate = delegate;
++  context.delegateQueue = delegateQueue;
++
++  std::lock_guard<std::mutex> lock(_mutex);
++  [_bridgeHandlerContexts setObject:context forKey:owner];
++}
++
++- (void)registerTask:(NSURLSessionTask *)task owner:(id)owner {
++  if (task == nil || owner == nil) {
++    return;
++  }
++
++  // 每次 dataTaskWithRequest + resume 前调用：建立 task → Bridge Handler 映射
++  std::lock_guard<std::mutex> lock(_mutex);
++  [_taskBridgeHandlers setObject:owner forKey:task];
++}
++
++- (void)unregisterTask:(NSURLSessionTask *)task {
++  if (task == nil) {
++    return;
++  }
++  std::lock_guard<std::mutex> lock(_mutex);
++  [_taskBridgeHandlers removeObjectForKey:task];
++}
++
++- (void)unregisterOwner:(id)owner cancelTasks:(BOOL)cancelTasks {
++  if (owner == nil) {
++    return;
++  }
++
++  NSMutableArray<NSURLSessionTask *> *tasksToCancel = [NSMutableArray array];
++  XTRNBridgeHandlerContext *context = nil;
++  NSURLSession *session = nil;
++  {
++    std::lock_guard<std::mutex> lock(_mutex);
++    context = [_bridgeHandlerContexts objectForKey:owner];
++    session = _session;
++    [_bridgeHandlerContexts removeObjectForKey:owner];
++
++    // Bridge invalidate 时，清理该 Bridge Handler 下所有 task 的路由条目。
++    // 先收集再删除，避免在 fast enumeration 期间修改 NSMapTable 导致未定义行为。
++    NSMutableArray<NSURLSessionTask *> *tasksToRemove = [NSMutableArray array];
++    for (NSURLSessionTask *task in _taskBridgeHandlers.keyEnumerator) {
++      id bridgeHandler = [_taskBridgeHandlers objectForKey:task];
++      if (bridgeHandler == owner) {
++        [tasksToRemove addObject:task];
++        if (cancelTasks) {
++          [tasksToCancel addObject:task];
++        }
++      }
++    }
++    for (NSURLSessionTask *task in tasksToRemove) {
++      [_taskBridgeHandlers removeObjectForKey:task];
++    }
++  }
++
++  // 共享 Session 下系统 cancel 回调无法再路由到 Handler，主动派发 NSURLErrorCancelled（对齐 invalidateAndCancel）
++  if (cancelTasks && context != nil && tasksToCancel.count > 0) {
++    id delegate = context.delegate;
++    NSOperationQueue *queue = context.delegateQueue;
++    if (delegate != nil && queue != nil) {
++      NSError *error = [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:nil];
++      for (NSURLSessionTask *task in tasksToCancel) {
++        [queue addOperationWithBlock:^{
++          if ([delegate respondsToSelector:@selector(URLSession:task:didCompleteWithError:)]) {
++            [delegate URLSession:session task:task didCompleteWithError:error];
++          }
++        }];
++      }
++    }
++  }
++
++  for (NSURLSessionTask *task in tasksToCancel) {
++    [task cancel];
++  }
++}
++
++#pragma mark - Delegate forwarding（路由 + 转发）
++
++/// 根据 task 查路由：task → Bridge Handler → delegate/queue（调用方需已持有 _mutex）
++- (nullable XTRNBridgeHandlerContext *)contextForTask:(NSURLSessionTask *)task {
++  id bridgeHandler = [_taskBridgeHandlers objectForKey:task];
++  if (bridgeHandler == nil) {
++    // task 不在路由表，或 Bridge Handler 已释放（weak value 被 zeroed）；顺带清理幽灵条目
++    [_taskBridgeHandlers removeObjectForKey:task];
++    return nil;
++  }
++  return [_bridgeHandlerContexts objectForKey:bridgeHandler];
++}
++
++/// 查路由并派发到 Handler 的 callbackQueue。
++/// unregisterTask 为 YES 时在查路由后立即移除 task 映射（didComplete 专用）
++/// fallback：找不到 delegate 时执行（带 completionHandler 的回调必须调用，否则请求会挂起）
++- (void)dispatchForTask:(NSURLSessionTask *)task unregisterTask:(BOOL)unregisterTask block:(void (^)(id delegate))block fallback:(nullable dispatch_block_t)fallback {
++  XTRNBridgeHandlerContext *context = nil;
++  {
++    std::lock_guard<std::mutex> lock(_mutex);
++    context = [self contextForTask:task];
++    if (unregisterTask) {
++      [_taskBridgeHandlers removeObjectForKey:task];
++    }
++  }
++
++  id delegate = context.delegate;
++  NSOperationQueue *queue = context.delegateQueue;
++  if (delegate == nil || queue == nil) {
++    if (fallback) {
++      fallback();
++    }
++    return;
++  }
++
++  [queue addOperationWithBlock:^{
++    if (block) {
++      block(delegate);
++    }
++  }];
++}
++
++- (void)dispatchForTask:(NSURLSessionTask *)task block:(void (^)(id delegate))block {
++  [self dispatchForTask:task unregisterTask:NO block:block fallback:nil];
++}
++
++- (NSMutableURLRequest *)redirectRequestWithCookies:(NSURLRequest *)request {
++  NSMutableURLRequest *nextRequest = [request mutableCopy];
++  NSArray<NSHTTPCookie *> *cookies = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:request.URL];
++  nextRequest.allHTTPHeaderFields = [NSHTTPCookie requestHeaderFieldsWithCookies:cookies];
++  return nextRequest;
++}
++
++#pragma mark - NSURLSessionTaskDelegate
++// 以下方法均由系统调用到 Hub（Session 的唯一 delegate），再经 dispatchForTask 转发给 RCTHTTPRequestHandler
++- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didSendBodyData:(int64_t)bytesSent totalBytesSent:(int64_t)totalBytesSent totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend {
++  [self dispatchForTask:task block:^(id delegate) {
++    if ([delegate respondsToSelector:@selector(URLSession:task:didSendBodyData:totalBytesSent:totalBytesExpectedToSend:)]) {
++      [delegate URLSession:session task:task didSendBodyData:bytesSent totalBytesSent:totalBytesSent totalBytesExpectedToSend:totalBytesExpectedToSend];
++    }
++  }];
++}
++
++- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task willPerformHTTPRedirection:(NSHTTPURLResponse *)response newRequest:(NSURLRequest *)request completionHandler:(void (^)(NSURLRequest *_Nullable))completionHandler {
++  [self dispatchForTask:task unregisterTask:NO block:^(id delegate) {
++    if ([delegate respondsToSelector:@selector(URLSession:task:willPerformHTTPRedirection:newRequest:completionHandler:)]) {
++      [delegate URLSession:session task:task willPerformHTTPRedirection:response newRequest:request completionHandler:completionHandler];
++    } else {
++      completionHandler([self redirectRequestWithCookies:request]);
++    }
++  } fallback:^{
++    completionHandler([self redirectRequestWithCookies:request]);
++  }];
++}
++
++- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didFinishCollectingMetrics:(NSURLSessionTaskMetrics *)metrics {
++  [self dispatchForTask:task block:^(id delegate) {
++    if ([delegate respondsToSelector:@selector(URLSession:task:didFinishCollectingMetrics:)]) {
++      [delegate URLSession:session task:task didFinishCollectingMetrics:metrics];
++    }
++  }];
++}
++
++- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
++  [self dispatchForTask:task unregisterTask:YES block:^(id delegate) {
++    if ([delegate respondsToSelector:@selector(URLSession:task:didCompleteWithError:)]) {
++      [delegate URLSession:session task:task didCompleteWithError:error];
++    }
++  } fallback:nil];
++}
++
++#pragma mark - NSURLSessionDataDelegate
++
++- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)task didReceiveResponse:(NSURLResponse *)response completionHandler:(void (^)(NSURLSessionResponseDisposition))completionHandler {
++  [self dispatchForTask:task unregisterTask:NO block:^(id delegate) {
++    if ([delegate respondsToSelector:@selector(URLSession:dataTask:didReceiveResponse:completionHandler:)]) {
++      [delegate URLSession:session dataTask:task didReceiveResponse:response completionHandler:completionHandler];
++    } else {
++      completionHandler(NSURLSessionResponseAllow);
++    }
++  } fallback:^{
++    completionHandler(NSURLSessionResponseAllow);
++  }];
++}
++
++- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)task didReceiveData:(NSData *)data {
++  [self dispatchForTask:task block:^(id delegate) {
++    if ([delegate respondsToSelector:@selector(URLSession:dataTask:didReceiveData:)]) {
++      [delegate URLSession:session dataTask:task didReceiveData:data];
++    }
++  }];
++}
++
++@end
+diff --git a/node_modules/react-native/Libraries/Network/RCTNetworkTask.h b/node_modules/react-native/Libraries/Network/RCTNetworkTask.h
+index a413a28..fef1635 100644
+--- a/node_modules/react-native/Libraries/Network/RCTNetworkTask.h
++++ b/node_modules/react-native/Libraries/Network/RCTNetworkTask.h
+@@ -15,6 +15,7 @@ typedef void (^RCTURLRequestCancellationBlock)(void);
+ typedef void (^RCTURLRequestIncrementalDataBlock)(NSData *data, int64_t progress, int64_t total);
+ typedef void (^RCTURLRequestProgressBlock)(int64_t progress, int64_t total);
+ typedef void (^RCTURLRequestResponseBlock)(NSURLResponse *response);
++typedef void (^RCTURLRequestNativeMetricsBlock)(NSNumber *requestID, NSDictionary *metricsPayload);
+ 
+ typedef NS_ENUM(NSInteger, RCTNetworkTaskStatus) {
+   RCTNetworkTaskPending = 0,
+@@ -34,6 +35,7 @@ typedef NS_ENUM(NSInteger, RCTNetworkTaskStatus) {
+ @property (nonatomic, copy) RCTURLRequestIncrementalDataBlock incrementalDataBlock;
+ @property (nonatomic, copy) RCTURLRequestResponseBlock responseBlock;
+ @property (nonatomic, copy) RCTURLRequestProgressBlock uploadProgressBlock;
++@property (nonatomic, copy) RCTURLRequestNativeMetricsBlock nativeMetricsBlock;
+ 
+ @property (atomic, readonly) RCTNetworkTaskStatus status;
+ 
+diff --git a/node_modules/react-native/Libraries/Network/RCTNetworkTask.mm b/node_modules/react-native/Libraries/Network/RCTNetworkTask.mm
+index a82671b..ad25f15 100644
+--- a/node_modules/react-native/Libraries/Network/RCTNetworkTask.mm
++++ b/node_modules/react-native/Libraries/Network/RCTNetworkTask.mm
+@@ -7,11 +7,14 @@
+ 
+ #import <atomic>
+ #import <mutex>
++#import <objc/runtime.h>
+ 
+ #import <React/RCTLog.h>
+ #import <React/RCTNetworkTask.h>
+ #import <React/RCTUtils.h>
+ 
++extern const void *XTHTTPMetricsRNRequestIDAssociationKey;
++
+ @implementation RCTNetworkTask {
+   NSMutableData *_data;
+   id<RCTURLRequestHandler> _handler;
+@@ -58,6 +61,7 @@ - (void)invalidate
+   _incrementalDataBlock = nil;
+   _responseBlock = nil;
+   _uploadProgressBlock = nil;
++  _nativeMetricsBlock = nil;
+   _requestToken = nil;
+ }
+ 
+@@ -80,6 +84,8 @@ - (void)start
+   if (_requestToken == nil) {
+     id token = [_handler sendRequest:_request withDelegate:self];
+     if ([self validateRequestToken:token]) {
++      objc_setAssociatedObject(
++          token, XTHTTPMetricsRNRequestIDAssociationKey, _requestID, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+       _selfReference = self;
+       _atomicStatus = RCTNetworkTaskInProgress;
+     }
+diff --git a/node_modules/react-native/Libraries/Network/RCTNetworking.mm b/node_modules/react-native/Libraries/Network/RCTNetworking.mm
+index 80d8c30..6ef0d01 100644
+--- a/node_modules/react-native/Libraries/Network/RCTNetworking.mm
++++ b/node_modules/react-native/Libraries/Network/RCTNetworking.mm
+@@ -217,7 +217,8 @@ - (void)invalidate
+     @"didSendNetworkData",
+     @"didReceiveNetworkIncrementalData",
+     @"didReceiveNetworkDataProgress",
+-    @"didReceiveNetworkData"
++    @"didReceiveNetworkData",
++    @"didCollectNetworkTaskMetrics",
+   ];
+ }
+ 
+@@ -659,11 +660,21 @@ - (void)sendRequest:(NSURLRequest *)request
+     [strongSelf->_tasksByRequestID removeObjectForKey:task.requestID];
+   };
+ 
++  RCTURLRequestNativeMetricsBlock nativeMetricsBlock = ^(NSNumber *requestID, NSDictionary *metricsPayload) {
++    __typeof(self) strongSelf = weakSelf;
++    if (!strongSelf) {
++      return;
++    }
++    NSArray *responseJSON = @[ requestID, metricsPayload ];
++    [strongSelf sendEventWithName:@"didCollectNetworkTaskMetrics" body:responseJSON];
++  };
++
+   task = [self networkTaskWithRequest:request completionBlock:completionBlock];
+   task.downloadProgressBlock = downloadProgressBlock;
+   task.incrementalDataBlock = incrementalDataBlock;
+   task.responseBlock = responseBlock;
+   task.uploadProgressBlock = uploadProgressBlock;
++  task.nativeMetricsBlock = nativeMetricsBlock;
+ 
+   if (task.requestID) {
+     if (!_tasksByRequestID) {
+diff --git a/node_modules/react-native/React/Fabric/Mounting/ComponentViews/Text/RCTParagraphComponentView.mm b/node_modules/react-native/React/Fabric/Mounting/ComponentViews/Text/RCTParagraphComponentView.mm
+index 3f87fce..e0040ae 100644
+--- a/node_modules/react-native/React/Fabric/Mounting/ComponentViews/Text/RCTParagraphComponentView.mm
++++ b/node_modules/react-native/React/Fabric/Mounting/ComponentViews/Text/RCTParagraphComponentView.mm
+@@ -326,6 +326,11 @@ @implementation RCTParagraphTextView {
+   CAShapeLayer *_highlightLayer;
+ }
+ 
++- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event
++{
++  return nil;
++}
++
+ - (void)drawRect:(CGRect)rect
+ {
+   if (!_state) {
+diff --git a/node_modules/react-native/ReactCommon/react/runtime/platform/ios/ReactCommon/RCTHost.h b/node_modules/react-native/ReactCommon/react/runtime/platform/ios/ReactCommon/RCTHost.h
+index 8d8bcd5..1759904 100644
+--- a/node_modules/react-native/ReactCommon/react/runtime/platform/ios/ReactCommon/RCTHost.h
++++ b/node_modules/react-native/ReactCommon/react/runtime/platform/ios/ReactCommon/RCTHost.h
+@@ -34,6 +34,8 @@ typedef NSURL *_Nullable (^RCTHostBundleURLProvider)(void);
+              onProgress:(RCTSourceLoadProgressBlock)onProgress
+              onComplete:(RCTSourceLoadBlock)loadCallback;
+ 
++- (void)hostDidLoadBundleSuccess:(RCTHost *)host;
++
+ // TODO(T205780509): Remove this api in react native v0.78
+ // The bridgeless js error handling api will just call into exceptionsmanager directly
+ - (void)host:(RCTHost *)host
+@@ -82,6 +84,12 @@ typedef std::shared_ptr<facebook::react::JSRuntimeFactory> (^RCTHostJSEngineProv
+ 
+ - (void)callFunctionOnJSModule:(NSString *)moduleName method:(NSString *)method args:(NSArray *)args;
+ 
++/**
++ * XT: Load an additional JS bundle on the current Instance (after the initial bundle).
++ * Used for common → biz chained loading under Bridgeless.
++ */
++- (void)loadJSBundleAtURL:(NSURL *)bundleURL;
++
+ // Renderer API
+ 
+ - (RCTFabricSurface *)createSurfaceWithModuleName:(NSString *)moduleName
+diff --git a/node_modules/react-native/ReactCommon/react/runtime/platform/ios/ReactCommon/RCTHost.mm b/node_modules/react-native/ReactCommon/react/runtime/platform/ios/ReactCommon/RCTHost.mm
+index b796713..30c2aae 100644
+--- a/node_modules/react-native/ReactCommon/react/runtime/platform/ios/ReactCommon/RCTHost.mm
++++ b/node_modules/react-native/ReactCommon/react/runtime/platform/ios/ReactCommon/RCTHost.mm
+@@ -283,11 +283,18 @@ - (void)callFunctionOnJSModule:(NSString *)moduleName method:(NSString *)method
+   [_instance callFunctionOnJSModule:moduleName method:method args:args];
+ }
+ 
++- (void)loadJSBundleAtURL:(NSURL *)bundleURL
++{
++  RCTAssert(_instance != nil, @"RCTHost.loadJSBundleAtURL requires a started instance");
++  [_instance loadJSBundleAtURL:bundleURL];
++}
++
+ #pragma mark - RCTReloadListener
+ 
+ - (void)didReceiveReloadCommand
+ {
+-  [self _reloadWithShouldRestartSurfaces:YES];
++  // 拆包场景须等 common→biz 链完成后再 start Surface（见 XTMainBundleViewController whenSurfaceReady）。
++  [self _reloadWithShouldRestartSurfaces:NO];
+ }
+ 
+ - (void)dealloc
+@@ -346,6 +353,13 @@ - (void)loadBundleAtURL:(NSURL *)sourceURL
+   }
+ }
+ 
++- (void)hostDidLoadBundleSuccess
++{
++  if ([_hostDelegate respondsToSelector:@selector(hostDidLoadBundleSuccess:)]) {
++    [_hostDelegate hostDidLoadBundleSuccess:self];
++  }
++}
++
+ #pragma mark - RCTContextContainerHandling
+ 
+ - (void)didCreateContextContainer:(std::shared_ptr<facebook::react::ContextContainer>)contextContainer
+diff --git a/node_modules/react-native/ReactCommon/react/runtime/platform/ios/ReactCommon/RCTInstance.h b/node_modules/react-native/ReactCommon/react/runtime/platform/ios/ReactCommon/RCTInstance.h
+index 0593dcc..34a46db 100644
+--- a/node_modules/react-native/ReactCommon/react/runtime/platform/ios/ReactCommon/RCTInstance.h
++++ b/node_modules/react-native/ReactCommon/react/runtime/platform/ios/ReactCommon/RCTInstance.h
+@@ -43,6 +43,10 @@ RCT_EXTERN void RCTInstanceSetRuntimeDiagnosticFlags(NSString *_Nullable flags);
+              onProgress:(RCTSourceLoadProgressBlock)onProgress
+              onComplete:(RCTSourceLoadBlock)loadCallback;
+ 
++@optional
++/// JS bundle evaluate 完成（Bridgeless 对标 `RCTInstanceDidLoadBundle` 通知）。
++- (void)hostDidLoadBundleSuccess;
++
+ // TODO(T205780509): Remove this api in react native v0.78
+ // The bridgeless js error handling api will just call into exceptionsmanager directly
+ - (BOOL)instance:(RCTInstance *)instance
+@@ -76,6 +80,11 @@ RCT_EXTERN void RCTInstanceSetRuntimeDiagnosticFlags(NSString *_Nullable flags);
+ 
+ - (void)registerSegmentWithId:(NSNumber *)segmentId path:(NSString *)path;
+ 
++/**
++ * XT: Load an additional JS bundle into the existing Instance (common → biz chain).
++ */
++- (void)loadJSBundleAtURL:(NSURL *)sourceURL;
++
+ - (void)invalidate;
+ 
+ @property (nonatomic, readonly, strong) RCTSurfacePresenter *surfacePresenter;
+diff --git a/node_modules/react-native/ReactCommon/react/runtime/platform/ios/ReactCommon/RCTInstance.mm b/node_modules/react-native/ReactCommon/react/runtime/platform/ios/ReactCommon/RCTInstance.mm
+index eb55876..9582ad8 100644
+--- a/node_modules/react-native/ReactCommon/react/runtime/platform/ios/ReactCommon/RCTInstance.mm
++++ b/node_modules/react-native/ReactCommon/react/runtime/platform/ios/ReactCommon/RCTInstance.mm
+@@ -140,6 +140,11 @@ - (void)callFunctionOnJSModule:(NSString *)moduleName method:(NSString *)method
+   }
+ }
+ 
++- (void)loadJSBundleAtURL:(NSURL *)sourceURL
++{
++  [self _loadJSBundle:sourceURL];
++}
++
+ - (void)invalidate
+ {
+   std::lock_guard<std::mutex> lock(_invalidationMutex);
+@@ -421,7 +426,8 @@ - (void)handleBundleLoadingError:(NSError *)error
+ - (void)_loadJSBundle:(NSURL *)sourceURL
+ {
+ #if RCT_DEV_MENU && __has_include(<React/RCTDevLoadingViewProtocol.h>)
+-  {
++  // file://（CodePush 本地包）不弹 "Connect to Metro"；仅 Metro http(s) 加载时展示进度条
++  if (sourceURL && !sourceURL.fileURL) {
+     id<RCTDevLoadingViewProtocol> loadingView =
+         (id<RCTDevLoadingViewProtocol>)[_turboModuleManager moduleForName:"DevLoadingView"];
+     [loadingView showWithURL:sourceURL];
+@@ -472,8 +478,17 @@ - (void)_loadScriptFromSource:(RCTSource *)source
+ 
+   auto script = std::make_unique<NSDataBigString>(source.data);
+   const auto *url = deriveSourceURL(source.url).UTF8String;
+-  _reactInstance->loadScript(std::move(script), url, [](jsi::Runtime &_) {
+-    [[NSNotificationCenter defaultCenter] postNotificationName:@"RCTInstanceDidLoadBundle" object:nil];
++  __weak RCTInstance *weakSelfForNotify = self;
++  _reactInstance->loadScript(std::move(script), url, [weakSelfForNotify](jsi::Runtime &_) {
++    RCTInstance *instance = weakSelfForNotify;
++    if (!instance) {
++      return;
++    }
++    id<RCTInstanceDelegate> delegate = instance->_delegate;
++    if ([delegate respondsToSelector:@selector(hostDidLoadBundleSuccess)]) {
++      [delegate hostDidLoadBundleSuccess];
++    }
++    [[NSNotificationCenter defaultCenter] postNotificationName:@"RCTInstanceDidLoadBundle" object:instance];
+   });
+ }
+ 
+diff --git a/node_modules/react-native/ReactCommon/react/runtime/platform/ios/ReactCommon/RCTLegacyUIManagerConstantsProvider.mm b/node_modules/react-native/ReactCommon/react/runtime/platform/ios/ReactCommon/RCTLegacyUIManagerConstantsProvider.mm
+index 77933fe..7d55ee9 100644
+--- a/node_modules/react-native/ReactCommon/react/runtime/platform/ios/ReactCommon/RCTLegacyUIManagerConstantsProvider.mm
++++ b/node_modules/react-native/ReactCommon/react/runtime/platform/ios/ReactCommon/RCTLegacyUIManagerConstantsProvider.mm
+@@ -19,7 +19,7 @@
+ 
+ jsi::Value getConstants(facebook::jsi::Runtime &runtime)
+ {
+-  static NSMutableDictionary<NSString *, NSObject *> *result = [NSMutableDictionary new];
++  NSMutableDictionary<NSString *, NSObject *> *result = [NSMutableDictionary new];
+   auto directEvents = [NSMutableDictionary new];
+   auto bubblingEvents = [NSMutableDictionary new];
+   for (Class moduleClass in RCTGetModuleClasses()) {
+diff --git a/node_modules/react-native/src/private/specs/components/RCTModalHostViewNativeComponent.js b/node_modules/react-native/src/private/specs/components/RCTModalHostViewNativeComponent.js
+index 58ec294..d794acd 100644
+diff --git a/node_modules/react-native/React/CoreModules/RCTDevMenu.mm b/node_modules/react-native/React/CoreModules/RCTDevMenu.mm
+index c301f20..a73b6ae 100644
+--- a/node_modules/react-native/React/CoreModules/RCTDevMenu.mm
++++ b/node_modules/react-native/React/CoreModules/RCTDevMenu.mm
+@@ -18,6 +18,10 @@
+ #import <React/RCTUtils.h>
+ #import "CoreModulesPlugins.h"
+ 
++#if DEBUG
++extern "C" BOOL XTDevMenuShouldPresentOnShake(id devMenu) __attribute__((weak));
++#endif
++
+ #if RCT_DEV_MENU
+ #if RCT_ENABLE_INSPECTOR
+ #import <React/RCTInspectorDevServerHelper.h>
+@@ -203,6 +207,11 @@ - (void)invalidate
+ - (void)showOnShake
+ {
+   if ([((RCTDevSettings *)[_moduleRegistry moduleForName:"DevSettings"]) isShakeToShowDevMenuEnabled]) {
++#if DEBUG
++    if (XTDevMenuShouldPresentOnShake && !XTDevMenuShouldPresentOnShake(self)) {
++      return;
++    }
++#endif
+     NSMutableArray<UIWindow *> *windows = [NSMutableArray new];
+     for (UIWindowScene *scene in RCTSharedApplication().connectedScenes) {
+       [windows addObjectsFromArray:scene.windows];
+diff --git a/node_modules/react-native/React/CoreModules/RCTDevSettings.mm b/node_modules/react-native/React/CoreModules/RCTDevSettings.mm
+index d4e8473..d902b22 100644
+--- a/node_modules/react-native/React/CoreModules/RCTDevSettings.mm
++++ b/node_modules/react-native/React/CoreModules/RCTDevSettings.mm
+@@ -124,6 +124,10 @@ - (void)_reloadWithDefaults:(NSDictionary *)defaultValues
+ 
+ @interface RCTDevSettings () <RCTBridgeModule, RCTInvalidating, NativeDevSettingsSpec, RCTDevSettingsInspectable> {
+   BOOL _isJSLoaded;
++#if RCT_DEV
++  // 每个 Host 独立计数；全局 static 会导致子 bundle 新 runtime 误走 registerBundle
++  BOOL _xtHMRSetupInvoked;
++#endif
+ #if RCT_DEV_SETTINGS_ENABLE_PACKAGER_CONNECTION
+   RCTHandlerToken _bridgeExecutorOverrideToken;
+ #endif
+@@ -253,6 +257,9 @@ - (dispatch_queue_t)methodQueue
+ 
+ - (void)invalidate
+ {
++#if RCT_DEV
++  _xtHMRSetupInvoked = NO;
++#endif
+   [super invalidate];
+ #if RCT_DEV_SETTINGS_ENABLE_PACKAGER_CONNECTION
+   if ([self _isBridgeMode]) {
+@@ -479,6 +486,13 @@ - (void)addHandler:(id<RCTPackagerClientMethod>)handler forPackagerMethod:(NSStr
+ - (void)setupHMRClientWithBundleURL:(NSURL *)bundleURL
+ {
+   if (bundleURL && !bundleURL.fileURL) {
++#if RCT_DEV
++    if (_xtHMRSetupInvoked) {
++      [self setupHMRClientWithAdditionalBundleURL:bundleURL];
++      return;
++    }
++    _xtHMRSetupInvoked = YES;
++#endif
+     NSURLComponents *urlComponents = [[NSURLComponents alloc] initWithURL:bundleURL resolvingAgainstBaseURL:NO];
+     NSString *const path = [urlComponents.path substringFromIndex:1]; // Strip initial slash.
+     NSString *const host = urlComponents.host;
+diff --git a/node_modules/react-native/React/Base/RCTReloadCommand.m b/node_modules/react-native/React/Base/RCTReloadCommand.m
+index 4d8dd0b..7a967e6 100644
+--- a/node_modules/react-native/React/Base/RCTReloadCommand.m
++++ b/node_modules/react-native/React/Base/RCTReloadCommand.m
+@@ -11,6 +11,13 @@
+ #import "RCTKeyCommands.h"
+ #import "RCTUtils.h"
+ 
++#if DEBUG
++// Host 多 bundle：由 xtapp 提供，按 Metro 端口只 reload 当前匹配的 Host
++extern void XTReloadCommandUpdateBundleURLFromCurrentContext(void) __attribute__((weak));
++extern void XTReloadCommandPrepareMatchingHosts(NSURL *_Nullable commandBundleURL) __attribute__((weak));
++extern BOOL XTReloadCommandShouldReloadListener(id listener, NSURL *_Nullable commandBundleURL) __attribute__((weak));
++#endif
++
+ static NSHashTable<id<RCTReloadListener>> *listeners;
+ static NSLock *listenersLock;
+ static NSURL *bundleURL;
+@@ -46,6 +53,11 @@ void RCTRegisterReloadCommandListener(id<RCTReloadListener> listener)
+ void RCTTriggerReloadCommandListeners(NSString *reason)
+ {
+   [listenersLock lock];
++#if DEBUG
++  if (XTReloadCommandUpdateBundleURLFromCurrentContext) {
++    XTReloadCommandUpdateBundleURLFromCurrentContext();
++  }
++#endif
+   [[NSNotificationCenter defaultCenter] postNotificationName:RCTTriggerReloadCommandNotification
+                                                       object:nil
+                                                     userInfo:@{
+@@ -53,7 +65,18 @@ void RCTTriggerReloadCommandListeners(NSString *reason)
+                                                       RCTTriggerReloadCommandBundleURLKey : RCTNullIfNil(bundleURL)
+                                                     }];
+ 
++#if DEBUG
++  if (XTReloadCommandPrepareMatchingHosts) {
++    XTReloadCommandPrepareMatchingHosts(bundleURL);
++  }
++#endif
++
+   for (id<RCTReloadListener> l in [listeners allObjects]) {
++#if DEBUG
++    if (XTReloadCommandShouldReloadListener && !XTReloadCommandShouldReloadListener(l, bundleURL)) {
++      continue;
++    }
++#endif
+     [l didReceiveReloadCommand];
+   }
+   [listenersLock unlock];

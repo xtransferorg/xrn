@@ -1,32 +1,25 @@
 import { buildiOSApp } from "../ios/buildIOSApp";
 import { uploadFile, manifestPrefix } from "../utils/ftp";
-import { BuildEnv, BuildType } from "../typing";
-import { isProd } from "../utils";
-import { COMMON_BASE_KEY } from "../../codePush/diff";
-import fs from "fs-extra";
-import path from "path";
+import { timingTracker } from "../TimingTracker";
+import { BuildEnv, TimingTrackerStage } from "../typing";
 import { BuildResource, BaseBuilder } from "./BaseBuilder";
-// import { uploadIOSArchive } from "../ios/uploadIOSArchive";
-// import logger from "../../utlis/logger";
+import { uploadIOSArchive } from "../ios/uploadIOSArchive";
+import logger from "../../utlis/logger";
+import { removeDirAndCreateEmptyDir } from "../utils/file";
 
 export class IOSBuilder extends BaseBuilder {
+  async cleanBundleDir(): Promise<void> {
+    const { rootPath } = this.context;
+    // 移除壳子工程中的 release_ios 目录下内容
+    await Promise.resolve(removeDirAndCreateEmptyDir(`${rootPath}/release_ios`));
+  }
 
   async build(): Promise<BuildResource[]> {
-    const { buildEnv, buildType, iosSimulator, rootPath } = this.context;
-    if (iosSimulator) {
-    }
-    if (buildType === BuildType.DEBUG && !isProd(buildEnv)) {
-      const metaJson = {
-        dependencies: require(path.join(rootPath, "package.json")).dependencies,
-        [COMMON_BASE_KEY]: this.meta,
-      };
-      await fs.writeFile(
-        path.resolve(rootPath, "release_ios/assets/manifest.json"),
-        JSON.stringify(metaJson),
-        "utf-8"
-      );
-    }
+    const { buildEnv } = this.context;
+    await this.writeDebugMetaManifest("release_ios/assets/manifest.json");
+    timingTracker.time(TimingTrackerStage.IOS_BUILD);
     const { apkName, apkPath, apkManifestPath, minor_version } = await buildiOSApp();
+    timingTracker.timeEnd(TimingTrackerStage.IOS_BUILD);
     const resources: BuildResource[] = [
       { name: apkName, localPath: apkPath, extra: { minor_version } },
     ];
@@ -45,14 +38,16 @@ export class IOSBuilder extends BaseBuilder {
     const manifest = resources[1];
     let link = "";
     if (manifest) {
+      timingTracker.time(TimingTrackerStage.APP_UPLOAD);
       await uploadFile(apk.localPath);
       link = await uploadFile(manifest.localPath);
       link = manifestPrefix + link;
-      // logger.info("iOS ftp 🐷下载地址: ", link);
+      logger.info("iOS ftp 🐷下载地址: ", link);
+      timingTracker.timeEnd(TimingTrackerStage.APP_UPLOAD);
     } else {
       link = await uploadFile(apk.localPath);
     }
-    // await uploadIOSArchive(apk.extra?.minor_version);
+    await uploadIOSArchive(apk.extra?.minor_version);
     return [{ link, filePath: apk.localPath, fileName: apk.name, channel: this.context.channel }];
   }
 } 

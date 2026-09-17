@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="updating">Cập nhật, vui lòng giữ một giây …</string>
+    <string name="loading">Đang tải…</string>
+    <string name="error_boundary_retry">Tải lại</string>
+    <string name="error_boundary_page_not_found">Rất tiếc, trang bạn đang cố truy cập không tồn tại.</string>
+    <string name="error_boundary_network_error">Ồ! Đã xảy ra sự cố. Vui lòng thử lại.</string>
+</resources>

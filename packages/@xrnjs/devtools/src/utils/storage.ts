@@ -1,10 +1,9 @@
-import { NativeModules } from "react-native";
+import { Platform, requireNativeModule } from "@xrnjs/modules-core";
 import { XRNNativeStorage } from "@xrnjs/native-storage";
-import { Platform } from "@xrnjs/modules-core";
+import {XRNDebugToolsModule} from '@xrnjs/debug-tools'
 
-const XRNDebugToolsModule = NativeModules?.XRNDebugToolsModule;
 
-export function getItemSync(spName: string, key: string): string | null {
+export function getItemSync(spName: string, key: string): string | null | undefined {
   if (Platform.OS === "android") {
     return XRNDebugToolsModule?.getNativeStorageSync?.(spName, key);
   } else {
@@ -19,7 +18,7 @@ export function setItemSync(
 ): boolean {
   let result = false;
   if (Platform.OS === "android") {
-    result = XRNDebugToolsModule?.setNativeStorageSync?.(spName, key, value);
+    result = XRNDebugToolsModule?.setNativeStorageSync?.(spName, key, value) ?? false;
   } else {
     result = XRNNativeStorage?.setItemSync?.(key, value);
   }

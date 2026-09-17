@@ -1,0 +1,26 @@
+diff --git a/node_modules/react-native-adjust/android/build.gradle b/node_modules/react-native-adjust/android/build.gradle
+index a1798fc..9cf75a4 100755
+--- a/node_modules/react-native-adjust/android/build.gradle
++++ b/node_modules/react-native-adjust/android/build.gradle
+@@ -8,6 +8,9 @@ def _minSdkVersion = _ext.has('minSdkVersion') ? _ext.minSdkVersion : 16
+ def _targetSdkVersion = _ext.has('targetSdkVersion') ? _ext.targetSdkVersion : 33
+ 
+ android {
++
++    namespace "com.adjust.nativemodule"
++
+     compileSdkVersion _compileSdkVersion
+     buildToolsVersion _buildToolsVersion
+ 
+@@ -17,6 +20,11 @@ android {
+         versionCode 1
+         versionName "1.0"
+     }
++
++    buildFeatures {
++        buildConfig true
++    }
++
+     buildTypes {
+         release {
+             minifyEnabled false

@@ -26,7 +26,7 @@ RTNCodePush::RTNCodePush(const ArkTSTurboModule::Context ctx, const std::string 
         ARK_METHOD_METADATA(allow, 0),
         ARK_METHOD_METADATA(clearPendingRestart, 0),
         ARK_METHOD_METADATA(disallow, 0),
-        ARK_METHOD_METADATA(restartApp, 1),
+        ARK_ASYNC_METHOD_METADATA(restartApp, 1),
         ARK_ASYNC_METHOD_METADATA(downloadUpdate, 2),
         ARK_ASYNC_METHOD_METADATA(getConfiguration, 0),
         ARK_ASYNC_METHOD_METADATA(getUpdateMetadata, 1),
@@ -42,6 +42,12 @@ RTNCodePush::RTNCodePush(const ArkTSTurboModule::Context ctx, const std::string 
         ARK_METHOD_METADATA(clearUpdates, 0),
         ARK_METHOD_METADATA(isFileExist, 1),
         ARK_METHOD_METADATA(getIntlResourcePath, 1),
+        ARK_METHOD_METADATA(isNativeSyncing, 0),
+        ARK_METHOD_METADATA(isAssetBundleFileExists, 0),
+        ARK_METHOD_METADATA(getBasePackageBundlePath, 0),
+        ARK_METHOD_METADATA(addListener, 1),
+        ARK_METHOD_METADATA(removeListeners, 1),
+        ARK_METHOD_METADATA(beforeLoadBizBundleHandlePendingUpdate, 0),
     };
 }
 

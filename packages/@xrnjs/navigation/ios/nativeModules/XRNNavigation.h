@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  跨bundle跳转，回调传参, 这里参数js侧接受的是字符串
  */
-- (void)sendCustomEvent:(NSString *)eventName data:(NSString *)dataStr;
+- (void)sendCustomEvent:(NSString *)eventName data:(id)data;
 @end
 
 NS_ASSUME_NONNULL_END

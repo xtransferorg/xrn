@@ -1,6 +1,6 @@
-const tintColor = '#1E6fff';
+const tintColor = '#F56A00';
 export default {
-  activeTintColor: '#1E6fff',
+  activeTintColor: '#F56A00',
   inactiveTintColor: '#595959',
   tintColor,
   headerBackground: '#ffffff',
@@ -8,7 +8,7 @@ export default {
   secondaryText: '#666666',
   disabled: '#bbbbbb',
   border: '#cccccc',
-  highlightColor: '#1E6fff',
+  highlightColor: '#FF8533',
   tabIconDefault: '#595959',
   tabIconSelected: tintColor,
   tabBar: '#ffffff',

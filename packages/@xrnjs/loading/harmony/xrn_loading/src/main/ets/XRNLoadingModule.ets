@@ -5,23 +5,28 @@ import {emitter} from '@kit.BasicServicesKit'
 
 
 export class XRNLoadingModule extends TurboModule implements TM.XRNLoadingModule.Spec {
-  show(): void {
+  show(): boolean {
     emitter.emit("XT_BUNDLE_LOADING_SHOW")
+    return true
   }
 
-  hide(): void {
+  hide(): boolean {
     emitter.emit("XT_BUNDLE_LOADING_HIDE")
+    return true
   }
 
-  showLoading(): void {
+  showLoading(): boolean {
     PopManager.showLoading(this.ctx.getUIContext())
+    return true
   }
 
-  updateProgress(value: number) {
+  updateProgress(value: number): boolean {
     PopManager.update(value)
+    return true
   }
 
-  hideLoading(): void {
+  hideLoading(): boolean {
     PopManager.hideLoading()
+    return true
   }
 }

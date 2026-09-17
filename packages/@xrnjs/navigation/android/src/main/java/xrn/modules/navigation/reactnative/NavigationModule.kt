@@ -1,5 +1,6 @@
 package xrn.modules.navigation.reactnative
 
+import android.app.Activity
 import com.blankj.utilcode.util.GsonUtils
 import xrn.modules.navigation.reactnative.bean.NavigationAction
 import xrn.modules.navigation.reactnative.bean.NavigationActionType
@@ -20,16 +21,16 @@ internal object NavigationModule {
         )
     }
 
-    fun dispatchAction(jsonAction: String): Boolean {
+    fun dispatchAction(currentActivity: Activity, jsonAction: String): Boolean {
         val action = GsonUtils.fromJson(jsonAction, NavigationAction::class.java)
 
-        return dispatchAction(action)
+        return dispatchAction(currentActivity, action)
     }
 
-    fun dispatchAction(action: NavigationAction): Boolean {
+    fun dispatchAction(currentActivity: Activity, action: NavigationAction): Boolean {
         val handler = ACTION_HANDLER_MAP[action.type] ?: return false
 
-        return handler.handle(action)
+        return handler.handle(currentActivity, action)
     }
 
     fun beforeAppCrash() {

@@ -27,7 +27,7 @@ export abstract class BaseActionHandler implements IActionHandler {
   }
 
   protected getMatchedNavDestinationState(targetRoute: NavigationRouteConfig): IndexedNativeNavDestinationStateHolder | null {
-    return NavDestinationMgr.lastMatched(targetRoute.bundleName, targetRoute.moduleName)
+    return NavDestinationMgr.lastMatched(targetRoute.bundleName, targetRoute.moduleName, targetRoute.pageName)
   }
 
 }

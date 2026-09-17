@@ -1,18 +1,46 @@
-rootProject.name = 'XRNTemplate'
+pluginManagement { includeBuild("../node_modules/@react-native/gradle-plugin") }
+plugins { id("com.facebook.react.settings") }
 
-apply from: file("../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesSettingsGradle(settings)
+// Force-clear JVM proxy system properties. The macOS system proxy at
+// 127.0.0.1:8899 performs SSL MITM with an untrusted CA, which breaks Gradle
+// dependency downloads (PKIX path building failed). Cleared here (after the
+// plugins {} block, before autolinking/dependency resolution) so downloads go direct.
+System.clearProperty("http.proxyHost")
+System.clearProperty("http.proxyPort")
+System.clearProperty("https.proxyHost")
+System.clearProperty("https.proxyPort")
+System.clearProperty("http.nonProxyHosts")
+System.clearProperty("https.nonProxyHosts")
+try {
+    java.net.ProxySelector.setDefault(new java.net.ProxySelector() {
+        java.util.List<java.net.Proxy> select(java.net.URI uri) { [java.net.Proxy.NO_PROXY] }
+        void connectFailed(java.net.URI uri, java.net.SocketAddress sa, java.io.IOException ioe) {}
+    })
+} catch (Throwable t) {}
+
+extensions.configure(com.facebook.react.ReactSettingsExtension){ ex -> ex.autolinkLibrariesFromCommand() }
+rootProject.name = 'xrngo'
+
 include ':app'
 includeBuild('../node_modules/@react-native/gradle-plugin')
 
-include ':xrnjs_react-native-code-push'
-project(':xrnjs_react-native-code-push').projectDir = new File(rootProject.projectDir, '../node_modules/@xrnjs/react-native-code-push/android/app')
+// @xrnjs/multi-bundle is excluded from React Native autolinking (its android
+// platform returns null), so it must be included here manually. Other @xrnjs/*
+// native packages are autolinked as :xrnjs_<name> and need no manual include.
+include(':xrnjs-multi-bundle')
+project(':xrnjs-multi-bundle').projectDir = new File(rootProject.projectDir, '../node_modules/@xrnjs/multi-bundle/android')
 
- include(':xrnjs_multi-bundle')
- project(':xrnjs_multi-bundle').projectDir = new File(rootProject.projectDir, '../node_modules/@xrnjs/multi-bundle/android')
+// CodePush is intentionally excluded from React Native autolinking by @xrnjs/core,
+// while @xrnjs/bundle depends on it as a Gradle project.
+// The package name is scoped (@xrnjs/react-native-code-push) but the Gradle project
+// keeps the autolinking-style name :xrnjs_react-native-code-push (underscore) that
+// app/build.gradle and :xrnjs_bundle reference.
+include(':xrnjs_react-native-code-push')
+project(':xrnjs_react-native-code-push').projectDir = new File(rootProject.projectDir, '../node_modules/@xrnjs/react-native-code-push/android')
 
-if (settings.hasProperty("newArchEnabled") && settings.newArchEnabled == "true") {
-    include(":ReactAndroid")
-    project(":ReactAndroid").projectDir = file('../node_modules/react-native/ReactAndroid')
-    include(":ReactAndroid:hermes-engine")
-    project(":ReactAndroid:hermes-engine").projectDir = file('../node_modules/react-native/ReactAndroid/hermes-engine')
+def appNodeModulesPath = new File(rootProject.projectDir, '../node_modules').toPath().normalize()
+rootProject.children.each { project ->
+    if (project.projectDir.toPath().normalize().startsWith(appNodeModulesPath)) {
+        project.projectDir = project.projectDir.canonicalFile
+    }
 }

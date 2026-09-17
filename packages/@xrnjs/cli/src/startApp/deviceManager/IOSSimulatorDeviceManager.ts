@@ -161,6 +161,7 @@ export class IOSSimulatorDeviceManager extends BaseDeviceManager {
     logger.info("当前app版本：" + stdout);
     return stdout;
   }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async uninstallApp(packageName: string): Promise<void> {
     // TODO: 需要实现卸载命令
   }
@@ -173,16 +174,18 @@ export class IOSSimulatorDeviceManager extends BaseDeviceManager {
       `xcrun simctl install ${this.udid} ${appPath}`,
     );
   }
-  async launchApp(packageName: string, activity?: string): Promise<void> {
+  async launchApp(packageName: string): Promise<void> {
     if (!(await this.isDeviceRunning())) {
       await this.startDevice();
     }
     const command = `xcrun simctl launch ${this.udid} ${packageName}`;
     await execWithOra("启动应用", command);
   }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async reversePort(devicePort: number, port: number): Promise<void> {
     // iOS 模拟器一般不支持端口反向代理
   }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async removeReversePort(devicePort: number): Promise<void> {
     // iOS 模拟器一般不支持端口反向代理
   }

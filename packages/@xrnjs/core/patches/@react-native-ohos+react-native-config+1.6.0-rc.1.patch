@@ -1,0 +1,94 @@
+diff --git a/node_modules/@react-native-ohos/react-native-config/harmony/config/build-profile.json5 b/node_modules/@react-native-ohos/react-native-config/harmony/config/build-profile.json5
+index adb8818..1707d38 100644
+--- a/node_modules/@react-native-ohos/react-native-config/harmony/config/build-profile.json5
++++ b/node_modules/@react-native-ohos/react-native-config/harmony/config/build-profile.json5
+@@ -4,21 +4,6 @@
+     "arkOptions": {
+     }
+   },
+-  "buildOptionSet": [
+-    {
+-      "name": "release",
+-      "arkOptions": {
+-        "obfuscation": {
+-          "ruleOptions": {
+-            "enable": true,
+-            "files": [
+-              "./obfuscation-rules.txt"
+-            ]
+-          }
+-        },
+-      },
+-    },
+-  ],
+   "targets": [
+     {
+       "name": "default",
+diff --git a/node_modules/@react-native-ohos/react-native-config/harmony/config/hvigorfile.ts b/node_modules/@react-native-ohos/react-native-config/harmony/config/hvigorfile.ts
+index c961386..0304ed6 100644
+--- a/node_modules/@react-native-ohos/react-native-config/harmony/config/hvigorfile.ts
++++ b/node_modules/@react-native-ohos/react-native-config/harmony/config/hvigorfile.ts
+@@ -55,7 +55,7 @@ export function defineBuildConfig() {
+           const appContext = node.getContext(OhosPluginId.OHOS_APP_PLUGIN) as OhosAppContext;
+           const buildMode =  appContext.getBuildMode()
+           const extParams = hvigor.getParameter().getExtParams();
+-          const buildProfileEnvFile = appContext.getBuildProfileOpt()?.app?.products[0]?.buildOption?.arkOptions?.buildProfileFields[`${buildMode}`];
++          const buildProfileEnvFile = appContext.getBuildProfileOpt()?.app?.products[0]?.buildOption?.arkOptions?.buildProfileFields[`env_file_${buildMode}`];
+           let configFile;
+           if(process.env.ENVFILE) {
+             // 处理相对路径或绝对路径
+diff --git a/node_modules/@react-native-ohos/react-native-config/harmony/config/src/main/ets/RNConfigTurboModule.ts b/node_modules/@react-native-ohos/react-native-config/harmony/config/src/main/ets/RNConfigTurboModule.ts
+index 3452b6e..bd254bc 100644
+--- a/node_modules/@react-native-ohos/react-native-config/harmony/config/src/main/ets/RNConfigTurboModule.ts
++++ b/node_modules/@react-native-ohos/react-native-config/harmony/config/src/main/ets/RNConfigTurboModule.ts
+@@ -1,20 +1,50 @@
+ import { TurboModule, TurboModuleContext } from '@rnoh/react-native-openharmony/ts';
+ import { TM } from "./generated/ts"
+ 
++import common from "@ohos.app.ability.common";
++import { preferences } from "@kit.ArkData";
++
+ import { BuildConfig } from '../../../BuildConfig';
+ 
++let dataPreferences: preferences.Preferences | null = null;
++const ENV_NAME_KEY = "DEV_ENV_NAME"
++const ENV_NAME = "ENV_NAME"
++
+ export class RNConfigTurboModule extends TurboModule implements TM.ConfigNativeModule.Spec {
++
++  protected context: common.UIAbilityContext;
++
+   constructor(protected ctx: TurboModuleContext) {
+     super(ctx);
++
++    this.context = ctx?.uiAbilityContext;
++    this.initPreferences();
++  }
++
++  private initPreferences() {
++    if (dataPreferences === null) {
++      const options: preferences.Options = { name: "nativeStore" };
++      try {
++        dataPreferences = preferences?.getPreferencesSync?.(this.context, options);
++      } catch (error) {
++      }
++    }
+   }
+ 
+   getConstants(): Object {
++    const localEnvName: preferences.ValueType = dataPreferences?.getSync?.(ENV_NAME_KEY, "");
+     let result = {}
+     try {
+       console.log('begin get buildConfig contents')
+       let columns: string[] = Object.keys(BuildConfig)
+       columns.forEach((name) => {
+         result[name] = Reflect.get(BuildConfig, name)
++        if (name === ENV_NAME) {
++              if (localEnvName) {
++                result[ENV_NAME] = localEnvName
++                console.log('ENV_NAME', ENV_NAME);
++              }
++            }
+       })
+     } catch (error) {
+       console.log('RNConfigTurboModule: Could not find BuildConfig class', error);

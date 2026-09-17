@@ -1,45 +1,25 @@
-/**
- * TypeScript type definitions for app rollout functionality
- * Defines interfaces and enums used for staged app deployment and traffic control
- */
-
-/**
- * Native app version status enumeration
- * Represents different states in the app release lifecycle
- */
 export enum NativeAppVersionStatus {
-    /** Version is ready for review */
     ReadyForReview = 'ready_for_review',
-    /** Version is pending review */
     PendingReview = 'pending_review',
-    /** Version is in rollout phase */
+    /** 市场审核通过，尚未开始应用内灰度放量 */
+    MarketApproved = 'market_approved',
     Rollout = 'rollout',
-    /** Version is published to all users */
+    /** 灰度暂停，存量灰度用户仍需收到热更新 */
+    Paused = 'paused',
     Published = 'published',
-    /** Version has been discarded */
+    /** 灰度已关闭，存量用户按正式用户对待 */
+    RolloutClosed = 'rollout_closed',
     Discarded = 'discarded',
   }
 
-/**
- * App rollout options interface
- * Contains configuration for staged app deployment and traffic control
- */
 export interface AppRolloutOptions {
-    /** Version ID for the rollout */
-    versionId: string;
-    /** Rollout percentage (0-100) */
-    rollout: number;
-    /** Whether the version is backward compatible */
-    isBackwardCompatible: boolean;
-    /** Current release status */
-    status: NativeAppVersionStatus;
-    /** Whitelist of device IDs (comma-separated) */
-    whiteList?: string;
-    /** Type of update (Force or Silent) */
-    updateType?: 'Force' | 'Silent';
-    /** Only apply to specific version */
-    onlyApplyVersion?: string;
-    /** Apply to all versions except specified one */
-    notOnlyApplyVersion?: string;
+    versionId: string; // 版本id
+    rollout: number; // 灰度流量 0~100
+    isBackwardCompatible: boolean; // 是否向下兼容
+    status: NativeAppVersionStatus; // 发布状态
+    whiteList?: string; // 白名单，设备id 逗号分割
+    updateType?: 'Force' | 'Silent'; // 更新类型
+    onlyApplyVersion?: string; // 只应用于某个版本
+    notOnlyApplyVersion?: string; // 除了此版本的App都能收到本次更新
 }
   

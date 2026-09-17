@@ -7,6 +7,8 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import xrn.modules.image.ExpoImageViewWrapper
 import xrn.modules.image.enums.ImageCacheType
 import xrn.modules.image.records.ImageErrorEvent
@@ -49,21 +51,27 @@ class GlideRequestListener(
     dataSource: DataSource,
     isFirstResource: Boolean
   ): Boolean {
-    val intrinsicWidth = (resource as? SVGPictureDrawable)?.svgIntrinsicWidth ?: resource.intrinsicWidth
-    val intrinsicHeight = (resource as? SVGPictureDrawable)?.svgIntrinsicHeight ?: resource.intrinsicHeight
-    expoImageViewWrapper.get()?.onLoad?.invoke(
-      ImageLoadEvent(
-        cacheType = ImageCacheType.fromNativeValue(dataSource).name.lowercase(Locale.getDefault()),
-        source = ImageSource(
-          url = model.toString(),
-          width = intrinsicWidth,
-          height = intrinsicHeight,
-          mediaType = null, // TODO(@lukmccall): add mediaType
-          isAnimated = resource is Animatable
+    val intrinsicWidth = (resource as? SVGPictureDrawable)?.svgIntrinsicWidth
+      ?: resource.intrinsicWidth
+    val intrinsicHeight = (resource as? SVGPictureDrawable)?.svgIntrinsicHeight
+      ?: resource.intrinsicHeight
+
+    val imageWrapper = expoImageViewWrapper.get() ?: return false
+    val appContext = imageWrapper.appContext
+    MainScope().launch {
+      imageWrapper.onLoad.invoke(
+        ImageLoadEvent(
+          cacheType = ImageCacheType.fromNativeValue(dataSource).name.lowercase(Locale.getDefault()),
+          source = ImageSource(
+            url = model.toString(),
+            width = intrinsicWidth,
+            height = intrinsicHeight,
+            mediaType = null, // TODO(@lukmccall): add mediaType
+            isAnimated = resource is Animatable
+          )
         )
       )
-    )
-
+    }
     return false
   }
 }

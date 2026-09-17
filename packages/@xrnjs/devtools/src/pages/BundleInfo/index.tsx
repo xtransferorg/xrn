@@ -13,6 +13,7 @@ const CodepushInfo = () => {
   const [bundleList, setBundleList] = useState<CardProps[]>([]);
   const [getDeviceName, setDeviceName] = useState<string>();
   const [extInfo, setExtInfo] = useState({
+    deviceToken: "",
     serverGrantId: "",
   });
   const [user, setUser] = useState<
@@ -22,14 +23,18 @@ const CodepushInfo = () => {
   useAsyncEffect(async () => {
     const metaDataObj = await XRNBundle?.getAllBundleInfos?.();
     const serverGrantId = await AsyncStorage.getItem("serverGrantId") as string;
-    setExtInfo({ serverGrantId });
+    setExtInfo({ deviceToken: "", serverGrantId });
 
     setDeviceName(await DeviceInfo.getDeviceName());
 
     const config = (await CodePush?.getConfiguration?.()) as { serverUrl: string, clientUniqueId: string };
     setUser([
-      { label: 'CodePush.serverUrl', value: config.serverUrl },
-      { label: 'CodePush.clientUniqueId', value: "" },
+      // { label: 'user', value: `id:${user?.id || 'no_login_user'}` },
+      // { label: 'user.ip', value: user?.ip_address },
+      // { label: 'firmId', value: tags?.firmId },
+      // { label: 'uniqueId', value: tags?.uniqueId },
+      { label: 'CodePush.serverUrl', value: config?.serverUrl || "" },
+      { label: 'CodePush.clientUniqueId', value: config?.clientUniqueId || "" },
     ]);
 
     try {
@@ -71,7 +76,7 @@ const CodepushInfo = () => {
   }, []);
 
   return (
-    <Page title={"codepush信息"} hideHeader>
+    <Page title={"版本信息"}>
       <View
         style={{
           flex: 1,
@@ -79,7 +84,7 @@ const CodepushInfo = () => {
       >
         <ScrollView style={styles.container}>
           <XtAppMainCard
-            bundleName="main"
+            bundleName="xt-app-main"
             isHeader={true}
             copyVisible
             title={"search 参数"}
@@ -97,8 +102,8 @@ const CodepushInfo = () => {
             ]}
           />
           {bundleList.map((i, index) => (
-            <View>
-              <XtAppMainCard key={index} {...i} />
+            <View key={index}>
+              <XtAppMainCard {...i} />
             </View>
           ))}
         </ScrollView>

@@ -1,0 +1,58 @@
+diff --git a/node_modules/react-native-popover-view/dist/RNModalPopover.js b/node_modules/react-native-popover-view/dist/RNModalPopover.js
+index e9e611b..8b047f7 100644
+--- a/node_modules/react-native-popover-view/dist/RNModalPopover.js
++++ b/node_modules/react-native-popover-view/dist/RNModalPopover.js
+@@ -42,16 +42,29 @@ var RNModalPopover = /** @class */ (function (_super) {
+         if (this.props.isVisible) {
+             if (RNModalPopover.isShowingInModal)
+                 console.warn(MULTIPLE_POPOVER_WARNING);
+-            else
++            else {
++                RNModalPopover.isShowingInModal = true;
+                 this.setState({ visible: true });
++            }
++        }
++    };
++    RNModalPopover.prototype.componentWillUnmount = function () {
++        if (this.state.visible) {
++            RNModalPopover.isShowingInModal = false;
+         }
+     };
+     RNModalPopover.prototype.componentDidUpdate = function (prevProps, prevState) {
+         if (this.props.isVisible && !prevProps.isVisible) {
+             if (RNModalPopover.isShowingInModal)
+                 console.warn(MULTIPLE_POPOVER_WARNING);
+-            else
++            else {
++                RNModalPopover.isShowingInModal = true;
+                 this.setState({ visible: true });
++            }
++        }
++        // Ensure lock is cleared when modal becomes actually invisible (guards against onShow race)
++        if (!this.state.visible && prevState.visible) {
++            RNModalPopover.isShowingInModal = false;
+         }
+         if (!this.state.visible && prevState.visible && this.props.onCloseComplete) {
+             /*
+@@ -67,7 +80,7 @@ var RNModalPopover = /** @class */ (function (_super) {
+         var _a = this.props, statusBarTranslucent = _a.statusBarTranslucent, onCloseStart = _a.onCloseStart, onRequestClose = _a.onRequestClose;
+         var visible = this.state.visible;
+         return (React.createElement(Modal, { transparent: true, supportedOrientations: ['portrait', 'portrait-upside-down', 'landscape'], hardwareAccelerated: true, visible: visible, statusBarTranslucent: statusBarTranslucent !== null && statusBarTranslucent !== void 0 ? statusBarTranslucent : DEFAULT_STATUS_BAR_TRANSLUCENT, onShow: function () {
+-                RNModalPopover.isShowingInModal = true;
++                // isShowingInModal is now set synchronously before setState to avoid race with onCloseStart
+             }, 
+             // Handles android back button
+             onRequestClose: onRequestClose },
+diff --git a/node_modules/react-native-popover-view/dist/Utility.js b/node_modules/react-native-popover-view/dist/Utility.js
+index d326cb0..aa85039 100644
+--- a/node_modules/react-native-popover-view/dist/Utility.js
++++ b/node_modules/react-native-popover-view/dist/Utility.js
+@@ -45,7 +45,7 @@ export function getRectForRef(ref) {
+             });
+         }
+         else {
+-            reject(new Error('getRectForRef - current is not set'));
++            resolve(new Rect(0, 0, 0, 0));
+         }
+     });
+ }

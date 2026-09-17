@@ -1,102 +1,40 @@
 package xrn.modules.image
 
-import android.util.Log
 import android.view.View
-import com.facebook.react.uimanager.PixelUtil
+import com.facebook.react.uimanager.BackgroundStyleApplicator
+import com.facebook.react.uimanager.LengthPercentage
+import com.facebook.react.uimanager.LengthPercentageType
 import com.facebook.react.uimanager.SimpleViewManager
-import com.facebook.react.uimanager.ViewProps
-import com.facebook.react.uimanager.annotations.ReactProp
-import com.facebook.react.uimanager.annotations.ReactPropGroup
+import com.facebook.react.uimanager.style.BorderRadiusProp
 import com.facebook.yoga.YogaConstants
 
 abstract class XRNBaseImageViewManager<T : View> : SimpleViewManager<T>() {
 
-    open fun setBorderColorInternal(view: T, index: Int, color: Int?) {
-
+    private fun applyBorderRadius(view: T, prop: BorderRadiusProp, radius: Float) {
+        val lengthPercentage = if (YogaConstants.isUndefined(radius)) null
+            else LengthPercentage(radius, LengthPercentageType.POINT)
+        BackgroundStyleApplicator.setBorderRadius(view, prop, lengthPercentage)
+        view.clipToOutline = true
     }
 
-    @ReactPropGroup(
-        names = [
-            ViewProps.BORDER_COLOR,
-            ViewProps.BORDER_LEFT_COLOR,
-            ViewProps.BORDER_RIGHT_COLOR,
-            ViewProps.BORDER_TOP_COLOR,
-            ViewProps.BORDER_BOTTOM_COLOR,
-            ViewProps.BORDER_START_COLOR,
-            ViewProps.BORDER_END_COLOR
-        ],
-        customType = "Color"
-    )
-    fun setBorderColor(view: T, index: Int, color: Int) {
-        Log.e(
-            "lhy",
-            "setBorderColor: $index color: $color ${color} ${
-                LogicalEdge.fromSpacingType(index).toSpacingType()
-            }  ${LogicalEdge.values()[index].toSpacingType()}"
-        )
-
-        setBorderColorInternal(
-            view,
-            LogicalEdge.values()[index].toSpacingType(),
-            color
-        )
+    override fun setBorderRadius(view: T, borderRadius: Float) {
+        applyBorderRadius(view, BorderRadiusProp.BORDER_RADIUS, borderRadius)
     }
 
-    open fun setBorderWidthInternal(view: T, index: Int, width: Float) {
-
+    override fun setBorderTopLeftRadius(view: T, borderRadius: Float) {
+        applyBorderRadius(view, BorderRadiusProp.BORDER_TOP_LEFT_RADIUS, borderRadius)
     }
 
-    @ReactPropGroup(
-        names = [
-            ViewProps.BORDER_WIDTH,
-            ViewProps.BORDER_LEFT_WIDTH,
-            ViewProps.BORDER_RIGHT_WIDTH,
-            ViewProps.BORDER_TOP_WIDTH,
-            ViewProps.BORDER_BOTTOM_WIDTH,
-            ViewProps.BORDER_START_WIDTH,
-            ViewProps.BORDER_END_WIDTH
-        ],
-        defaultFloat = Float.NaN
-    )
-    fun setBorderWidth(view: T, index: Int, width: Float) {
-        var realWidth = width
-        if (!YogaConstants.isUndefined(realWidth)) {
-            realWidth = PixelUtil.toPixelFromDIP(realWidth)
-        }
-
-        setBorderWidthInternal(view, LogicalEdge.values()[index].toSpacingType(), realWidth)
+    override fun setBorderTopRightRadius(view: T, borderRadius: Float) {
+        applyBorderRadius(view, BorderRadiusProp.BORDER_TOP_RIGHT_RADIUS, borderRadius)
     }
 
-    open fun setBorderStyleInternal(view: T, style: String?) {
-
+    override fun setBorderBottomLeftRadius(view: T, borderRadius: Float) {
+        applyBorderRadius(view, BorderRadiusProp.BORDER_BOTTOM_LEFT_RADIUS, borderRadius)
     }
 
-    @ReactProp(name = "borderStyle")
-    fun setBorderStyle(view: T, style: String?) {
-        setBorderStyleInternal(view, style)
-    }
-
-    open fun setBorderRadiusInternal(view: T, index: Int, radius: Float) {
-
-    }
-
-    @ReactPropGroup(
-        names = [ViewProps.BORDER_RADIUS,
-            ViewProps.BORDER_TOP_LEFT_RADIUS,
-            ViewProps.BORDER_TOP_RIGHT_RADIUS,
-            ViewProps.BORDER_BOTTOM_RIGHT_RADIUS,
-            ViewProps.BORDER_BOTTOM_LEFT_RADIUS,
-            ViewProps.BORDER_TOP_START_RADIUS,
-            ViewProps.BORDER_TOP_END_RADIUS,
-            ViewProps.BORDER_BOTTOM_START_RADIUS,
-            ViewProps.BORDER_BOTTOM_END_RADIUS,
-            /*ViewProps.BORDER_END_END_RADIUS,
-            ViewProps.BORDER_END_START_RADIUS,
-            ViewProps.BORDER_START_END_RADIUS,
-            ViewProps.BORDER_START_START_RADIUS*/]
-    )
-    fun setBorderRadius(view: T, index: Int, radius: Float) {
-        setBorderRadiusInternal(view, index, radius)
+    override fun setBorderBottomRightRadius(view: T, borderRadius: Float) {
+        applyBorderRadius(view, BorderRadiusProp.BORDER_BOTTOM_RIGHT_RADIUS, borderRadius)
     }
 
 }

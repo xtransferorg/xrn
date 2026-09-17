@@ -50,8 +50,8 @@ const XtAppMainCard: React.FC<CardProps> = (data) => {
       {!!records && (
         <View style={styles.packageContainer}>
           {records.map(({ label, value }, index) => (
-            <View>
-              <Text key={index}> {label}: {value} </Text>
+            <View key={index}>
+              <Text> {label}: {value} </Text>
             </View>
           ))}
         </View>

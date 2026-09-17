@@ -1,1 +1,1 @@
-# @xrnjs/core
+# @xrn/core

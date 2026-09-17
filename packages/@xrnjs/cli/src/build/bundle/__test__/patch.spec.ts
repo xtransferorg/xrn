@@ -18,6 +18,7 @@ describe("patch", () => {
           "node_modules/react-native/index.js": {
             id: 1,
             version: "0.0.1",
+            hash: '12'
           },
         },
         id: 2,

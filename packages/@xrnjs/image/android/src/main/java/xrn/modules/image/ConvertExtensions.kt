@@ -13,7 +13,7 @@ fun toImageSources(sources: ReadableArray?): List<SourceMap> {
         val tmpSources = mutableListOf<SourceMap>()
 
         for (idx in 0 until sources.size()) {
-            val source = sources.getMap(idx)
+            val source = sources.getMap(idx)!!
             val imageSource = SourceMap(
                 uri = source.getString("uri"),
                 width = source.safeGet<Int>("width") ?: 0,

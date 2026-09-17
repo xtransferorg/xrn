@@ -1,3 +1,3 @@
 module.exports = {
-  presets: ["module:metro-react-native-babel-preset"],
+  extends: "@xrnjs/core/app-config/babel.config.js",
 };

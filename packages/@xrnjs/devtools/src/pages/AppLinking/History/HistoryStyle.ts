@@ -24,9 +24,6 @@ export default StyleSheet.create({
   },
   rightBtnBox: {
     marginRight: 20,
-    height: 40,
-    alignItems: 'center',
-    justifyContent: 'center'
   },
   rightBtnText: {
     fontSize: 14,

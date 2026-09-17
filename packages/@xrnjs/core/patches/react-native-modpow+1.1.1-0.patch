@@ -1,0 +1,25 @@
+diff --git a/node_modules/react-native-modpow/android/build.gradle b/node_modules/react-native-modpow/android/build.gradle
+index a5c2d2c..34c0c60 100644
+--- a/node_modules/react-native-modpow/android/build.gradle
++++ b/node_modules/react-native-modpow/android/build.gradle
+@@ -26,6 +26,9 @@ def getExtOrIntegerDefault(name) {
+ }
+ 
+ android {
++
++  namespace "com.reactnativemodpow"
++
+   compileSdkVersion getExtOrIntegerDefault('compileSdkVersion')
+   buildToolsVersion getExtOrDefault('buildToolsVersion')
+   defaultConfig {
+@@ -36,6 +39,10 @@ android {
+     
+   }
+ 
++  buildFeatures {
++    buildConfig true
++  }
++  
+   buildTypes {
+     release {
+       minifyEnabled false

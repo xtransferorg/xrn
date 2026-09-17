@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="updating">Memperbarui, silakan tahan sesaat …</string>
+    <string name="loading">Memuat…</string>
+    <string name="error_boundary_retry">Muat Ulang</string>
+    <string name="error_boundary_page_not_found">Maaf, halaman yang ingin Anda kunjungi tidak ada.</string>
+    <string name="error_boundary_network_error">Ups! Terjadi kesalahan. Coba lagi.</string>
+</resources>

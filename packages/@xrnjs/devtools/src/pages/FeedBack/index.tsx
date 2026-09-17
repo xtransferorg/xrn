@@ -7,10 +7,14 @@ import {
   TextInput,
 } from "react-native";
 import { Page } from "../../components/Page";
-import { useNavRightButton } from "../../hooks/navigation";
 import styles from "./style";
 import StarRating from "react-native-star-rating-widget";
 import { nativeToast } from "../../utils/toast";
+import {
+  sensorsFundClick,
+  sensorsFundPageView,
+} from "../../utils/sensorsTrack";
+import { ROUTES } from "../..";
 
 const reasons = [
   "设计风格不美观",
@@ -42,6 +46,10 @@ const FeedBack: React.FC = (props: any) => {
   const [sceneText, setSceneText] = useState(SCENE_PREFIX);
   const [suggestionText, setSuggestionText] = useState(SUGGESTING_PREFIX);
   const [contactText, setContactText] = useState(CONTACT_PREFIX);
+
+  useEffect(() => {
+    sensorsFundPageView({ module_name: `devtools_${ROUTES.FeedBack}` });
+  }, []);
 
   const _handleTagPress = (tag: string) => {
     setSelectedTags((prevSelected) =>
@@ -91,12 +99,13 @@ const FeedBack: React.FC = (props: any) => {
       devtools_contact: contactText,
       devtools_efficiency_percent: selectedPercent ? selectedPercent : "",
     };
+    sensorsFundClick(trackObj);
     nativeToast("反馈成功，谢谢配合 ☺");
     navigation?.goBack();
   };
 
   return (
-    <Page title="功能反馈" hideHeader>
+    <Page title="功能反馈">
       <ScrollView style={styles.container}>
         <View style={styles.rateBox}>
           <Text style={styles.rateTitle}>

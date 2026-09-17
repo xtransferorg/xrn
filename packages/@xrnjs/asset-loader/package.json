@@ -1,14 +1,19 @@
 {
   "name": "@xrnjs/asset-loader",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "资源加载",
-  "main": "./build/index.js",
-  "types": "./build/index.d.ts",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "autoDeployAPIDocs": true,
   "scripts": {
-    "build": "tsc",
-    "clean": "rm -rf build",
-    "prepare": "yarn clean && yarn build",
-    "watch": "nodemon --ignore build/ --watch ./src -C -e js,jsx,ts,tsx,css,less --debug -x 'yalc publish --push'"
+    "build-deps": "npx xrn-tools build-dep-packages @xrnjs/asset-loader",
+    "build": "xrn-module build",
+    "clean": "xrn-module clean",
+    "lint": "xrn-module lint",
+    "prepare": "npx xrn-module prepare",
+    "xrn-module": "xrn-module",
+    "yalcPublish": "npx yalc publish --push",
+    "watch": "nodemon --ignore build/ --ignore lib/ --ignore node_modules/ --watch ./ -C -e js,jsx,ts,tsx,css,less --debug -x 'yarn build && yalc push'"
   },
   "files": [
     "src",
@@ -36,40 +41,31 @@
   "keywords": [
     "react-native",
     "xrn",
-    "xrn-asset-loader",
-    "XRNAssetLoader",
-    "xrnjs"
+    "@xrnjs/asset-loader",
+    "XRNAssetLoader"
   ],
-  "publishConfig": {
-    "access": "public"
-  },
   "repository": "https://github.com/xtransferorg/xrn",
   "bugs": {
     "url": "https://github.com/xtransferorg/xrn/issues"
   },
   "author": "",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "homepage": "https://github.com/xtransferorg/xrn#readme",
   "devDependencies": {
-    "@react-native-oh/react-native-harmony": "0.72.38",
-    "@types/react": "^18.0.25",
+    "@react-native-oh/react-native-harmony": "0.77.33",
+    "@types/react": "^18.2.6",
     "lodash": "^4.17.21",
     "nodemon": "^3.1.1",
-    "react-native": "0.72.5",
-    "typescript": "^5.1.3"
+    "react-native": "0.77.1",
+    "xrn-module-scripts": "*",
+    "xrn-tools": "*"
   },
   "peerDependencies": {
-    "@xrnjs/react-native-code-push": "*",
+    "@xrnjs/modules-core": "*",
     "lodash": "*",
     "react": "*",
-    "react-native": "*"
-  },
-  "harmony": {
-    "codegenConfig": {
-      "specPaths": [
-        "./src"
-      ]
-    }
+    "react-native": "*",
+    "react-native-code-push": "*"
   },
   "xrnMeta": {
     "name": "XRNAssetLoader",
@@ -77,7 +73,15 @@
     "showName": "XRNAssetLoader",
     "group": "资源管理",
     "description": "My new module",
-    "packageName": "xrn-asset-loader",
-    "sdkPath": "resource-management/xrn-asset-loader"
+    "packageName": "@xrnjs/asset-loader",
+    "sdkPath": "resource-management/@xrnjs/asset-loader"
+  },
+  "codegenConfig": {
+    "name": "RNPAssetsLoadSpec",
+    "type": "modules",
+    "jsSrcsDir": "./src",
+    "android": {
+      "javaPackageName": "xrn.modules.assetloader"
+    }
   }
 }

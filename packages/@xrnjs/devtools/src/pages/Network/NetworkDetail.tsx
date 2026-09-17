@@ -5,17 +5,21 @@ import { useNavRightButton } from "../../hooks/navigation";
 
 import RequestDetails from "../../core/networkLogger/src/components/RequestDetails";
 import styles from "./style";
+import { sensorsFundClick, sensorsFundPageView } from "../../utils/sensorsTrack";
 import { ROUTES } from "../..";
 import Clipboard from "@react-native-clipboard/clipboard";
-import { nativeToast } from "../../utils/toast";
 
 const NetworkDetail: React.FC = (props: any) => {
+  // const { request } = props?.route?.params;
   const { request } = props?.navigation?.state?.params || {};
 
+  useEffect(() => {
+    sensorsFundPageView({ module_name: `devtools_${ROUTES.NetworkDetail}` });
+  }, []);
+
   const _shareCURL = useCallback(() => {
-    // Share.share({ message: request.curlRequest });
-    nativeToast("复制成功");
     Clipboard.setString(request.curlRequest);
+    sensorsFundClick({ button_name: 'devtools_btn_click', devtools_click_btn_name: '网络日志 分享Curl' });
   }, []);
 
   const renderRightButton = () => {
@@ -29,7 +33,7 @@ const NetworkDetail: React.FC = (props: any) => {
   const rightButton = useNavRightButton(renderRightButton);
 
   return (
-    <Page title="请求详情" rightButton={rightButton} hideHeader>
+    <Page title="请求详情" rightButton={rightButton}>
       <View style={styles.container}>
         <RequestDetails request={request} />
       </View>

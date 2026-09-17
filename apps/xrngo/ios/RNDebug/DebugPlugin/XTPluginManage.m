@@ -9,12 +9,12 @@
 #import "XTPluginManage.h"
 #import "XTSuspendBall.h"
 #import "BundleNavigation.h"
-#import "RCTBridge+XTExtension.h"
 #import "XTJSBundleTool.h"
 #import "JSONUtils.h"
 #import "XRNToastView.h"
 #import "RNCConfig.h"
 #import <React/RCTUtils.h>
+#import <react-native-xrn-multi-bundle/XTMultiBundle.h>
 #import "xrngo-Swift.h"
 
 @interface XTPluginManage ()<SuspendViewDelegate>
@@ -44,12 +44,12 @@
 
 - (void)suspendViewButtonClick:(nonnull UIButton *)sender {
     dispatch_async(dispatch_get_main_queue(), ^{
-        RCTBridge *currentBridge = [[XTJSBundleTool shared] fetchCurrentBridge];
-        if (currentBridge == nil) {
+        XTJSRuntimeContext *currentContext = [[XTJSBundleTool shared] fetchCurrentContext];
+        if (currentContext == nil) {
             return;
         }
-        
-        BundleNavigation *module = [currentBridge moduleForClass:[BundleNavigation class]];
+
+        BundleNavigation *module = [currentContext moduleForClass:[BundleNavigation class]];
         NSString *paramsStr = [JSONUtils dictionaryToJsonString:@{@"where":@"NATIVE"}];
         [module publishSingleBundleEvent:@"NATIVE_FLOAT_BAR_CLICK" params:paramsStr];
     });

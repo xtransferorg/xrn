@@ -4,32 +4,30 @@ import { RNInstance, RNInstanceOptions } from "@rnoh/react-native-openharmony/sr
 import { BundleInfo } from "../bundle/BundleInfo";
 
 /**
- * Configuration options and dependencies required by RNContainer.
+ * RNContainer 依赖数据
  */
 export interface RNContainerOptions {
 
   /**
-   * Create the RNInstanceOptions for a given bundle.
-   * @param bundleInfo Metadata describing the bundle
-   * @returns RNInstanceOptions instance
+   * 创建 RNInstance 依赖数据
+   * @param bundleInfo
+   * @returns
    */
   getRNInstanceOptions: (bundleInfo: BundleInfo) => RNInstanceOptions;
 
 
   /**
-   * Get the wrapped custom component builder for the given bundle.
-   * Used to override or extend default RN components.
-   * @param bundleInfo Metadata describing the bundle
-   * @returns WrappedCustomRNComponentBuilder instance, or undefined if not provided
+   * 获取 自定义组件 Builder
+   * @param bundleInfo
+   * @returns
    */
   getWrappedCustomRNComponentBuilder : (bundleInfo: BundleInfo) => (WrappedCustomRNComponentBuilder | undefined)
 
   /**
-   * Callback invoked by RNApp after RNInstance is created but before runJSBundle is called.
-   * This can be used for additional setup or preloading logic.
-   * @param rnInstance The created RNInstance
-   * @param bundleName Name of the bundle
-   * @returns A Promise that resolves when setup is complete
+   * RNApp 在 RNInstance 就绪后的回调(runJSBundle 之前)
+   * @param rnInstance
+   * @param bundleName
+   * @returns
    */
   onSetup: (rnInstance: RNInstance, bundleName: string) => Promise<void>
 }

@@ -5,7 +5,6 @@ import com.blankj.utilcode.util.FileUtils
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.Callback
 import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.Promise
 import java.io.File
@@ -17,10 +16,14 @@ import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets
 
 class XRNAssetLoaderModule(reactContext: ReactApplicationContext) :
-    ReactContextBaseJavaModule(reactContext) {
+    NativeXRNAssetLoaderModuleSpec(reactContext) {
 
     override fun getName(): String {
-        return MODULE_NAME
+        return NAME
+    }
+
+    override fun getTypedExportedConstants(): Map<String?, Any?>? {
+        return emptyMap()
     }
 
     /**
@@ -31,7 +34,7 @@ class XRNAssetLoaderModule(reactContext: ReactApplicationContext) :
      * @return
      */
     @ReactMethod(isBlockingSynchronousMethod = true)
-    fun isFileExist(filePath: String?): Boolean {
+    override fun isFileExist(filePath: String?): Boolean {
         if (filePath == null || filePath === "") {
             Log.e("isFileExist:", "filePath路径错误")
             return false
@@ -47,7 +50,7 @@ class XRNAssetLoaderModule(reactContext: ReactApplicationContext) :
      * @param callback         回传RN所有drawable资源文件路径
      */
     @ReactMethod
-    fun searchDrawableFile(jsBundleFilePath: String?, callback: Callback) {
+    override fun searchDrawableFile(jsBundleFilePath: String?, callback: Callback) {
         if (jsBundleFilePath == null || jsBundleFilePath === "") {
             Log.e("searchDrawableFile:", "jsBundleFilePath路径错误")
             return
@@ -60,7 +63,9 @@ class XRNAssetLoaderModule(reactContext: ReactApplicationContext) :
         // bundleFileDir 是文件目录
         if (bundleFileDir.isDirectory) {
             val fileFilter = FileFilter { pathname: File? ->
-                (pathname != null && pathname.name.startsWith("drawable") && pathname.isDirectory)
+                pathname != null
+                        && (pathname.name.startsWith("drawable") || pathname.name.startsWith("raw"))
+                        && pathname.isDirectory
             }
             // 过滤出 JSBundle 文件目录下的所有 drawable 文件夹
             val drawableDirs = bundleFileDir.listFiles(fileFilter)
@@ -87,7 +92,7 @@ class XRNAssetLoaderModule(reactContext: ReactApplicationContext) :
      * react-native-svg 中会用到该方法
      */
     @ReactMethod
-    fun getCodePushRawResource(jsBundlePath: String?, fileName: String?, promise: Promise) {
+    override fun getCodePushRawResource(jsBundlePath: String?, fileName: String?, promise: Promise) {
         if (jsBundlePath == null || jsBundlePath === "") {
             Log.e("searchDrawableFile:", "jsBundleFilePath路径错误")
             return
@@ -146,9 +151,10 @@ class XRNAssetLoaderModule(reactContext: ReactApplicationContext) :
     }
 
     companion object {
+        const val NAME = "RNPAssetsLoad"
+
         private const val EOF = -1
         private const val DEFAULT_BUFFER_SIZE = 1024 * 4
-        private const val MODULE_NAME = "RNPAssetsLoad"
     }
 
 }

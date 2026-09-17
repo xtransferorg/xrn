@@ -1,7 +1,7 @@
 /* import type { SharedRef } from 'expo/types';
 import { Asset } from 'expo-asset';
-import { Image } from 'xrn-image';
-import { FlipType, useImageManipulator } from 'xrn-image-manipulator';
+import { Image } from '@xrnjs/image';
+import { FlipType, useImageManipulator } from '@xrnjs/image-manipulator';
 import { useCallback, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 

@@ -24,8 +24,11 @@ import xrn.modules.kotlin.tracing.beginAsyncTraceBlock
 import xrn.modules.kotlin.tracing.trace
 import jp.wasabeef.glide.transformations.BlurTransformation
 import java.lang.ref.WeakReference
+import kotlin.apply
+import kotlin.invoke
 import kotlin.math.abs
 import kotlin.math.min
+import kotlin.text.format
 
 @SuppressLint("ViewConstructor")
 class ExpoImageViewWrapperReal(context: Context, appContext: AppContext) :
@@ -49,29 +52,25 @@ class ExpoImageViewWrapperReal(context: Context, appContext: AppContext) :
         get() = getBestSource(placeholders)
 
     /**
+     * Currently loaded source
+     */
+    private var loadedSource: GlideModelProvider? = null
+
+    /**
+     * Currently loaded placeholder
+     */
+    private var loadedPlaceholder: GlideModelProvider? = null
+
+    /**
      * Copies saved props to the provided view.
      * It ensures that the view state is up to date.
      */
     private fun copyProps(view: ExpoImageView) {
         view.contentFit = contentFit
         view.contentPosition = contentPosition
-        view.setBorderStyle(borderStyle)
-        view.setBackgroundColor(backgroundColor)
         view.setTintColor(tintColor)
         view.isFocusable = isFocusableProp
         view.contentDescription = accessibilityLabel
-        borderColor.forEachIndexed { index, color ->
-            if (color != null) {
-                view.setBorderColor(index, color)
-            }
-        }
-
-        borderRadius.forEachIndexed { index, value ->
-            view.setBorderRadius(index, value)
-        }
-        borderWidth.forEachIndexed { index, value ->
-            view.setBorderWidth(index, value)
-        }
         setIsScreenReaderFocusable(view, accessible)
     }
 
@@ -284,6 +283,7 @@ class ExpoImageViewWrapperReal(context: Context, appContext: AppContext) :
 
             shouldRerender = false
             loadedSource = null
+            loadedPlaceholder = null
             transformationMatrixChanged = false
             clearViewBeforeChangingSource = false
             return true
@@ -322,11 +322,14 @@ class ExpoImageViewWrapperReal(context: Context, appContext: AppContext) :
         }
     }
 
-    override fun rerenderIfNeeded(shouldRerenderBecauseOfResize: Boolean) =
+    override fun rerenderIfNeeded(shouldRerenderBecauseOfResize: Boolean, force: Boolean) =
         trace(
             Trace.tag,
-            "rerenderIfNeeded(shouldRerenderBecauseOfResize=$shouldRerenderBecauseOfResize)"
+            "rerenderIfNeeded(shouldRerenderBecauseOfResize=$shouldRerenderBecauseOfResize,force=$force)"
         ) {
+            if (lockResource && !force) {
+                return@trace
+            }
             val bestSource = bestSource
             val bestPlaceholder = bestPlaceholder
 
@@ -339,7 +342,7 @@ class ExpoImageViewWrapperReal(context: Context, appContext: AppContext) :
             }
 
             val shouldRerender =
-                sourceToLoad != loadedSource || shouldRerender || (sourceToLoad == null && placeholder != null)
+                sourceToLoad != loadedSource || placeholder != loadedPlaceholder || shouldRerender || (sourceToLoad == null && placeholder != null)
             if (!shouldRerender && !shouldRerenderBecauseOfResize) {
                 // In the case where the source didn't change, but the transformation matrix has to be
                 // recalculated, we can apply the new transformation right away.
@@ -360,6 +363,7 @@ class ExpoImageViewWrapperReal(context: Context, appContext: AppContext) :
 
             this.shouldRerender = false
             loadedSource = sourceToLoad
+            loadedPlaceholder = placeholder
             val options = bestSource?.createGlideOptions(context)
             val propOptions = createPropOptions()
 
@@ -392,6 +396,7 @@ class ExpoImageViewWrapperReal(context: Context, appContext: AppContext) :
 
                     thumbnail(
                         requestManager.load(placeholderModel.getGlideModel())
+                            .downsample(PlaceholderDownsampleStrategy(newTarget))
                             .apply(placeholderSource.createGlideOptions(context))
                     )
                 }

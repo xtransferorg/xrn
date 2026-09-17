@@ -1,92 +1,84 @@
 package com.xrngo
 
 import android.content.Context
-import androidx.multidex.MultiDexApplication
-import com.blankj.utilcode.util.ActivityUtils
-import com.facebook.react.ReactApplication
-import com.facebook.react.ReactInstanceManager
-import com.facebook.react.ReactNativeHost
+import com.blankj.utilcode.util.ReflectUtils
+import com.blankj.utilcode.util.ToastUtils
+import com.facebook.react.ReactHost
+import com.facebook.react.config.ReactFeatureFlags
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.load
+import com.facebook.react.soloader.OpenSourceMergedSoMapping
 import com.facebook.soloader.SoLoader
-import com.xrngo.multibundle.XGoBundleInfoHook
-import com.xrngo.multibundle.XGoDevSupportParams
-import com.xrngo.multibundle.XGoRNHostParams
+import com.xrngo.multibundle.XGoReactHostDelegate
 import com.xrngo.navigation.MainClazzFactory
-import xrn.modules.multibundle.bundle.BundleInfoManager.initWithRawFile
-import xrn.modules.multibundle.bundle.RNHostManager.getMainRNHost
-import xrn.modules.multibundle.bundle.RNHostManager.init
-import xrn.modules.multibundle.bundle.RNHostManagerParams
-import xrn.modules.multibundle.view.RNContainerActivity
-import xrn.modules.navigation.Navigation.initialize
-import xrn.modules.navigation.kotlin.exception.NavigationException
+import io.sentry.Sentry
+import xrn.modules.loading.LoadingManager
+import xrn.modules.multibundle.ReactHostManager
+import xrn.modules.multibundle.XRNApplication
+import xrn.modules.multibundle.bundle.BundleInfoManager
+import xrn.modules.multibundle.runtime.XRNReactHostFactory
+import xrn.modules.multibundle.runtime.XRNReactHostImpl
+import xrn.modules.multibundle.runtime.pool.XRNReactHostPool
+import xrn.modules.multibundle.runtime.pool.XRNReactHostPoolImpl
+import xrn.modules.multibundle.runtime.toReactHost
+import xrn.modules.navigation.Navigation
+import xrn.modules.navigation.kotlin.NavHelper
 import java.lang.reflect.InvocationTargetException
 
 
-class MainApplication : MultiDexApplication(), ReactApplication {
-    override fun getReactNativeHost(): ReactNativeHost {
-        val topActivity = ActivityUtils.getTopActivity()
-        if (topActivity is RNContainerActivity) {
-            return topActivity.getRNHost()!!
+class MainApplication : XRNApplication() {
+
+    private val mReactHostPool = XRNReactHostPoolImpl(!BuildConfig.DEBUG, 4, object : XRNReactHostFactory {
+        override fun createReactHost(
+            bundleName: String,
+            commonOnly: Boolean
+        ): XRNReactHostImpl {
+            return XGoReactHostDelegate(
+                this@MainApplication,
+                bundleName,
+                commonOnly
+            ).toReactHost(this@MainApplication)
         }
-        return getMainRNHost()!!
-    }
+    })
+
+    override val reactHostPool: XRNReactHostPool = mReactHostPool
 
     override fun onCreate() {
         super.onCreate()
+        initRN()
         initMultiBundle()
-        initNavigation()
-        SoLoader.init(this,  /* native exopackage */false)
+        initializeFlipper(this, reactHost)
+        Navigation.initialize(MainClazzFactory())
+    }
+
+    private fun initRN() {
+        ReactFeatureFlags.dispatchPointerEvents = true
+        SoLoader.init(this, OpenSourceMergedSoMapping)
         if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
             // If you opted-in for the New Architecture, we load the native entry point for this app.
-            load()
+            load(turboModulesEnabled = true, fabricEnabled = true, bridgelessEnabled = true)
         }
-        initializeFlipper(this, reactNativeHost.reactInstanceManager)
     }
 
     private fun initMultiBundle() {
-        initWithRawFile(this, R.raw.bundle_config, XGoBundleInfoHook())
-        val params = RNHostManagerParams()
-        params.isProd = !BuildConfig.DEBUG
-        params.rnHostParams = XGoRNHostParams(this)
-        params.devSupportParams = XGoDevSupportParams()
-        params.onError = { e: Exception, stingMap: Map<String, Any> ->
-            e.printStackTrace()
-            null
-        }
-        init(this, params)
+        BundleInfoManager.initWithRawFile(this, R.raw.bundle_config)
+        ReactHostManager.init(this)
     }
 
-    private fun initNavigation() {
-        initialize(MainClazzFactory()) { e: NavigationException ->
-            e.printStackTrace()
-            Unit
-        }
-    }
-
-    companion object {
-        private fun initializeFlipper(
-            context: Context, reactInstanceManager: ReactInstanceManager
-        ) {
-            if (BuildConfig.DEBUG) {
-                try {
-                    val aClass = Class.forName("com.xrngo.ReactNativeFlipper")
-                    aClass
-                        .getMethod(
-                            "initializeFlipper",
-                            Context::class.java,
-                            ReactInstanceManager::class.java
-                        )
-                        .invoke(null, context, reactInstanceManager)
-                } catch (e: ClassNotFoundException) {
-                    e.printStackTrace()
-                } catch (e: NoSuchMethodException) {
-                    e.printStackTrace()
-                } catch (e: IllegalAccessException) {
-                    e.printStackTrace()
-                } catch (e: InvocationTargetException) {
-                    e.printStackTrace()
-                }
+    private fun initializeFlipper(context: Context, reactHost: ReactHost) {
+        if (BuildConfig.DEBUG) {
+            try {
+                ReflectUtils.reflect("com.xrngo.ReactNativeFlipper")
+                    .method("initializeFlipper", context, reactHost)
+            } catch (e: ClassNotFoundException) {
+                e.printStackTrace();
+            } catch (e: NoSuchMethodException) {
+                e.printStackTrace();
+            } catch (e: IllegalAccessException) {
+                e.printStackTrace();
+            } catch (e: InvocationTargetException) {
+                e.printStackTrace();
             }
         }
     }
+
 }

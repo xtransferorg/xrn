@@ -2,18 +2,18 @@
   app: {
     signingConfigs: [
       {
-        name: 'xrngo',
-        type: 'HarmonyOS',
-        material: {
-          storePassword: '000000187A762C40FCC1F6BBF54BC4899168E4BA044A2BE5E91BDAE4FD6DA14386EE5F11604BCBE7',
-          certpath: './XRNGo.cer',
-          keyAlias: 'xrngo',
-          keyPassword: '00000018F04CFC7709E09FD28CCC2CE58E546717C16744C6EACD4308E6EE154C61BBC67CB5C6E37E',
-          profile: './xrngoDebug.p7b',
-          signAlg: 'SHA256withECDSA',
-          storeFile: './xrngo.p12',
-        },
-      },
+        "name": "xrngo",
+        "type": "HarmonyOS",
+        "material": {
+          "storePassword": "00000016ae8cd3a9e9110c55f6ddc6688b857521fcc4cf29850a2edccdba57a9e2acc2a502de",
+          "certpath": "./xrngo-app.cer",
+          "keyAlias": "oh-app1-key-v2",
+          "keyPassword": "00000016786996b643629c54f7e087cbc57b60fbda939894efb5e06a3fef633bf8a3f272ceb3",
+          "profile": "./xrngo-debug.p7b",
+          "signAlg": "SHA256withECDSA",
+          "storeFile": "./xrngo-app.p12"
+        }
+      }
     ],
     products: [
       {
@@ -28,6 +28,28 @@
           },
         },
       },
+      {
+        name: 'dev',
+        compatibleSdkVersion: '5.0.1(13)',
+        runtimeOS: 'HarmonyOS',
+        buildOption: {
+          strictMode: {
+            caseSensitiveCheck: true,
+            useNormalizedOHMUrl: true,
+          },
+        },
+      },
+      {
+        name: 'prod',
+        compatibleSdkVersion: '5.0.1(13)',
+        runtimeOS: 'HarmonyOS',
+        buildOption: {
+          strictMode: {
+            caseSensitiveCheck: true,
+            useNormalizedOHMUrl: true,
+          },
+        },
+      }
     ],
     buildModeSet: [
       {
@@ -49,19 +71,47 @@
             'default',
           ],
         },
+        {
+          name: 'dev',
+          applyToProducts: [
+            'dev',
+          ],
+        },
+        {
+          name: 'prod',
+          applyToProducts: [
+            'prod',
+          ],
+        }
       ],
     },
     {
       name: 'config',
-      srcPath: '../node_modules/@react-native-oh-tpl/react-native-config/harmony/config',
+      srcPath: '../node_modules/@react-native-ohos/react-native-config/harmony/config',
     },
     {
       name: 'device_info',
-      srcPath: '../node_modules/@react-native-oh-tpl/react-native-device-info/harmony/device_info',
+      srcPath: '../node_modules/@react-native-ohos/react-native-device-info/harmony/device_info',
+    },
+    {
+      name: 'pdfview',
+      srcPath: '../node_modules/@react-native-ohos/react-native-pdf/harmony/pdfview',
+    },
+    {
+      name: 'get_random_values',
+      srcPath: '../node_modules/@react-native-ohos/react-native-get-random-values/harmony/get_random_values',
+    },
+    {
+      name: 'blobUtil',
+      srcPath: '../node_modules/@react-native-ohos/react-native-blob-util/harmony/blobUtil',
     },
     {
       name: 'xrn_loading',
       srcPath: '../node_modules/@xrnjs/loading/harmony/xrn_loading',
+    },
+    {
+      name: 'xrn_debug_tools',
+      srcPath: '../node_modules/@xrnjs/debug-tools/harmony/xrn_debug_tools',
     },
     {
       name: 'xrn_native_storage',
@@ -84,12 +134,16 @@
       srcPath: '../node_modules/@xrnjs/navigation/harmony/xrn_navigation',
     },
     {
-      name: 'xrn_debug_tools',
-      srcPath: '../node_modules/@xrnjs/debug-tools/harmony/xrn_debug_tools',
+      "name": "codePush",
+      "srcPath": "../node_modules/@xrnjs/react-native-code-push/harmony/codePush"
     },
     {
-      name: 'codePush',
-      srcPath: '../node_modules/@xrnjs/react-native-code-push/harmony/codePush',
+      "name": "xrn_keyboard",
+      "srcPath": "../node_modules/@xrnjs/keyboard/harmony/xrn_keyboard"
+    },
+    {
+      "name": 'xrn_image',
+      "srcPath": '../node_modules/@xrnjs/image/harmony/xrn_image'
     }
   ],
 }

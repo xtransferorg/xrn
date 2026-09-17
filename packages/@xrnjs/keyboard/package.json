@@ -1,0 +1,91 @@
+{
+  "name": "@xrnjs/keyboard",
+  "version": "0.1.0",
+  "description": "XRNKeyboard",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "autoDeployAPIDocs": true,
+  "scripts": {
+    "build-deps": "npx xrn-tools build-dep-packages @xrnjs/keyboard",
+    "build": "xrn-module build",
+    "clean": "xrn-module clean",
+    "lint": "xrn-module lint",
+    "prepare": "npx xrn-module prepare",
+    "xrn-module": "xrn-module",
+    "yalcPublish": "npx yalc publish --push",
+    "watch": "nodemon --ignore build/ --ignore lib/ --ignore node_modules/ --watch ./ -C -e js,jsx,ts,tsx,css,less --debug -x 'yarn build && yalc push'"
+  },
+  "files": [
+    "src",
+    "build",
+    "android",
+    "ios",
+    "harmony/*.har",
+    "harmony/xrn_keyboard",
+    "!harmony/xrn_keyboard/oh_modules",
+    "!harmony/xrn_keyboard/build",
+    "!harmony/xrn_keyboard/.hvigor",
+    "cpp",
+    "*.podspec",
+    "!ios/build",
+    "!android/build",
+    "!android/gradle",
+    "!android/gradlew",
+    "!android/gradlew.bat",
+    "!android/local.properties",
+    "!**/__tests__",
+    "!**/__fixtures__",
+    "!**/__mocks__",
+    "!**/.*"
+  ],
+  "keywords": [
+    "react-native",
+    "xrn",
+    "@xrnjs/keyboard",
+    "XRNKeyboard"
+  ],
+  "repository": "https://github.com/xtransferorg/xrn",
+  "bugs": {
+    "url": "https://github.com/xtransferorg/xrn/issues"
+  },
+  "author": "",
+  "license": "MIT",
+  "homepage": "https://xtransferorg.github.io/versions/latest/sdk/tools",
+  "devDependencies": {
+    "@react-native-oh/react-native-harmony": "0.77.33",
+    "@types/react": "^18.2.6",
+    "nodemon": "^3.1.1",
+    "xrn-module-scripts": "*",
+    "xrn-tools": "*"
+  },
+  "peerDependencies": {
+    "@xrnjs/modules-core": "*",
+    "react": "*",
+    "react-native": "*",
+    "react-native-keyboard-manager": "*"
+  },
+  "harmony": {
+    "codegenConfig": {
+      "specPaths": [
+        "./src"
+      ]
+    }
+  },
+  "xrnMeta": {
+    "name": "XRNKeyboard",
+    "title": "XRNKeyboard",
+    "showName": "XRNKeyboard",
+    "group": "工具函数",
+    "description": "XRNKeyboard",
+    "packageName": "@xrnjs/keyboard",
+    "sdkPath": "tools/@xrnjs/keyboard"
+  },
+  "codegenConfig": {
+    "name": "XRNKeyboardModuleSpec",
+    "type": "modules",
+    "jsSrcsDir": "./src",
+    "android": {
+      "javaPackageName": "com.xrn.keyboard"
+    }
+  }
+}

@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { Image, StyleSheet, TouchableOpacity, TouchableOpacityProps } from 'react-native';
 import { Theme, useThemedStyles } from '../theme';
 
 const icons = {
@@ -18,7 +18,7 @@ type ButtonProps =
   | ({
       onPress: () => void;
       accessibilityLabel: string;
-    } & TouchableOpacity['props']);
+    } & TouchableOpacityProps);
 
 const Icon = ({
   name,

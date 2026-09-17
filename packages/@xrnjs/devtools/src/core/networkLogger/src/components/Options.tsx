@@ -4,6 +4,7 @@ import Button from './Button';
 import { useThemedStyles } from '../theme';
 import NLModal from './Modal';
 import Icon from './Icon';
+import { sensorsFundClick } from '../../../../utils/sensorsTrack';
 
 interface Props {
   options: { text: string; onPress: () => Promise<void> }[];
@@ -19,6 +20,7 @@ const Options: React.FC<Props> = ({ options }) => {
         name="more"
         onPress={() => {
           setOpenOptions(true);
+          sensorsFundClick({ button_name: 'devtools_btn_click', devtools_click_btn_name: '网络日志 更多弹框关闭' });
         }}
         testID="options-menu"
         accessibilityLabel="More"

@@ -9,7 +9,7 @@ export type AppUtilsStatic = {
   /**
    * 检查设备安全性
    * @param nonce 服务端生成的随机数
-   * @returns 
+   * @returns
    */
   checkSysIntegrity: (nonce: string) => Promise<CheckSysIntegrityResult>;
   /**
@@ -44,46 +44,26 @@ export type AppUtilsStatic = {
    */
   moveTaskToBack: () => void;
   /**
-   * 跳转到应用市场的指定应用详情
-   * @param appPkgName App包名；鸿蒙平台是AppId
+   * Android/Harmony：打开指定应用市场的 App 详情页
+   * @param appPkgName Android App 包名；Harmony App bundleName
    * @param marketPkgName 应用市场包名
-   * @returns
    */
   launchAppDetail: (appPkgName: string, marketPkgName: string) => Promise<void>;
-};
-
-/**
- * 文件操作相关
- */
-export type FileStatic = {
-  /**
-   * 清除 Fresco 缓存（Android图片加载库）
-   */
-  clearFrescoCache(): Promise<boolean>;
-
-  /**
-   * 插入本地图片到系统相册（目前仅用于 Android）
-   * @param options 
-   */
-  insertImageToPhotoLibrary(options: ImageOptions): Promise<boolean>;
-};
-
-export type ImageOptions = {
-  path: string;
-  fileName?: string;
 };
 
 /**
  * LONG: 显示5s
  * SHORT： 显示3s
  */
-export type DurationMode = "LONG" | "SHORT";
-
+// export type DurationMode = "LONG" | "SHORT";
+export enum DurationMode {
+  LONG = "LONG",
+  SHORT = "SHORT",
+}
 /**
  * native Toast 弹框功能
  */
 export type NativeToastStatic = {
-
   /**
    * 显示native toast
    * @param message 提示文案

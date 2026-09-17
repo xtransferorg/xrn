@@ -1,0 +1,13 @@
+diff --git a/node_modules/@react-native-async-storage/async-storage/ios/RNCAsyncStorage.mm b/node_modules/@react-native-async-storage/async-storage/ios/RNCAsyncStorage.mm
+index fa3bb04..065c8f5 100644
+--- a/node_modules/@react-native-async-storage/async-storage/ios/RNCAsyncStorage.mm
++++ b/node_modules/@react-native-async-storage/async-storage/ios/RNCAsyncStorage.mm
+@@ -515,7 +515,7 @@ - (NSDictionary *)_ensureSetup
+         RCTHasCreatedStorageDirectory = YES;
+     }
+ 
+-    if (!_haveSetup) {
++    if (YES) {
+         // iCloud backup exclusion
+         NSNumber *isExcludedFromBackup =
+             [[NSBundle mainBundle] objectForInfoDictionaryKey:@"RCTAsyncStorageExcludeFromBackup"];

@@ -1,11 +1,8 @@
-import path from "path";
-
 import { AppStarter } from "./AppStarter";
 import { getPlatformIdentifier } from "../../utlis/readAppJsonFile";
 import { AndroidDeviceManager } from "../deviceManager/AndroidDeviceManager";
-import { AppInfo, DeviceType } from "../types";
+import { DeviceType } from "../types";
 import { assertToolsInstalled } from "../utils/check";
-import { getAppList, getLocalAppList } from "../utils/getVersionList";
 
 /**
  * Android app starter implementation
@@ -37,35 +34,14 @@ export class AndroidAppStarter extends AppStarter {
   }
   
   /**
-   * Get the list of available remote Android app versions
-   * @returns Promise resolving to an array of AppInfo objects
-   */
-  protected async getAppList() {
-    return await getAppList(DeviceType.ANDROID, this.options.branch);
-  }
-  
-  /**
-   * Get the list of available local Android app versions
-   * Searches in current directory and parent directory for Android apps
-   * @returns Promise resolving to an array of AppInfo objects
-   */
-  protected async getLocalAppList() {
-    return await getLocalAppList(DeviceType.ANDROID, [
-      process.cwd(),
-      path.join(process.cwd(), ".."),
-    ]);
-  }
-  
-  /**
    * Get the Android package name for the app
    * Prioritizes platform identifier, then app bundle ID, then command line option
    * @param app - App information
    * @returns The Android package name string
    */
-  protected getPackageName(app: AppInfo) {
+  protected getPackageName() {
     return (
       getPlatformIdentifier(DeviceType.ANDROID, this.config) ||
-      app.appBundleId ||
       this.options.packageName
     );
   }
@@ -74,15 +50,13 @@ export class AndroidAppStarter extends AppStarter {
    * Perform post-installation tasks for Android apps
    * Sets up port forwarding and launches the app automatically
    * @param deviceManager - Android device manager instance
-   * @param app - App information
    */
   protected async postInstall(
     deviceManager: AndroidDeviceManager,
-    app: AppInfo,
   ) {
     if (this.devServer) {
       await deviceManager.reversePort(this.devServer.port, this.devServer.port);
     }
-    await deviceManager.launchApp(this.getPackageName(app));
+    await deviceManager.launchApp(this.getPackageName());
   }
 }

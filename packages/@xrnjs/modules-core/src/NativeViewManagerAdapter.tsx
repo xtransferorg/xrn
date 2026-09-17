@@ -8,6 +8,7 @@ import type { HostComponent } from 'react-native';
 import * as NativeComponentRegistry from 'react-native/Libraries/NativeComponent/NativeComponentRegistry';
 
 import { requireNativeModule } from './requireNativeModule';
+import { isNewComponentOnly, handleUnsupportedNativeCapability } from './ModuleProxy';
 
 // To make the transition from React Native's `requireNativeComponent` to Expo's
 // `requireNativeViewManager` as easy as possible, `requireNativeViewManager` is a drop-in
@@ -60,6 +61,17 @@ function requireCachedNativeComponent<Props>(
   return cachedNativeComponent;
 }
 
+class FallbackView extends React.PureComponent<{ name: string }> {
+  componentDidMount() {
+    handleUnsupportedNativeCapability(
+      `[requireNativeComponent] 组件 "${this.props.name}" 仅在最新版本中可用，请升级 App`
+    );
+  }
+  render() {
+    return null;
+  }
+}
+
 /**
  * A drop-in replacement for `requireNativeComponent`.
  */
@@ -84,12 +96,15 @@ export function requireNativeViewManager<P>(
     }
 
     render(): React.ReactNode {
+      if (!ReactNativeComponent && isNewComponentOnly(viewName)) {
+        return <FallbackView name={viewName} />;
+      }
       return <ReactNativeComponent {...this.props} />;
     }
   }
 
   try {
-    const nativeModule = requireNativeModule(viewName);
+    const nativeModule = requireNativeModule<any>(viewName);
     const nativeViewPrototype = nativeModule.ViewPrototype;
 
     if (nativeViewPrototype) {

@@ -3,7 +3,9 @@
 import type { MetaConfig } from "./interface";
 import { parsePatchFile } from "patch-package/dist/patch/parse";
 import { BuildEnv, BuildType, Platform } from "../typing";
-import { baseRepoManage, COMMON_BASE_KEY } from "../../codePush/diff";
+import {
+  COMMON_BASE_KEY,
+} from "../../codePush/diff";
 import path from "path";
 import fs from "fs";
 import logger from "../../utlis/logger";
@@ -11,6 +13,8 @@ import crypto from "crypto";
 import { BundleExt, BundleFileName } from "./constant";
 import fsPromise from "fs/promises";
 import { PackageJson } from "../utils/package";
+import { BaseLineFileType } from "../BaselineManager";
+import { BaselineManagerFactory } from "../BaselineManagerFactory";
 
 function parsePathToArray(filePath: string) {
   const parts = filePath.split(path.sep);
@@ -70,6 +74,144 @@ export function isExistFile(dir: string) {
   return fs.existsSync(dir);
 }
 
+/**
+ * 构建模块映射表，包含模块路径、版本和hash信息
+ */
+export async function buildModuleMap(
+  fileToIdMap: Map<string, number>,
+  basePath: string
+): Promise<Record<string, { id: number; version: string; hash: string }>> {
+  const moduleMap = {};
+  const entries = [...fileToIdMap];
+
+  await Promise.all(
+    entries.map(async ([filePath, moduleId]) => {
+      try {
+        const hash = await getFileHash(filePath);
+
+        let normalizedPath = filePath
+          .replace(/^\/private/, "")
+          .replace(basePath + "/", "");
+
+        const version = findVersion(normalizedPath, basePath);
+        normalizedPath = normalizedPath.replace(
+          /^.*node_modules\//,
+          "node_modules/"
+        );
+
+        // 只处理node_modules中的模块
+        if (!/^node_modules/.test(normalizedPath)) return;
+
+        moduleMap[`${normalizedPath}@${version}`] = {
+          id: moduleId,
+          version: version || "0.0.0",
+          hash,
+        };
+      } catch (err) {
+        console.error(`Failed to hash file ${filePath}:`, err);
+      }
+    })
+  );
+
+  return moduleMap;
+}
+
+/**
+ * 构建模块路径到hash-id映射的查找表
+ */
+export function buildModuleHashLookup(
+  metaConfig: MetaConfig
+): Record<string, Record<string, number>> {
+  if (!metaConfig.version) {
+    return {};
+  }
+
+  return Object.entries(metaConfig.modules).reduce(
+    (lookup, [moduleKey, { hash, id }]) => {
+      const match = moduleKey.match(
+        /^(.+\.(?:js|jsx|ts|tsx|json|svg|png))@([\w.-]+)$/
+      );
+      if (!match) {
+        throw new Error(
+          `模块 ${moduleKey} 的格式不正确，应该是 <path>@<version>`
+        );
+      }
+
+      const modulePath = match[1];
+      if (lookup[modulePath]) {
+        lookup[modulePath][hash] = id;
+      } else {
+        lookup[modulePath] = { [hash]: id };
+      }
+
+      return lookup;
+    },
+    {} as Record<string, Record<string, number>>
+  );
+}
+
+/**
+ * 查找polyfills文件路径
+ */
+export function findPolyfillsPath(basePath: string): string {
+  let polyfillsPath = path.resolve(
+    basePath,
+    "node_modules/@react-native/js-polyfills/index.js"
+  );
+
+  if (!fs.existsSync(polyfillsPath)) {
+    polyfillsPath = path.resolve(
+      basePath,
+      "node_modules/@react-native/polyfills/index.js"
+    );
+  }
+
+  return polyfillsPath;
+}
+
+/**
+ * 获取Metro运行时相关路径
+ */
+export function getMetroRuntimePaths(basePath: string) {
+  return {
+    requirePolyfill: path.resolve(
+      basePath,
+      "node_modules/metro-runtime/src/polyfills/require.js"
+    ),
+    asyncRequire: path.resolve(
+      basePath,
+      "node_modules/metro-runtime/src/modules/asyncRequire.js"
+    ),
+    emptyModule: path.resolve(
+      basePath,
+      "node_modules/metro-runtime/src/modules/empty-module.js"
+    ),
+  };
+}
+
+/**
+ * 获取React Native核心模块路径
+ */
+export function getReactNativePaths(basePath: string, platform: Platform) {
+  const initializeCore =
+    platform === Platform.Harmony
+      ? path.resolve(
+          basePath,
+          "node_modules/@react-native-oh/react-native-harmony/Libraries/Core/InitializeCore.js",
+        )
+      : path.resolve(
+          basePath,
+          "node_modules/react-native/Libraries/Core/InitializeCore.js",
+        );
+  return {
+    initializeCore: initializeCore,
+    jsPolyfills: path.resolve(
+      basePath,
+      "node_modules/@react-native/js-polyfills",
+    ),
+  };
+}
+
 interface PatchNormalized {
   type: string;
   path: string; // "node_modules/react-native/Libraries/Blob/FileReader.js"
@@ -124,34 +266,6 @@ export async function invalidatePatch(root: string, meta: MetaConfig) {
   );
 }
 
-// const initBaseLineRepoFn = (() => {
-//   let initialized = false,
-//     tmp: string;
-//   return async () => {
-//     if (initialized) return tmp;
-//     try {
-//       const npmCache =
-//         (await execShellCommand(
-//           "npm config get cache",
-//           { cwd: null, log: false },
-//           true
-//         )) || ".xt";
-//       tmp = path.resolve(os.homedir(), npmCache.trim());
-//       const diffRepoPath = path.resolve(tmp, name);
-//       if (isExistDir(diffRepoPath)) {
-//         await syncRepo(branch, diffRepoPath);
-//       } else {
-//         // TODO branch
-//         await initBaseLineRepo(tmp, branch);
-//       }
-//     } catch (e) {
-//       throw new Error(e);
-//     }
-//     initialized = true;
-//     return tmp;
-//   };
-// })();
-
 interface IMetaConfig {
   version: string;
   platform: Platform;
@@ -159,37 +273,38 @@ interface IMetaConfig {
   buildType?: BuildType;
   buildEnv: BuildEnv;
   temp?: string;
-  channel?: string;
 }
 
-export async function getBaseJson({
+const getBaseJson: {
+  (config: IMetaConfig): Promise<any>;
+  initialized?: boolean;
+} = async ({
   version,
   platform,
-  project = "XTransfer",
   buildType = BuildType.DEBUG,
   buildEnv,
-  temp = "",
-  channel = "china",
-}: IMetaConfig) {
+}) => {
   // const tmp = temp || (await initBaseLineRepoFn());
-  return baseRepoManage({
-    // cwd: tmp,
+  const baselineManager = BaselineManagerFactory.createOrGet({
     platform,
-    project,
     version,
     buildEnv,
-    buildType,
-  });
+    buildType
+  })
+  if (!getBaseJson.initialized) {
+    await baselineManager.downloadFiles({file_types: [BaseLineFileType.META] });
+    getBaseJson.initialized = true
+  }
+  return baselineManager.baseRepoManage();
 }
 
 export async function getMetaJson({
   version,
   platform,
-  project = "XTransfer",
+  project = "xrn",
   buildType = BuildType.DEBUG,
   buildEnv,
   temp = "",
-  channel,
 }: IMetaConfig): Promise<MetaConfig> {
   const { pkg } = await getBaseJson({
     version,
@@ -198,7 +313,6 @@ export async function getMetaJson({
     buildType,
     buildEnv,
     temp,
-    channel,
   });
   try {
     const meta = (require(pkg.get()) as PackageJson)[COMMON_BASE_KEY];
@@ -209,30 +323,30 @@ export async function getMetaJson({
   }
 }
 
-// export async function getDependenciesJson({
-//   version,
-//   platform,
-//   project = "XTransfer",
-//   buildType = BuildType.DEBUG,
-//   buildEnv,
-//   temp = "",
-// }: IMetaConfig) {
-//   const { pkg } = await getBaseJson({
-//     version,
-//     platform,
-//     project,
-//     buildType,
-//     buildEnv,
-//     temp,
-//   });
-//   try {
-//     const dependencies = require(pkg.get()).dependencies;
+export async function getDependenciesJson({
+  version,
+  platform,
+  project = "xrn",
+  buildType = BuildType.DEBUG,
+  buildEnv,
+  temp = "",
+}: IMetaConfig) {
+  const { pkg } = await getBaseJson({
+    version,
+    platform,
+    project,
+    buildType,
+    buildEnv,
+    temp,
+  });
+  try {
+    const dependencies = require(pkg.get()).dependencies;
 
-//     return dependencies;
-//   } catch {
-//     throw new Error(`app: ${version} ${pkg.get()} 文件未找到`);
-//   }
-// }
+    return dependencies;
+  } catch {
+    throw new Error(`app: ${version} ${pkg.get()} 文件未找到`);
+  }
+}
 
 export function getFileHash(filePath: string, algorithm = "sha256") {
   return new Promise<string>((resolve, reject) => {

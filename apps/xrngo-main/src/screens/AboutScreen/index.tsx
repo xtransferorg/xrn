@@ -5,7 +5,6 @@ import styles from './style';
 import HeadInfo from '../../components/HeadInfo';
 import PackageJson from '../../../package.json';
 import {useNavToSubPage} from '../../utils';
-import ReactNativeOhPkg from '@react-native-oh/react-native-harmony/package.json';
 
 const AboutScreen = () => {
   const {navToSubPage, navToWebsite} = useNavToSubPage();
@@ -21,18 +20,17 @@ const AboutScreen = () => {
             </Text>
             <Text>
               React Native Harmony 版本：
-              {(ReactNativeOhPkg as any).version}
+              {
+                PackageJson.dependencies[
+                  '@react-native-oh/react-native-harmony'
+                ]
+              }
             </Text>
           </View>
         }
         visible={visible2}
         onPressConfirm={() => {
           setVisible2(false);
-        }}
-        confirmButtonProps={{
-          style: {
-            backgroundColor: '#1E6fff',
-          },
         }}
         solidButton
       />
@@ -46,6 +44,14 @@ const AboutScreen = () => {
             <List.Item
               onPress={() => {
                 setVisible2(true);
+                // Modal.info({
+                //   title: '执行XXX提示',
+                //   message:
+                //     '执行XXX操作的补充说明文案，文案描述文案描述文案描述文案描述文案描述文案描述文案描述文案描述。',
+                //   cancelButtonText: '取消',
+                //   solidButton: true,
+                //   buttonsDirection: 'column',
+                // });
               }}
               style={styles.singleItem}>
               React Native 版本
@@ -65,7 +71,8 @@ const AboutScreen = () => {
           <List header={<Title style={styles.title}>相关链接</Title>}>
             <List.Item
               onPress={() => {
-                const website = 'https://github.com/xtransferorg/xrn';
+                const website =
+                  'https://github.com/xtransferorg/xrn';
                 navToWebsite(website);
               }}
               style={styles.singleItem}>
@@ -73,7 +80,7 @@ const AboutScreen = () => {
             </List.Item>
             <List.Item
               onPress={() => {
-                const website = 'https://xtransferorg.github.io/xrn/';
+                const website = 'https://xtransferorg.github.io/';
                 navToWebsite(website);
               }}
               style={styles.singleItem}>

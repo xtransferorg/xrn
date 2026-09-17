@@ -91,15 +91,6 @@ else
 fi
 
 XT_SUB_BUNDLE_SOURCE="${SRCROOT}/subBundles"
-if find "$XT_SUB_BUNDLE_SOURCE" -type f -name "*.jsbundle" | grep -q .; then
-    echo "resources is ready in this directory $XT_SUB_BUNDLE_SOURCE "
-else
-    echo "jsbundle is not exist in  $XT_SUB_BUNDLE_SOURCE directory" >&2 #输出到标准错误stderr
-    exit 2
-fi
-
-
-
 # INFOPLIST_FILE\=xtapp/Info.plist
 # TARGET_NAME\=xtapp
 # MainBundleName
@@ -137,14 +128,16 @@ xt_check_bundle_existence_and_copy() {
 XT_MAIN_BUNDLE_NAME=$($XT_PlistBuddy_CLI -c "Print :MainBundleName" $XT_INFO_PLIST_PATH)
 xt_check_bundle_existence_and_copy "$XT_MAIN_BUNDLE_SOURCE" "$XT_MAIN_BUNDLE_NAME"
 
-XT_COMMON_BUNDLE_NAME=$($XT_PlistBuddy_CLI -c "Print :CommonBundleName" $XT_INFO_PLIST_PATH)
-xt_check_bundle_existence_and_copy "$XT_COMMON_BUNDLE_SOURCE" "$XT_COMMON_BUNDLE_NAME"
-
-# 检查子bundle是否匹配
-xt_sub_bundle_array_keys=$($XT_PlistBuddy_CLI -c "Print :" $XT_SUB_BUNDLE_PLIST_PATH | grep -E "^\s+jsBundleName" | wc -l)
-for ((i=0; i<$xt_sub_bundle_array_keys; i++))
-do
-    # 使用PlistBuddy获取jsBundleName值并打印
-    xt_sub_bundle_name=$($XT_PlistBuddy_CLI -c "Print :$i:jsBundleName" $XT_SUB_BUNDLE_PLIST_PATH)
-    xt_check_bundle_existence_and_copy "$XT_SUB_BUNDLE_SOURCE" "$xt_sub_bundle_name"
-done
+# 子 bundle 是可选的；存在时按配置复制，不存在时跳过。
+if find "$XT_SUB_BUNDLE_SOURCE" -type f -name "*.jsbundle" | grep -q .; then
+    echo "resources is ready in this directory $XT_SUB_BUNDLE_SOURCE"
+    xt_sub_bundle_array_keys=$($XT_PlistBuddy_CLI -c "Print :" $XT_SUB_BUNDLE_PLIST_PATH | grep -E "^\s+jsBundleName" | wc -l)
+    for ((i=0; i<$xt_sub_bundle_array_keys; i++))
+    do
+        # 使用PlistBuddy获取jsBundleName值并打印
+        xt_sub_bundle_name=$($XT_PlistBuddy_CLI -c "Print :$i:jsBundleName" $XT_SUB_BUNDLE_PLIST_PATH)
+        xt_check_bundle_existence_and_copy "$XT_SUB_BUNDLE_SOURCE" "$xt_sub_bundle_name"
+    done
+else
+    echo "no sub bundles found in $XT_SUB_BUNDLE_SOURCE; skipping sub bundle copy"
+fi

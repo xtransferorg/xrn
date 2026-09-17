@@ -1,6 +1,5 @@
-import { requireNativeViewManager } from '@xrnjs/modules-core';
 import React from 'react';
-import { NativeSyntheticEvent, StyleSheet, Platform } from 'react-native';
+import { NativeSyntheticEvent, StyleSheet, Platform, processColor } from 'react-native';
 
 import {
   ImageErrorEventData,
@@ -9,11 +8,7 @@ import {
   ImageProgressEventData,
 } from './Image.types';
 
-const NativeExpoImage = requireNativeViewManager<any>('XRNImageView');
-
-function processColor(color) {
-  return color
-}
+import NativeExpoImage from './native/XRNImageNativeComponent'
 
 function withDeprecatedNativeEvent<NativeEvent>(
   event: NativeSyntheticEvent<NativeEvent>
@@ -30,6 +25,13 @@ function withDeprecatedNativeEvent<NativeEvent>(
 }
 
 class ExpoImage extends React.PureComponent<ImageNativeProps> {
+  // NOTE(@kitten): native methods
+  startAnimating!: () => Promise<unknown> | unknown;
+  stopAnimating!: () => Promise<unknown> | unknown;
+  lockResourceAsync!: () => Promise<void>;
+  unlockResourceAsync!: () => Promise<void>;
+  reloadAsync!: () => Promise<void>;
+
   onLoadStart = () => {
     this.props.onLoadStart?.();
   };
@@ -77,41 +79,45 @@ class ExpoImage extends React.PureComponent<ImageNativeProps> {
       delete resolvedStyle.backgroundColor;
     }
 
-    const tintColor = processColor(props.tintColor || resolvedStyle.tintColor);
+    // const tintColor = processColor(props.tintColor || resolvedStyle.tintColor);
+    const tintColor = props.tintColor || resolvedStyle.tintColor;
 
-    const borderColor = processColor(resolvedStyle.borderColor);
-    // @ts-ignore
-    const borderStartColor = processColor(resolvedStyle.borderStartColor);
-    // @ts-ignore
-    const borderEndColor = processColor(resolvedStyle.borderEndColor);
-    // @ts-ignore
-    const borderLeftColor = processColor(resolvedStyle.borderLeftColor);
-    // @ts-ignore
-    const borderRightColor = processColor(resolvedStyle.borderRightColor);
-    // @ts-ignore
-    const borderTopColor = processColor(resolvedStyle.borderTopColor);
-    // @ts-ignore
-    const borderBottomColor = processColor(resolvedStyle.borderBottomColor);
+    // const borderColor = processColor(resolvedStyle.borderColor);
+    // // @ts-ignore
+    // const borderStartColor = processColor(resolvedStyle.borderStartColor);
+    // // @ts-ignore
+    // const borderEndColor = processColor(resolvedStyle.borderEndColor);
+    // // @ts-ignore
+    // const borderLeftColor = processColor(resolvedStyle.borderLeftColor);
+    // // @ts-ignore
+    // const borderRightColor = processColor(resolvedStyle.borderRightColor);
+    // // @ts-ignore
+    // const borderTopColor = processColor(resolvedStyle.borderTopColor);
+    // // @ts-ignore
+    // const borderBottomColor = processColor(resolvedStyle.borderBottomColor);
 
     return (
       <NativeExpoImage
         {...props}
         {...resolvedStyle}
+        // @ts-ignore
         accessibilityLabel={accessibilityLabel ?? alt}
         style={resolvedStyle}
         onLoadStart={this.onLoadStart}
         onLoad={this.onLoad}
         onProgress={this.onProgress}
         onError={this.onError}
+        // @ts-ignore
         tintColor={tintColor}
-        borderColor={borderColor}
-        borderLeftColor={borderLeftColor}
-        borderRightColor={borderRightColor}
-        borderTopColor={borderTopColor}
-        borderBottomColor={borderBottomColor}
-        borderStartColor={borderStartColor}
-        borderEndColor={borderEndColor}
-        backgroundColor={backgroundColor}
+        // borderColor={borderColor}
+        // borderLeftColor={borderLeftColor}
+        // borderRightColor={borderRightColor}
+        // borderTopColor={borderTopColor}
+        // borderBottomColor={borderBottomColor}
+        // borderStartColor={borderStartColor}
+        // borderEndColor={borderEndColor}
+        // backgroundColor={backgroundColor}
+        // @ts-ignore
         ref={props.nativeViewRef}
       />
     );

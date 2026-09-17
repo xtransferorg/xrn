@@ -2,8 +2,18 @@ harmony/entry/src/main/resources/rawfile/*.bundle
 harmony/entry/src/main/resources/rawfile/assets/
 harmony/entry/src/main/resources/rawfile/packages/
 *.hap
+.xcode.env.local
+harmony/*.cer
+harmony/*.p12
+harmony/*.p7b
+harmony/sign_tmp/
 
-yalc.lock
+.baseline
+iOS_Out_*/
+android/app/src/main/res/raw/*.svg
+android/app/src/main/res/drawable-*
+android/app/src/main/assets/*.bundle
+android/app/src/main/assets/xrn-manifest.json
 
 # Yarn
 .yarn/*
@@ -12,3 +22,5 @@ yalc.lock
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+

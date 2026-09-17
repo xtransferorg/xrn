@@ -6,7 +6,7 @@ export default StyleSheet.create({
     backgroundColor: "#fff",
   },
   headerContainer: {
-    marginTop: 20,
+    marginBottom: 20,
     marginLeft: 20,
   },
   ipContainer: {
@@ -15,11 +15,11 @@ export default StyleSheet.create({
   bundleContainer: {
     flexDirection: "column",
     marginTop: 30,
-    marginBottom: 10,
+    marginBottom: 0,
   },
   tipStyle: {
     fontSize: 16,
-    fontWeight: "500",
+    fontWeight: "800",
     color: "#333",
   },
   inputStyle: {
@@ -46,7 +46,7 @@ export default StyleSheet.create({
   },
   bundleTip: {
     fontSize: 16,
-    fontWeight: "500",
+    fontWeight: "800",
     color: "#333",
   },
   listItem: {
@@ -57,13 +57,45 @@ export default StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#f5f5f5",
   },
+  modalListItem: {
+    paddingTop: 10,
+    alignItems: "center",
+    height: 60,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f5f5f5",
+    flexDirection: "row",
+    justifyContent: "space-between"
+  },
   bundleName: {
-    flex: 1,
     color: "#333",
     fontSize: 16,
+    fontWeight: "600",
+  },
+  modalBundleName: {
+    color: "#333",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  /** 端口输入：右对齐，光标在末尾，新字符从右侧延续 */
+  modalPortInput: {
+    flex: 1,
+    minWidth: 96,
+    marginLeft: 12,
+    fontSize: 16,
+    color: "#333",
+    textAlign: "right",
+    paddingVertical: 4,
+  },
+  bundleInfo: {
+    color: "#333",
+    fontSize: 16,
+    fontWeight: "700",
+  },
+  moreChevron: {
+    marginLeft: 2,
   },
   switch: {
-    marginRight: 20,
+    marginRight: 0,
   },
   confirm: {
     position: "relative",
@@ -81,5 +113,91 @@ export default StyleSheet.create({
     fontSize: 16,
     color: "#fff",
     fontWeight: "500",
+  },
+
+  modalContent: {
+    backgroundColor: "white",
+    borderRadius: 12,
+    padding: 20,
+    width: "80%",
+    maxWidth: 300,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 16,
+    textAlign: "center",
+  },
+  modalText: {
+    fontSize: 16,
+    marginBottom: 8,
+  },
+  infoModalText: {
+    fontSize: 15,
+    fontWeight: "500",
+  },
+  modalButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 20,
+  },
+  modalButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 6,
+    minWidth: 80,
+    alignItems: "center",
+  },
+  closeButton: {
+    backgroundColor: "#f0f0f0",
+  },
+  actionButton: {
+    backgroundColor: "#007AFF",
+  },
+  closeButtonText: {
+    color: "#333",
+  },
+  actionButtonText: {
+    color: "white",
+  },
+  greenDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5, // 直径的一半就是圆角
+    backgroundColor: "green",
+  },
+  redDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5, // 直径的一半就是圆角
+    backgroundColor: "red",
+  },
+  modalBackground: {
+    flex: 1,
+    backgroundColor: '#00000099',
+  },
+  normalText: {
+    color: 'black',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+   // 卡片标题样式
+  cardTitle: {
+    marginBottom: 16,
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: 'black',
+  },
+  modalContainer: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    padding: 20,
+    // ✅ 关键：让内容靠底部显示
+    position: 'absolute',
+    height: '50%',
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
 });

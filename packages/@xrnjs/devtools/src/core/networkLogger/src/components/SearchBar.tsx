@@ -5,6 +5,7 @@ import Options from "./Options";
 import Filters from "./Filters";
 import { useAppContext } from "./AppContext";
 import Icon from "./Icon";
+import { sensorsFundClick } from "../../../../utils/sensorsTrack";
 
 interface Props {
   value: string;
@@ -37,6 +38,7 @@ const SearchBar: React.FC<Props> = ({ options }) => {
             name="filter"
             onPress={() => {
               setShowFilters(!showFilters);
+              sensorsFundClick({ button_name: 'devtools_btn_click', devtools_click_btn_name: '网络日志 筛选按钮点击' });
             }}
             accessibilityLabel="Filter"
             iconStyle={[styles.filterIcon, filterActive && styles.filterActive]}

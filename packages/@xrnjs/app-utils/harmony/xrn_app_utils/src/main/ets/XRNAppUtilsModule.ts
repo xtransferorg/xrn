@@ -36,8 +36,8 @@ export class XRNAppUtilsModule extends TurboModule implements TM.XRNAppUtilsModu
         console.log(`${XRNAppUtilsModule.NAME}.launchAppDetail:success`)
         resolve()
       }).catch((e) => {
-        console.log(`${XRNAppUtilsModule.NAME}.launchAppDetail:fail, pkgName=${pkgName}, marketPgkName=${marketPgkName}, error=${JSON.stringify(e)}`);
-        reject(JSON.stringify(e));
+        console.error(`${XRNAppUtilsModule.NAME}.launchAppDetail:fail, pkgName=${pkgName}`);
+        reject(e);
       });
     })
   }
@@ -56,7 +56,7 @@ export class XRNAppUtilsModule extends TurboModule implements TM.XRNAppUtilsModu
     });
   }
 
-  installApp(filePath: string): void {
+  installApp(filePath: string): boolean {
 
     // let want = {
     //   bundleName: 'com.example.appinstaller',
@@ -85,6 +85,7 @@ export class XRNAppUtilsModule extends TurboModule implements TM.XRNAppUtilsModu
       .catch((err) => {
         console.error('启动安装失败:', err);
       });
+    return true
   }
 
   isAppInstalled(pkgName: string): boolean {
@@ -97,21 +98,23 @@ export class XRNAppUtilsModule extends TurboModule implements TM.XRNAppUtilsModu
     }
   }
 
-  exitApp(): void {
+  exitApp(): boolean {
     this.context.terminateSelf(null);
     this.context.getApplicationContext().killAllProcesses();
+    return true
   }
 
-  relaunchApp(): void {
+  relaunchApp(): boolean {
     const bundleInfo = bundleManager.getBundleInfoForSelfSync(bundleManager.BundleFlag.GET_BUNDLE_INFO_WITH_HAP_MODULE);
     let want: Want = {
       bundleName: bundleInfo.name,
       abilityName: bundleInfo.hapModulesInfo[0].mainElementName
     };
     this.context.getApplicationContext().restartApp(want)
+    return true
   }
 
-  moveTaskToBack(): void {
+  moveTaskToBack(): boolean {
     window.getLastWindow(this.context).then((value) => {
       value.minimize((err: BusinessError) => {
         const errCode: number = err.code;
@@ -123,6 +126,7 @@ export class XRNAppUtilsModule extends TurboModule implements TM.XRNAppUtilsModu
       });
       console.info('Succeeded in obtaining the top window. Data: ' + JSON.stringify(value));
     })
+    return true
   };
 
   isGooglePlayStoreInstalled(): Promise<boolean> {

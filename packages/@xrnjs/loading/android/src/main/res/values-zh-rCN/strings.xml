@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="updating">更新中，请稍作等待哦～</string>
+    <string name="loading">加载中…</string>
+    <string name="error_boundary_retry">重试</string>
+    <string name="error_boundary_page_not_found">抱歉，您访问的页面不存在</string>
+    <string name="error_boundary_network_error">网络加载异常，请重试</string>
+</resources>

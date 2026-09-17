@@ -14,7 +14,21 @@ Pod::Spec.new do |s|
   s.platform    = :ios, '13.0'
   s.source       = { git: "https://github.com/xtransferorg/xrn" }
 
-  s.source_files = "ios/**/*.{h,m,mm,swift}"
+  s.source_files = "ios/**/*.{h,m,mm,swift,cpp}"
+  s.public_header_files = "ios/XrnExpoImage.h"
+
+  s.static_framework = true
+  s.swift_version = "5.0"
+  s.module_name = "XrnExpoImage"
+  s.header_dir = "XrnExpoImage"
+
+  s.pod_target_xcconfig = {
+		"DEFINES_MODULE" => "YES",
+		"SWIFT_COMPILATION_MODE" => "wholemodule",
+		"CLANG_CXX_LANGUAGE_STANDARD" => "c++17",
+	}
+
+  s.private_header_files = "ios/XrnExpoImageView.h"
 
   # 依赖项
   s.dependency 'SDWebImage', '5.20.0' # 为了适配fastimage那个库
@@ -23,21 +37,6 @@ Pod::Spec.new do |s|
   s.dependency 'SDWebImageSVGCoder', '1.7.0'
   s.dependency 'libavif/libdav1d', '0.11.1'
 
-  # 公开头文件
-  # s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES' }
-  # 临时解决方案
-  # s.pod_target_xcconfig = {
-  #   'DEFINES_MODULE' => 'YES',
-  #   "SWIFT_OBJC_BRIDGING_HEADER" => "${PODS_TARGET_SRCROOT}/ios/XRNImageModule-Bridging-Header.h"
-  # }
-  # s.public_header_files = 'react-native-xrn-image/**/*.h'
-  #   # 确保生成模块化头文件
-  # s.pod_target_xcconfig = {
-  #   'DEFINES_MODULE' => 'YES',
-  #   'HEADER_SEARCH_PATHS' => '$(inherited) ${PODS_ROOT}/Headers/Public/react-native-xrn-image'
-  # }
-
-  
 
   # Use install_modules_dependencies helper to install the dependencies if React Native version >=0.71.0.
   # See https://github.com/facebook/react-native/blob/febf6b7f33fdb4904669f99d795eba4c0f95d7bf/scripts/cocoapods/new_architecture.rb#L79.

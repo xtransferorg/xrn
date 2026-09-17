@@ -8,14 +8,7 @@ import ProgressBar from "progress";
 import fsExtra from 'fs-extra'
 import os from "os";
 
-/**
- * Download a file from URL with progress bar display
- * Downloads a file and shows download progress in the terminal
- * 
- * @param fileUrl - URL of the file to download
- * @param downloadPath - Local path where the file should be saved
- * @returns Promise that resolves when download is complete
- */
+// 下载文件并显示进度
 async function downloadFile(
   fileUrl: string,
   downloadPath: string
@@ -49,19 +42,7 @@ async function downloadFile(
   });
 }
 
-/** Default download directory for app files */
 const appDownloadDir = path.join(os.tmpdir(), 'xrn-app-download-dir');
-
-/**
- * Download a file from URL with caching and error handling
- * Downloads files to a temporary directory and caches them to avoid re-downloading
- * Uses atomic file operations to prevent corruption during download
- * 
- * @param fileUrl - URL of the file to download
- * @param downloadDir - Directory to save the file (defaults to temp directory)
- * @returns Promise resolving to the local file path
- * @throws Error if URL is not provided or download fails
- */
 async function download(
   fileUrl: string,
   downloadDir = appDownloadDir
@@ -74,20 +55,17 @@ async function download(
   fsExtra.ensureDirSync(downloadDir);
   const downloadPath = path.join(downloadDir, fileName);
 
-  // Return cached file if it already exists
   if (fs.existsSync(downloadPath)) {
     console.log("downloadPath already exist");
     return downloadPath;
   }
 
-  // Use temporary file for atomic download
   const tmpPath = `${downloadPath}.tmp`
 
   await fsExtra.remove(tmpPath)
 
   await downloadFile(fileUrl, tmpPath);
 
-  // Atomic rename to prevent corruption
   await fsExtra.rename(tmpPath, downloadPath)
 
   console.log(`File downloaded successfully to ${downloadPath}`);

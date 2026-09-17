@@ -8,8 +8,6 @@ import {
   View,
   ViewStyle,
   NativeModules,
-  StyleSheet,
-  Text
 } from "react-native";
 
 import {
@@ -18,9 +16,11 @@ import {
   useNavigation,
   goBack,
   Navigation,
+  XRNBundleNavigation as BundleNavigation,
 } from "@xrnjs/navigation";
 import { getStatusBarHeight } from "../utils/StatusBarUtils";
 
+// 导航栏上方状态栏样式
 export type StatusBarType = "dark-content" | "light-content";
 
 export interface PageProps {
@@ -56,7 +56,7 @@ const Page: React.FC<PageProps> = (props) => {
     rightButton,
     statusBarStyle = "dark-content",
     titleContainerStyle,
-    translucent = true,
+    translucent,
     gestureEnabled = true,
   } = props;
 
@@ -109,34 +109,39 @@ const Page: React.FC<PageProps> = (props) => {
 
   useFocusEffect(
     useCallback(() => {
+      // 处理iOS Page页面禁止侧滑返回时逻辑
       if (Platform.OS === "ios" && !gestureEnabled) {
-        NativeModules?.BundleNavigation?.gestureEnabled?.(false);
+        BundleNavigation?.gestureEnabled?.(false);
       }
       return () => {
         if (Platform.OS === "ios" && !gestureEnabled) {
-          NativeModules?.BundleNavigation?.gestureEnabled?.(true);
+          BundleNavigation?.gestureEnabled?.(true);
         }
       };
-    }, [gestureEnabled, navigation]),
+    }, [gestureEnabled, navigation])
   );
 
   useEffect(() => {
     const handleBackEvent = () => {
+      // 处理Android Page页面禁止侧滑返回时，禁止执行goBack
       if (onBack?.(navigation) || gestureEnabled === false) {
         return true;
       }
       goBack(navigation);
       return true;
     };
-    BackHandler.addEventListener("hardwareBackPress", handleBackEvent);
-    return () =>
-      BackHandler.removeEventListener("hardwareBackPress", handleBackEvent);
+    const subscription = BackHandler.addEventListener(
+      "hardwareBackPress",
+      handleBackEvent
+    );
+    return () => subscription.remove();
   }, []);
 
   const handleBackPress = () => {
     goBack(navigation);
   };
 
+  // 处理hideHeader后状态栏白色bug，如果需要自定义paddingTop值，在业务侧Page组件style中重写paddingTop，backgroundColor同理
   const hideHeaderStyle = hideHeader
     ? { paddingTop: translucent ? 0 : getStatusBarHeight(true) }
     : {};
@@ -148,37 +153,9 @@ const Page: React.FC<PageProps> = (props) => {
         style
       )}
     >
-      <View style={styles.customHeader}>
-        <Text style={styles.cusHeaderTitle}>{title}</Text>
-        <View style={styles.rightButtonBox}>
-          {
-            rightButton
-          }
-        </View>
-      </View>
       {children}
     </View>
   );
 };
 
 export { Page };
-
-const styles = StyleSheet.create({
-  customHeader: {
-    width: '100%', 
-    height: 88, 
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  cusHeaderTitle: { 
-    marginTop: 50,
-    fontSize: 16,
-    fontWeight: 'bold'
-  },
-  rightButtonBox: { 
-    position: 'absolute',
-    right: 0,
-    top: 50,
-  },
-});

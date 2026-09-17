@@ -9,11 +9,16 @@ import { useNavRightButton } from "../../hooks/navigation";
 import styles from "./style";
 import { DeviceInfoItem } from "./type";
 import { nativeToast } from "../../utils/toast";
+import { sensorsFundClick, sensorsFundPageView } from "../../utils/sensorsTrack";
 import { ROUTES } from "../..";
 
 const DeviceInfo: React.FC = () => {
   const infoList: DeviceInfoItem[] = [];
   const [data, setData] = useState<DeviceInfoItem[]>(infoList);
+
+  useEffect(() => {
+    sensorsFundPageView({ module_name: `devtools_${ROUTES.DeviceInfo}` });
+  }, []);
 
   useEffect(() => {
     if (DeviceInfoModule.getBrand) {
@@ -58,12 +63,12 @@ const DeviceInfo: React.FC = () => {
       });
     }
 
-    if (DeviceInfoModule.getUniqueIdSync) {
-      infoList.push({
-        title: "设备唯一标识符",
-        value: DeviceInfoModule.getUniqueIdSync(),
-      });
-    }
+    // if (DeviceInfoModule.getUniqueIdSync) {
+    //   infoList.push({
+    //     title: "设备唯一标识符",
+    //     value: DeviceInfoModule.getUniqueIdSync(),
+    //   });
+    // }
 
     if (DeviceInfoModule.getCarrierSync) {
       infoList.push({
@@ -108,6 +113,7 @@ const DeviceInfo: React.FC = () => {
     }
 
     const formatAsyncInfo = async () => {
+      // 获取网络信息
       const { type, isConnected } = await fetch();
       if (type) {
         const connect = isConnected ? "已连接" : "未连接";
@@ -116,6 +122,15 @@ const DeviceInfo: React.FC = () => {
           value: `${type}： ${connect}`,
         });
       }
+
+      const syncUid = await DeviceInfoModule.syncUniqueId();
+      if (syncUid) {
+        infoList.splice(7, 0, {
+          title: "设备唯一标识符：",
+          value: syncUid,
+        });
+      }
+
       setData(infoList);
     };
 
@@ -134,12 +149,14 @@ const DeviceInfo: React.FC = () => {
   const _copyClick = (value: string) => {
     Clipboard.setString(value);
     nativeToast("复制成功");
+    sensorsFundClick({ button_name: 'devtools_btn_click', devtools_click_btn_name: '设备信息页 复制' });
   };
 
   const _copyAll = () => {
     const str = _formatCopyStr(data);
     Clipboard.setString(str);
     nativeToast("一键复制成功");
+    sensorsFundClick({ button_name: 'devtools_btn_click', devtools_click_btn_name: '设备信息页 一键复制' });
   };
 
   const _formatCopyStr = (data: DeviceInfoItem[]): string => {
@@ -182,7 +199,7 @@ const DeviceInfo: React.FC = () => {
   });
 
   return (
-    <Page title="设备信息" rightButton={rightButton} hideHeader>
+    <Page title="设备信息" rightButton={rightButton}>
       <View style={styles.container}>
         <FlatList
           data={data}

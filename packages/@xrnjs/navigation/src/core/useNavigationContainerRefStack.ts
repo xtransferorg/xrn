@@ -3,19 +3,19 @@ import { useLayoutEffect } from "react";
 import { Navigation } from "./navigationInstance";
 import { useNavigationContainerRef } from "./react-navigation";
 
-export const useNavigationContainerRefStack = <ParamList extends {}>() => {
+export const useNavigationContainerRefStack = <ParamList extends {}>(
+  key: string,
+) => {
   const navigationRef = useNavigationContainerRef<ParamList>();
 
   useLayoutEffect(() => {
     return () => {
-      if (navigationRef) {
-        Navigation.navigationContainerRefStack.pop(navigationRef);
-      }
+      Navigation.navigationContainerRefStack.pop(key);
     };
-  }, []);
+  }, [key]);
 
   const pushRefToStack = () => {
-    Navigation.navigationContainerRefStack.push(navigationRef);
+    Navigation.navigationContainerRefStack.push(key, navigationRef);
   };
 
   return {

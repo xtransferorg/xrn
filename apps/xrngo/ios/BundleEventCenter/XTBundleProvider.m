@@ -7,121 +7,147 @@
 
 #import "XTBundleProvider.h"
 #import <CodePush/CodePush.h>
-#import "XTJSBundleModel.h"
 #import "XTJSBundleTool.h"
-#import "RCTBridge+XTExtension.h"
 #import "xrngo-Swift.h"
 #import "XTPluginManage.h"
+
+#if DEBUG
+#import "XTMetroAutoConnector.h"
+#import <React/RCTBundleURLProvider.h>
+#import <React/RCTInspectorDevServerHelper.h>
+#endif
 
 @interface XTBundleProvider ()
 
 @property (nonatomic, weak) XTBundleData *bundleData;
 @property (strong, nonatomic) CodePush *codePush;
 @property (strong, nonatomic) NSURL *bizBundleURL;
+@property (assign, nonatomic) BOOL bizBundleLoadStarted;
 
 #if DEBUG
 @property (assign, nonatomic) BOOL isDebug;
+- (BOOL)resolveMetroDebugForBundleData:(XTBundleData *)bundleData context:(XTJSRuntimeContext *)context;
+- (void)attachMetroPackagerConnectionForContext:(XTJSRuntimeContext *)context bundleData:(XTBundleData *)bundleData;
 #endif
+
 @end
 
 @implementation XTBundleProvider
 
-- (instancetype)init {
-  self = [super init];
-  if (self) {
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didLoadJS:) name:RCTJavaScriptDidLoadNotification object:nil];
+- (NSURL *)commonBundleURL {
+  return [[NSBundle mainBundle] URLForResource:[XTJSBundleTool.shared getCommonBundleName] withExtension:@"jsbundle"];
+}
+
+- (NSURL *)embeddedBizBundleURL:(XTBundleData *)bundleData {
+  NSURL *url = [self.codePush bundleURLForResource:bundleData.jsBundleName];
+  if (!url) {
+    url = [[NSBundle mainBundle] URLForResource:bundleData.jsBundleName withExtension:@"jsbundle"];
   }
-  return self;
+  return url;
 }
 
-- (void)dealloc {
-  [[NSNotificationCenter defaultCenter] removeObserver:self name:RCTJavaScriptDidLoadNotification object:nil];
-}
-
-
-- (void)didLoadJS:(NSNotification *)notification {
-  if ([notification.object isKindOfClass:RCTBridge.class]) {
-    RCTBridge *bridge = (RCTBridge *)notification.object;
-    NSString *bizBundleName = self.bundleData.jsBundleName;
-//    if ([bridge.xt_jsBundleName isEqualToString:bizBundleName] &&
-//        bridge.isLoading) {
-//        //NSURL *bizBundleURL = [self.codePush bundleURLForResource:bizBundleName];
-//        NSURL *bizBundleURL = self.bizBundleURL;
-//        #if DEBUG
-//        [bridge loadAndExecuteSplitBundleURL:bizBundleURL onError:^(NSError *error) {
-//            NSLog(@"🐯 error---%@", error);
-//            [[XTPluginManage shareInstance] pushJSErrorTipPanel:bridge.xt_jsBundleName];
-//        } onComplete:^{
-//            NSLog(@"🐯 complete---");
-//        }];
-//        #else
-//        NSData *subBundleData = [NSData dataWithContentsOfURL:bizBundleURL];
-//        [bridge.batchedBridge executeSourceCode:subBundleData withSourceURL:bizBundleURL sync:NO];
-//        #endif
-//    }
+#pragma mark -- Metro（仅 DEBUG；能力对齐主工程）
+#if DEBUG
+- (BOOL)resolveMetroDebugForBundleData:(XTBundleData *)bundleData context:(XTJSRuntimeContext *)context {
+  self.isDebug = NO;
+  BOOL enableDebug = [XTMetroAutoConnector checkMetroConnection:bundleData.jsBundleName];
+  if (!enableDebug) {
+    return NO;
   }
+  self.isDebug = YES;
+
+  NSString *host = [[XTPluginManage shareInstance] getLocalHost];
+  NSString *port = bundleData.portNum.length > 0 ? bundleData.portNum : [XTJSBundleTool.shared getMainBundlePort];
+  // 不走拆包：Metro 可达时直接加载全量业务包
+  NSURL *bundleUrl = [NSURL URLWithString:[NSString stringWithFormat:
+                                           @"http://%@:%@/index.bundle?platform=ios&dev=true&lazy=false&minify=false&inlineSourceMap=false&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server&app=xrngo&port=%@",
+                                           host, port, port]];
+  self.bizBundleURL = bundleUrl;
+  context.bizBundleURL = bundleUrl;
+  NSLog(@"[XTBundleProvider] Host Debug Metro 全量包（%@）：%@", bundleData.jsBundleName, bundleUrl);
+  return YES;
 }
 
+- (void)attachMetroPackagerConnectionForContext:(XTJSRuntimeContext *)context bundleData:(XTBundleData *)bundleData {
+  NSURL *metroURL = context.bizBundleURL ?: self.bizBundleURL;
+  if (!metroURL || metroURL.isFileURL || !context.host) {
+    return;
+  }
+  [RCTInspectorDevServerHelper connectWithBundleURL:metroURL];
+  NSString *hostStr = [[XTPluginManage shareInstance] getLocalHost];
+  if (hostStr.length > 0 && bundleData.portNum.length > 0) {
+    [[RCTBundleURLProvider sharedSettings] setJsLocation:[NSString stringWithFormat:@"%@:%@", hostStr, bundleData.portNum]];
+  }
+  NSLog(@"[XTBundleProvider] Host Metro packager 已注册：%@ port=%@ url=%@", bundleData.jsBundleName, bundleData.portNum, metroURL);
+}
+#endif
 
-/// RCTBridge RCTBridgeDelegate
-/// - Parameters:
-///   - bridge: bridge description
-///   - bundleData: bundleData description
-- (NSURL *_Nonnull)sourceURLForBridge:(RCTBridge *_Nonnull)bridge bundleData:(XTBundleData *_Nonnull)bundleData {
+/// RCTHost.start 会先调一次 BundleURLProvider，随后 Instance 再 load 时又会走 Delegation.resolve。
+- (BOOL)isIdempotentBundleURLResolveForContext:(XTJSRuntimeContext *)context bundleData:(XTBundleData *)bundleData {
+  return context.providerCodePush != nil && self.codePush == context.providerCodePush;
+}
+
+- (NSURL *_Nonnull)bundleURLForContext:(XTJSRuntimeContext *_Nonnull)context bundleData:(XTBundleData *_Nonnull)bundleData {
   self.bundleData = bundleData;
-  
+
+  if ([self isIdempotentBundleURLResolveForContext:context bundleData:bundleData]) {
+    // 不走拆包：幂等二次解析仍返回业务包
+    return self.bizBundleURL ?: context.bizBundleURL;
+  }
+
+  self.bizBundleLoadStarted = NO;
+
   NSString *deploymentKey = bundleData.codePushKey;
   NSString *localCodePsuhKey = [[XTPluginManage shareInstance] getLocalCodePushKey:bundleData.jsBundleName];
   deploymentKey = localCodePsuhKey ?: deploymentKey;
-  
+
 #if DEBUG
   deploymentKey = @"";
 #endif
-  
-  self.codePush = [[CodePush alloc] initWithDeploymentKey:deploymentKey];
-  
-  NSURL *bizBundleURL = [self.codePush bundleURLForResource:bundleData.jsBundleName];
-  self.bizBundleURL = bizBundleURL;
-#if DEBUG
-  self.isDebug = NO;
-  NSString *localBundleDebug = [[NSUserDefaults standardUserDefaults] objectForKey:[NSString stringWithFormat:@"%@-debug", bundleData.jsBundleName]];
-  if (localBundleDebug) {
-    self.isDebug = [localBundleDebug boolValue];
-  }
 
-  if (self.isDebug) {
-    BOOL supportCommon = [bridge.delegate supportCommonBundle];
-    NSDictionary *infoDictionary = [[NSBundle mainBundle] infoDictionary];
-    NSString *appVersion = [infoDictionary objectForKey:@"CFBundleShortVersionString"];
-    NSString *appVersionParam = supportCommon ? [NSString stringWithFormat:@"&appVersion=%@", appVersion] : @"";
-    NSString *host = [[XTPluginManage shareInstance] getLocalHost];
-    NSURL *bundleUrl = [NSURL URLWithString:[NSString stringWithFormat:@"http://%@:%@/index.bundle?platform=ios&dev=true&minify=false&modulesOnly=false&runModule=true&app=XRNTemplate%@", host, bundleData.portNum, appVersionParam]];
-    bizBundleURL = bundleUrl;
-    self.bizBundleURL = bizBundleURL;
-    bridge.bizBundleURL = bizBundleURL;
-    return supportCommon ? [[NSBundle mainBundle] URLForResource:[XTJSBundleTool.shared getCommonBundleName] withExtension:@"jsbundle"] : bizBundleURL;
+  self.codePush = [[CodePush alloc] initWithDeploymentKey:deploymentKey isPreDownload:NO];
+  context.providerCodePush = self.codePush;
+
+  NSURL *bizBundleURL = [self embeddedBizBundleURL:bundleData];
+  self.bizBundleURL = bizBundleURL;
+  context.bizBundleURL = bizBundleURL;
+
+#if DEBUG
+  if ([self resolveMetroDebugForBundleData:bundleData context:context]) {
+    // Metro 可达：直接加载全量业务包
+    return self.bizBundleURL;
   }
 #endif
-  bridge.bizBundleURL = bizBundleURL;
-  //  return [[NSBundle mainBundle] URLForResource:[XTJSBundleTool.shared getCommonBundleName] withExtension:@"jsbundle"];
-  //  return [[NSBundle mainBundle] URLForResource:bundleData.jsBundleName withExtension:@"jsbundle"];
-  return bizBundleURL;
+
+  // Debug（Metro 不可达）/ Release：不走 common 拆包，直接加载本地业务包
+  NSAssert(self.bizBundleURL != nil, @"Host: missing biz jsbundle %@", bundleData.jsBundleName);
+  return self.bizBundleURL;
 }
 
-- (NSArray<id<RCTBridgeModule>> *_Nonnull)extraModulesForBridge:(RCTBridge *_Nonnull)bridge bundleData:(XTBundleData *_Nonnull)bundleData {
-  return @[self.codePush];
+- (BOOL)shouldLoadBizForContext:(XTJSRuntimeContext *)context bundleData:(XTBundleData *)bundleData preLoadCommon:(BOOL)preLoadCommon {
+  // 首包已是全量业务包，不再二次 load biz
+  return NO;
+}
+
+- (NSURL *)bizBundleURLForContext:(XTJSRuntimeContext *)context bundleData:(XTBundleData *)bundleData preLoadCommon:(BOOL)preLoadCommon {
+  // 不走拆包，无二次 biz 加载
+  return nil;
+}
+
+#if DEBUG
+- (void)hostContextDidLoadBiz:(XTJSRuntimeContext *)context bundleData:(XTBundleData *)bundleData {
+  if (self.isDebug) {
+    [self attachMetroPackagerConnectionForContext:context bundleData:bundleData];
+  }
+}
+#endif
+
+- (NSArray<id<RCTBridgeModule>> *_Nonnull)extraModulesForContext:(XTJSRuntimeContext *_Nullable)context bundleData:(XTBundleData *_Nonnull)bundleData {
+  return self.codePush ? @[self.codePush] : @[];
 }
 
 - (BOOL)supportCommonBundleForBundleData:(XTBundleData *_Nonnull)bundleModel {
-//    BOOL supportCommon = YES;
-//  #if DEBUG
-//    if (!self.isDebug) {
-//        return YES;
-//    }
-//    NSString *enbaleCommon = [NSUserDefaults.standardUserDefaults stringForKey:[NSString stringWithFormat:@"%@-supportCommon", bundleModel.jsBundleName]];
-//    supportCommon = ![enbaleCommon isEqualToString:@"0"];
-//  #endif
-//    return supportCommon;
+  // Debug / Release 均不走 common 拆包
   return NO;
 }
 

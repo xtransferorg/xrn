@@ -5,15 +5,11 @@
 //  Created by 邓博 on 2020/5/28.
 //
 
-#if __has_include("RCTBridgeModule.h")
-#import "RCTBridgeModule.h"
-#else
-#import <React/RCTBridgeModule.h>
-#endif
+#import <RNPAssetsLoadSpec/RNPAssetsLoadSpec.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface RNPAssetsLoad : NSObject <RCTBridgeModule>
+@interface RNPAssetsLoad : NSObject <NativeXRNAssetLoaderModuleSpec>
 
 @end
 

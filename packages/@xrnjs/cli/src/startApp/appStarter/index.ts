@@ -25,13 +25,13 @@ export function createAppStarter(
   const config = startAppContext.appJsonConfig;
   switch (deviceType) {
     case DeviceType.ANDROID:
-      return new AndroidAppStarter(options, devServer, config);
+      return new AndroidAppStarter(deviceType, options, devServer, config);
     case DeviceType.IOS:
-      return new IOSAppStarter(options, devServer, config);
+      return new IOSAppStarter(deviceType, options, devServer, config);
     case DeviceType.IOS_SIMULATOR:
-      return new IOSSimulatorAppStarter(options, devServer, config);
+      return new IOSSimulatorAppStarter(deviceType, options, devServer, config);
     case DeviceType.HARMONY:
-      return new HarmonyAppStarter(options, devServer, config);
+      return new HarmonyAppStarter(deviceType, options, devServer, config);
     default:
       throw new Error("未知设备类型");
   }

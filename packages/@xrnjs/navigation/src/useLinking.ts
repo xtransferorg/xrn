@@ -15,7 +15,7 @@ export const parseCallAppParamsByPath = (url: string): any => {
   try {
     urlParse = URLParse(url, true);
   } catch (e) {
-    throw new Error(`Failed to parse URL: ${url}`, e);
+    throw new Error(`Failed to parse URL: ${url}`);
   }
 
   if (!urlParse) {

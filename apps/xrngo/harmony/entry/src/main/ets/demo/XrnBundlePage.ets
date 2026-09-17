@@ -1,4 +1,4 @@
-import { BundleState, RNContainer, RN_INSTANCE_MANAGER } from 'xrn-multi-bundle'
+import { BundleState, RNContainer, RN_INSTANCE_MANAGER } from '@xrnjs/multi-bundle'
 import { router } from '@kit.ArkUI';
 import { APP_SYS_NAVIGATION_HEIGHT, APP_SYS_SYSTEM_BAR_HEIGHT } from '../Constants';
 import { LifecycleState } from '@rnoh/react-native-openharmony';

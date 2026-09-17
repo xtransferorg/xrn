@@ -1,0 +1,105 @@
+diff --git a/node_modules/@react-native-camera-roll/camera-roll/android/build.gradle b/node_modules/@react-native-camera-roll/camera-roll/android/build.gradle
+index 4df5dc5..2e6e38d 100644
+--- a/node_modules/@react-native-camera-roll/camera-roll/android/build.gradle
++++ b/node_modules/@react-native-camera-roll/camera-roll/android/build.gradle
+@@ -119,7 +119,7 @@ if (isNewArchitectureEnabled()) {
+ }
+ 
+ def agpVersion = com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION.tokenize('.')[0].toInteger()
+-def shouldUseNameSpace = agpVersion >= 7 && REACT_NATIVE_MINOR_VERSION >= 71
++def shouldUseNameSpace = agpVersion >= 7 || REACT_NATIVE_MINOR_VERSION >= 71
+ def PACKAGE_PROP = "package=\"com.reactnativecommunity.cameraroll\""
+ def manifestOutFile = file("${projectDir}/src/main/AndroidManifest.xml")
+ def manifestContent = manifestOutFile.getText()
+diff --git a/node_modules/@react-native-camera-roll/camera-roll/android/src/main/java/com/reactnativecommunity/cameraroll/CameraRollPackage.java b/node_modules/@react-native-camera-roll/camera-roll/android/src/main/java/com/reactnativecommunity/cameraroll/CameraRollPackage.java
+index 4737fd8..6676057 100644
+--- a/node_modules/@react-native-camera-roll/camera-roll/android/src/main/java/com/reactnativecommunity/cameraroll/CameraRollPackage.java
++++ b/node_modules/@react-native-camera-roll/camera-roll/android/src/main/java/com/reactnativecommunity/cameraroll/CameraRollPackage.java
+@@ -6,6 +6,7 @@ import java.util.Collections;
+ import java.util.HashMap;
+ import java.util.List;
+ import java.util.Map;
++import java.util.ArrayList;
+ 
+ import com.facebook.react.TurboReactPackage;
+ import com.facebook.react.ViewManagerOnDemandReactPackage;
+@@ -32,7 +33,7 @@ public class CameraRollPackage extends TurboReactPackage implements ViewManagerO
+     /** {@inheritDoc} */
+     @Override
+     public List<String> getViewManagerNames(ReactApplicationContext reactContext) {
+-        return null;
++        return new ArrayList<String>();
+     }
+ 
+     @Override
+diff --git a/node_modules/@react-native-camera-roll/camera-roll/ios/RNCCameraRoll.mm b/node_modules/@react-native-camera-roll/camera-roll/ios/RNCCameraRoll.mm
+index d63f1a7..c7cedcc 100644
+--- a/node_modules/@react-native-camera-roll/camera-roll/ios/RNCCameraRoll.mm
++++ b/node_modules/@react-native-camera-roll/camera-roll/ios/RNCCameraRoll.mm
+@@ -163,6 +163,7 @@ static void requestPhotoLibraryAccess(RCTPromiseRejectBlock reject, PhotosAuthor
+   __block PHAssetCollection *collection;
+   __block PHObjectPlaceholder *placeholder;
+ 
++  NSString *saveMediaType = options[@"type"];
+   void (^saveBlock)(void) = ^void() {
+     // performChanges and the completionHandler are called on
+     // arbitrary threads, not the main thread - this is safe
+@@ -216,7 +217,13 @@ static void requestPhotoLibraryAccess(RCTPromiseRejectBlock reject, PhotosAuthor
+         PHFetchResult<PHAsset *> *createdAsset = [PHAsset fetchAssetsWithLocalIdentifiers:@[placeholder.localIdentifier]
+                                                                                   options:options];
+         if (createdAsset.count < 1) {
+-          reject(kErrorUnableToSave, nil, nil);
++          // Add-only (or no read access): save succeeded but fetchAssetsWithLocalIdentifiers
++          // returns empty — that does not mean the asset was not created.
++          // On success, Photos maps placeholderForCreatedAsset's localIdentifier to the
++          // permanent PHAsset id; we cannot re-fetch to verify under add-only.
++          resolve([self convertPlaceholderToDictionary:placeholder.localIdentifier
++                                             mediaType:saveMediaType
++                                             sourceURI:inputURI]);
+           return;
+         }
+         NSDictionary *dictionary = [self convertAssetToDictionary:[createdAsset firstObject]
+@@ -338,6 +345,43 @@ static void RCTResolvePromise(RCTPromiseResolveBlock resolve,
+   });
+ }
+ 
++// Minimal PhotoIdentifier shape when PHAsset cannot be fetched (e.g. add-only library access).
++- (NSDictionary *)convertPlaceholderToDictionary:(NSString *)localIdentifier
++                                         mediaType:(NSString *)mediaType
++                                         sourceURI:(NSURL *)sourceURI
++{
++  NSString *assetMediaTypeLabel = [mediaType isEqualToString:@"video"] ? @"video" : @"image";
++  NSString *uri = [NSString stringWithFormat:@"ph://%@", localIdentifier];
++  NSString *filename = sourceURI.lastPathComponent;
++  if (filename.length == 0) {
++    filename = nil;
++  }
++  NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
++  return @{
++    @"node": @{
++      @"id": localIdentifier,
++      @"type": assetMediaTypeLabel,
++      @"subTypes": @[],
++      @"sourceType": [NSNull null],
++      @"group_name": @[],
++      @"image": @{
++        @"uri": uri,
++        @"extension": filename ? [[filename pathExtension] lowercaseString] : [NSNull null],
++        @"filename": filename ?: [NSNull null],
++        @"filepath": [NSNull null],
++        @"height": [NSNull null],
++        @"width": [NSNull null],
++        @"fileSize": [NSNull null],
++        @"playableDuration": [NSNull null],
++        @"orientation": [NSNull null],
++      },
++      @"timestamp": @(now),
++      @"modificationTimestamp": @(now),
++      @"location": [NSNull null],
++    },
++  };
++}
++
+ - (NSDictionary*) convertAssetToDictionary:(PHAsset*)asset
+                              includeAlbums:(BOOL)includeAlbums
+                            includeFilename:(BOOL)includeFilename

@@ -2,8 +2,8 @@ import React from 'react';
 import { View, Text, StyleSheet, Share } from 'react-native';
 import { useThemedStyles, Theme } from '../theme';
 import Icon from './Icon';
+import { sensorsFundClick } from '../../../../utils/sensorsTrack';
 import Clipboard from "@react-native-clipboard/clipboard";
-import { nativeToast } from '../../../../utils/toast';
 
 interface Props {
   children: string;
@@ -28,9 +28,8 @@ const Header: React.FC<Props> = ({ children, shareContent }) => {
           testID="header-share"
           accessibilityLabel="Share"
           onPress={() => {
-            // Share.share({ message: shareContent });
             Clipboard.setString(shareContent);
-            nativeToast("复制成功");
+            sensorsFundClick({ button_name: 'devtools_btn_click', devtools_click_btn_name: `网络日志 ${children}分享` });
           }}
           iconStyle={styles.shareIcon}
         />

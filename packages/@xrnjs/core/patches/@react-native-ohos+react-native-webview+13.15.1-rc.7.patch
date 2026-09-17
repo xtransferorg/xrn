@@ -1,0 +1,70 @@
+diff --git a/node_modules/@react-native-ohos/react-native-webview/harmony/rn_webview/build-profile.json5 b/node_modules/@react-native-ohos/react-native-webview/harmony/rn_webview/build-profile.json5
+index 99d8a15..704ad76 100644
+--- a/node_modules/@react-native-ohos/react-native-webview/harmony/rn_webview/build-profile.json5
++++ b/node_modules/@react-native-ohos/react-native-webview/harmony/rn_webview/build-profile.json5
+@@ -1,25 +1,5 @@
+ {
+   "apiType": "stageMode",
+-  "buildOption": {
+-  },
+-  "buildOptionSet": [
+-    {
+-      "name": "release",
+-      "arkOptions": {
+-        "obfuscation": {
+-          "ruleOptions": {
+-            "enable": true,
+-            "files": [
+-              "./obfuscation-rules.txt"
+-            ]
+-          },
+-          "consumerFiles": [
+-            "./consumer-rules.txt"
+-          ]
+-        }
+-      }
+-    },
+-  ],
+   "targets": [
+     {
+       "name": "default"
+diff --git a/node_modules/@react-native-ohos/react-native-webview/harmony/rn_webview/obfuscation-rules.txt b/node_modules/@react-native-ohos/react-native-webview/harmony/rn_webview/obfuscation-rules.txt
+new file mode 100644
+index 0000000..3ae3d22
+--- /dev/null
++++ b/node_modules/@react-native-ohos/react-native-webview/harmony/rn_webview/obfuscation-rules.txt
+@@ -0,0 +1,18 @@
++# Define project specific obfuscation rules here.
++# You can include the obfuscation configuration files in the current module's build-profile.json5.
++#
++# For more details, see
++#   https://gitee.com/openharmony/arkcompiler_ets_frontend/blob/master/arkguard/README.md
++
++# Obfuscation options:
++# -disable-obfuscation: disable all obfuscations
++# -enable-property-obfuscation: obfuscate the property names
++# -enable-toplevel-obfuscation: obfuscate the names in the global scope
++# -compact: remove unnecessary blank spaces and all line feeds
++# -remove-log: remove all console.* statements
++# -print-namecache: print the name cache that contains the mapping from the old names to new names
++# -apply-namecache: reuse the given cache file
++
++# Keep options:
++# -keep-property-name: specifies property names that you want to keep
++# -keep-global-name: specifies names that you want to keep in the global scope
+\ No newline at end of file
+diff --git a/node_modules/@react-native-ohos/react-native-webview/harmony/rn_webview/src/main/ets/RNCWebView.ets b/node_modules/@react-native-ohos/react-native-webview/harmony/rn_webview/src/main/ets/RNCWebView.ets
+index 4d8c466..4272901 100644
+--- a/node_modules/@react-native-ohos/react-native-webview/harmony/rn_webview/src/main/ets/RNCWebView.ets
++++ b/node_modules/@react-native-ohos/react-native-webview/harmony/rn_webview/src/main/ets/RNCWebView.ets
+@@ -120,10 +120,6 @@ export struct RNCWebView {
+           }
+         })
+       }
+-      atManager.requestPermissionsFromUser(this.ctx.uiAbilityContext, ["ohos.permission.APPROXIMATELY_LOCATION"]).then((data) => {
+-      }).catch((error: BusinessError) => {
+-        console.error(`Failed to request permissions from user. Code is ${error.code}, message is ${error.message}`);
+-      })
+     } catch (error) {
+       Logger.error(TAG, `[RNOH]Errorcode: ${error.code}, Message: ${error.message}`);
+     }

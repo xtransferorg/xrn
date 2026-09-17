@@ -49,7 +49,7 @@ export default StyleSheet.create({
   },
   navRightBtn: {
     width: 70,
-    height: 40,
+    height: 44,
     justifyContent: "center",
     alignItems: "center",
     marginRight: 10,

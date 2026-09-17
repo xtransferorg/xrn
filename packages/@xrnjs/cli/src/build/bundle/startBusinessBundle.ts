@@ -1,17 +1,28 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-import type { Args } from "@react-native-community/cli-plugin-metro/build/commands/start/runServer";
 import {
   createDevServerMiddleware,
   indexPageMiddleware,
 } from "@react-native-community/cli-server-api";
 import { loadMetroConfig } from "./core/core";
-import { releaseChecker } from "@react-native-community/cli-tools";
-import { generateBusiness } from "./core/config";
+import { generateBusinessBundleConfig } from "./core/config";
 import { mergeConfig } from "metro-config";
 import loadReactNativeConfig from "@react-native-community/cli-config";
-import enableWatchMode from "@react-native-community/cli-plugin-metro/build/commands/start/watchMode";
 import Metro from "metro";
+import { Terminal } from "metro-core";
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { createDevMiddleware } = require("@react-native/dev-middleware") as {
+  createDevMiddleware: (opts: {
+    projectRoot: string;
+    serverBaseUrl: string;
+    logger?: {
+      info: (m: string) => void;
+      warn: (m: string) => void;
+      error: (m: string) => void;
+    };
+  }) => { middleware: any; websocketEndpoints: Record<string, any> };
+};
+import chalk from "chalk";
 import fs from "fs";
 import path from "path";
 import os from "os";
@@ -21,33 +32,59 @@ import bodyParser from "body-parser";
 import logger from "../../utlis/logger";
 import serveStatic from "serve-static";
 import { BuildEnv } from "../typing";
-// import { getDependenciesJson, getMetaJson } from "./utils";
+import { getDependenciesJson, getMetaJson } from "./utils";
 import { MetaConfig } from "./interface";
 import { StartTemplateManager } from "../utils/StartTemplateManager";
+
+// 当前连接的 App 版本，由 bundle 请求携带的 appVersion 参数确定
 let version: string;
 
-export interface StartBusinessArgs extends Args {
+export type MetroReporter = {
+  update: (event: any) => void;
+  broadcast: (type: string, params?: Record<string, unknown> | null) => void;
+  openDevTools: () => void;
+};
+
+export interface StartBusinessArgs {
   project?: string;
   local?: boolean;
   verbose?: boolean;
+  config?: string;
+  maxWorkers?: number;
+  port?: number;
+  resetCache?: boolean;
+  watchFolders?: string[];
+  projectRoot?: string;
+  sourceExts?: string[];
+  assetPlugins?: string[];
+  host?: string;
+  https?: boolean;
+  cert?: string;
+  key?: string;
+  /** Metro 初始化完成时的回调，此时 reporter 已可用 */
+  onInitializeDone?: (reporter: MetroReporter) => void;
 }
 
-interface GenerateBusinessConfig {
+interface GenerateBusinessConfigOptions {
   project: string;
   root: string;
   hmr?: boolean;
   local?: boolean;
 }
 
-function generateBusinessConfig({
+// ---------------------------------------------------------------------------
+// 动态 bundle 配置：每次请求 bundle 时，根据 appVersion 动态调整 Metro 配置
+// ---------------------------------------------------------------------------
+function makeBusinessConfigFactory({
   project,
   root,
   hmr = false,
   local = false,
-}: GenerateBusinessConfig) {
+}: GenerateBusinessConfigOptions) {
   // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   const cacheConfigMap = new Map<string, any & { isInitialed?: boolean }>();
-  return async (config: any, { platform }) => {
+
+  return async (config: any, { platform }: { platform: any }) => {
     if (hmr && cacheConfigMap.has(platform)) {
       return Object.assign(cacheConfigMap.get(platform), { isInitialed: true });
     }
@@ -58,14 +95,10 @@ function generateBusinessConfig({
         version,
         platform,
         buildEnv: BuildEnv.dev,
-        project: project || "XTransfer",
+        project: project || "xrn",
       };
-      let metaJson: MetaConfig = {
-        modules: {},
-        id: 0,
-        hash: "",
-        useOldApp: true,
-      };
+
+      let metaJson: MetaConfig = { modules: {}, id: 0, hash: "", useOldApp: true };
       let dependencies = {};
 
       if (version) {
@@ -73,17 +106,18 @@ function generateBusinessConfig({
           dependencies = BaseLine.getInstance().getDependenciesJson();
           metaJson = BaseLine.getInstance().getBaseLine();
         } else {
-          // dependencies = await getDependenciesJson(queryConfig);
-          // metaJson = await getMetaJson(queryConfig);
+          dependencies = await getDependenciesJson(queryConfig);
+          metaJson = await getMetaJson(queryConfig);
         }
       }
 
-      const c1 = mergeConfig(
+      const mergedConfig = mergeConfig(
         config,
-        generateBusiness(root, metaJson, hmr, dependencies, platform)()
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        generateBusinessBundleConfig(root, metaJson, hmr, dependencies, platform)()
       );
-      hmr && cacheConfigMap.set(platform, c1);
-      return c1;
+      hmr && cacheConfigMap.set(platform, mergedConfig);
+      return mergedConfig;
     } catch (error) {
       logger.error("获取bundle数据失败. " + error);
       return config;
@@ -91,9 +125,13 @@ function generateBusinessConfig({
   };
 }
 
-async function runServer(root: string, args: StartBusinessArgs) {
-  const nativeConfig = loadReactNativeConfig(root);
-  const initialBusinessConfig = generateBusiness(root, {
+// ---------------------------------------------------------------------------
+// 核心服务启动（结构对齐官方 community-cli-plugin/src/commands/start/runServer.js）
+// ---------------------------------------------------------------------------
+async function runServer(root: string, args: StartBusinessArgs): Promise<MetroReporter> {
+  // 1. 加载 Metro 配置（叠加业务初始 bundle 配置）
+  const nativeConfig = loadReactNativeConfig({ projectRoot: root });
+  const initialBusinessConfig = generateBusinessBundleConfig(root, {
     modules: {},
     id: 0,
     hash: "",
@@ -104,7 +142,7 @@ async function runServer(root: string, args: StartBusinessArgs) {
     {
       maxWorkers: args.maxWorkers,
       port: args.port,
-      resetCache: args.resetCache || true,
+      resetCache: args.resetCache ?? true,
       watchFolders: args.watchFolders,
       projectRoot: args.projectRoot || root,
       sourceExts: args.sourceExts,
@@ -112,54 +150,75 @@ async function runServer(root: string, args: StartBusinessArgs) {
     initialBusinessConfig
   );
 
+  // 2. 解构关键配置（与官方保持一致）
+  const hostname = args.host?.length ? args.host : "localhost";
+  const {
+    projectRoot,
+    server: { port },
+    watchFolders,
+  } = metroConfig;
+  const protocol = args.https === true ? "https" : "http";
+  const devServerUrl = `${protocol}://${hostname}:${port}`;
+
+  console.info(`Starting dev server on ${devServerUrl}\n`);
+
+  // 3. assetPlugins
   if (args.assetPlugins) {
+    // $FlowIgnore[cannot-write]
     metroConfig.transformer.assetPlugins = args.assetPlugins.map((plugin) =>
       require.resolve(plugin)
     );
   }
 
-  const { middleware, websocketEndpoints, messageSocketEndpoint } =
-    createDevServerMiddleware({
-      host: args.host,
-      port: metroConfig.server.port,
-      watchFolders: metroConfig.watchFolders,
-    });
-  middleware.use(indexPageMiddleware);
-  middleware.use(bodyParser.urlencoded({ extended: false }));
-  middleware.use(bodyParser.json({ limit: "10mb" }));
-  middleware.use((req, res, next) => {
-    if (req.method === "POST") {
-      if (/\.[bundle|jsbundle]/.test(req.url) && req.body) {
-        // 存储基线内容
-        BaseLine.getInstance().saveBaseMeta(req.body);
-      }
+  // 4. 创建 TerminalReporter（官方：每次启动创建新实例，避免共用旧实例导致的日志串扰）
+  const terminal = new Terminal(process.stdout);
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const TerminalReporterImpl = require("metro/src/lib/TerminalReporter");
+  const terminalReporter = new TerminalReporterImpl(terminal);
+
+  // 5. 创建社区中间件（消息 WebSocket、事件 WebSocket、debugger 代理等）
+  const {
+    middleware: communityMiddleware,
+    websocketEndpoints: communityWebsocketEndpoints,
+    messageSocketEndpoint,
+    eventsSocketEndpoint,
+  } = createDevServerMiddleware({ host: hostname, port, watchFolders });
+
+  // 6. 挂载业务自定义中间件到 communityMiddleware
+  communityMiddleware.use(bodyParser.urlencoded({ extended: false }));
+  communityMiddleware.use(bodyParser.json({ limit: "10mb" }));
+
+  // URL 匹配说明：下方使用 /\.[bundle|jsbundle]/、/xt-app-common\.[bundle|jsbundle]/ 等形式（字符类），
+  // 与历史 bundle 请求路径的匹配习惯一致，当前业务 URL 下行为符合预期；若未来要严格匹配 .bundle / .jsbundle 后缀，再改为 \.(?:bundle|jsbundle)。
+
+  // 6a. 保存基线：native 通过 POST 上报 baseline meta
+  communityMiddleware.use((req: any, res: any, next: any) => {
+    if (req.method === "POST" && /\.[bundle|jsbundle]/.test(req.url) && req.body) {
+      BaseLine.getInstance().saveBaseMeta(req.body);
     }
     next();
   });
 
-  middleware.use(
+  // 6b. 静态资源服务
+  communityMiddleware.use(
     "/assets/assets",
     serveStatic(path.resolve(__dirname, "../../../", "files/_assets"))
   );
-  middleware.use((req, res, next) => {
+
+  // 6c. common bundle 拦截 + appVersion 版本绑定
+  communityMiddleware.use((req: any, res: any, next: any) => {
     if (/xt-app-common\.[bundle|jsbundle]/.test(req.url)) {
-      // 请求 common bundle 时，返回空 js
-      // debug 时请求 common bundle 会报错，因为 common bundle 是在 native 项目中，之所以会请求是因为发生错误 sentry 会自动请求当前 bundle url 解析错误的 context
-      // 本地调试时无需此功能，所以返回空 js
+      // common bundle 在 native 侧，本地调试场景直接返回空模块即可。
       try {
-        const commonContent = fs.readFileSync(req.url);
-        return res.end(commonContent);
+        return res.end(fs.readFileSync(req.url));
       } catch {
         return res.end("(function() {})()");
       }
     }
     if (/\.bundle\?/.test(req.url)) {
-      // 请求 bundle 时，获取 appVersion
       const params = new URLSearchParams(req.url.replace(/.+\?/, ""));
       const appVersion = params.get("appVersion");
-      if (!appVersion) {
-        return next();
-      }
+      if (!appVersion) return next();
       if (version && version !== appVersion) {
         return next(
           new Error(
@@ -172,29 +231,64 @@ async function runServer(root: string, args: StartBusinessArgs) {
     next();
   });
 
-  const customEnhanceMiddleware = metroConfig.server.enhanceMiddleware;
-  metroConfig.server.enhanceMiddleware = (
-    metroMiddleware: any,
-    server: any
-  ) => {
-    if (customEnhanceMiddleware) {
-      metroMiddleware = customEnhanceMiddleware(metroMiddleware, server);
-    }
-    return middleware.use(metroMiddleware);
-  };
+  // 7. 创建 DevTools 中间件（Chrome DevTools Protocol / Inspector 代理）
+  const { middleware: devMiddleware, websocketEndpoints: devWebsocketEndpoints } =
+    createDevMiddleware({
+      projectRoot,
+      serverBaseUrl: devServerUrl,
+      logger: {
+        info: (msg: string) =>
+          terminalReporter.update({ type: "unstable_server_log", level: "info", data: msg }),
+        warn: (msg: string) =>
+          terminalReporter.update({ type: "unstable_server_log", level: "warn", data: msg }),
+        error: (msg: string) =>
+          terminalReporter.update({ type: "unstable_server_log", level: "error", data: msg }),
+      },
+    });
 
-  metroConfig.onDynamicConfig = generateBusinessConfig({
+  // 8. 动态 bundle 配置（每次 bundle 请求时根据 appVersion 拉取基线数据）
+  metroConfig.onDynamicConfig = makeBusinessConfigFactory({
     project: args.project,
     root,
     local: args.local,
   });
-  metroConfig.onDynamicHmrConfig = generateBusinessConfig({
+  metroConfig.onDynamicHmrConfig = makeBusinessConfigFactory({
     project: args.project,
     root,
     hmr: true,
     local: args.local,
   });
 
+  // 9. Reporter（官方模式：新建实例，通过闭包持有 reportEvent 引用，initialize_done 时触发 onInitializeDone 回调）
+  // eslint-disable-next-line prefer-const
+  let reportEvent: ((event: any) => void) | undefined;
+  const reporter: MetroReporter = {
+    update(event: any) {
+      terminalReporter.update(event);
+      if (reportEvent) {
+        reportEvent(event);
+      }
+      if (event.type === "initialize_done") {
+        terminalReporter.update({
+          type: "unstable_server_log",
+          level: "info",
+          data: `Dev server ready. ${chalk.dim("Press Ctrl+C to exit.")}`,
+        });
+        args.onInitializeDone?.(reporter);
+      }
+    },
+    broadcast(type, params) {
+      messageSocketEndpoint.broadcast(type, params);
+    },
+    openDevTools() {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      require("child_process").exec(`curl -s -X POST "${devServerUrl}/open-debugger" > /dev/null`);
+    },
+  };
+  // $FlowIgnore[cannot-write]
+  metroConfig.reporter = reporter;
+
+  // 10. 启动 Metro 服务（官方顺序：communityMiddleware → indexPage → devMiddleware）
   const serverInstance = await Metro.runServer(metroConfig, {
     host: args.host,
     secure: args.https,
@@ -202,37 +296,33 @@ async function runServer(root: string, args: StartBusinessArgs) {
     secureKey: args.key,
     // @ts-ignore
     hmrEnabled: true,
-    websocketEndpoints,
+    unstable_extraMiddleware: [communityMiddleware, indexPageMiddleware, devMiddleware],
+    websocketEndpoints: {
+      ...communityWebsocketEndpoints,
+      ...devWebsocketEndpoints,
+    },
   });
 
-  if (args.interactive) {
-    enableWatchMode(messageSocketEndpoint);
-  }
+  // 11. 将 eventsSocket 的上报函数挂到 reporter，使 Metro 事件广播给调试工具（Flipper 等）
+  reportEvent = eventsSocketEndpoint.reportEvent;
 
-  // In Node 8, the default keep-alive for an HTTP connection is 5 seconds. In
-  // early versions of Node 8, this was implemented in a buggy way which caused
-  // some HTTP responses (like those containing large JS bundles) to be
-  // terminated early.
-  //
-  // As a workaround, arbitrarily increase the keep-alive from 5 to 30 seconds,
-  // which should be enough to send even the largest of JS bundles.
-  //
-  // For more info: https://github.com/nodejs/node/issues/13391
-  //
+  // 12. 增大 keep-alive 超时，防止大 bundle 传输被提前断开（Node 8 兼容性问题遗留）
   serverInstance.keepAliveTimeout = 30000;
 
-  await releaseChecker(root);
+  return reporter;
 }
 
-export async function startBusinessBundle(args: StartBusinessArgs) {
-  codePushContext.verbose = args.verbose
-  const startTemplateManager = await StartTemplateManager.create(process.cwd());
+// ---------------------------------------------------------------------------
+// 公共入口
+// ---------------------------------------------------------------------------
+export async function startBusinessBundle(
+  args: StartBusinessArgs,
+): Promise<MetroReporter> {
+  codePushContext.verbose = args.verbose;
+  const cwd = process.cwd();
 
+  const startTemplateManager = await StartTemplateManager.create(cwd);
   await startTemplateManager.writeIndexTs();
-  await runServer(
-    process.cwd(),
-    Object.assign(args, {
-      interactive: true,
-    })
-  );
+
+  return runServer(cwd, args);
 }

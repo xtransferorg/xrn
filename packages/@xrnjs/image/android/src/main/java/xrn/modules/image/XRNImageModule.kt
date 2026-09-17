@@ -6,6 +6,8 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
+import com.facebook.react.bridge.UiThreadUtil
+import com.facebook.react.module.annotations.ReactModule
 import xrn.modules.image.proxy.ImageModule
 import xrn.modules.image.proxy.ImageModuleImpl
 import xrn.modules.image.records.CachePolicy
@@ -14,9 +16,9 @@ import xrn.modules.kotlin.fromValue
 import xrn.modules.kotlin.modules.Module
 import xrn.modules.kotlin.weak
 
-
+@ReactModule(name = XRNImageModule.NAME)
 class XRNImageModule(reactContext: ReactApplicationContext) :
-    Module(reactContext),
+    NativeXRNImageModuleSpec(reactContext),
     ImageModule by ImageModuleImpl(AppContext(reactContext.weak())) {
 
     override fun getName(): String {
@@ -34,7 +36,7 @@ class XRNImageModule(reactContext: ReactApplicationContext) :
     }
 
     @ReactMethod
-    fun prefetch(
+    override fun prefetch(
         urls: ReadableArray,
         cachePolicy: String?,
         headers: ReadableMap?,
@@ -57,24 +59,24 @@ class XRNImageModule(reactContext: ReactApplicationContext) :
     }*/
 
     @ReactMethod
-    fun clearMemoryCache(promise: Promise) {
-        runOnUiQueueThread {
+    override fun clearMemoryCache(promise: Promise) {
+        UiThreadUtil.runOnUiThread {
             clearMemoryCacheInternal(promise)
         }
     }
 
     @ReactMethod
-    fun clearDiskCache(promise: Promise) {
+    override fun clearDiskCache(promise: Promise) {
         clearDiskCacheInternal(promise)
     }
 
     @ReactMethod
-    fun getCachePathAsync(cacheKey: String, promise: Promise) {
+    override fun getCachePathAsync(cacheKey: String, promise: Promise) {
         getCachePathAsyncInternal(cacheKey, promise)
     }
 
     companion object {
-        private const val NAME = "XRNImageView"
+        const val NAME = "XRNImageView"
     }
 
 }

@@ -4,6 +4,7 @@ import { readAppJsonFile } from "../../utlis/readAppJsonFile";
 import { AppJson } from "../../utlis/readAppJsonFile";
 import logger from "../../utlis/logger";
 
+
 export class StartTemplateManager {
   private projectPath: string;
   private templatePath: string;
@@ -15,7 +16,7 @@ export class StartTemplateManager {
 
     const templatePath = path.resolve(
       this.projectPath,
-      "node_modules/xt-rn-core/templates/index.bundle.template"
+      "node_modules/@xrnjs/core/templates/index.bundle.template"
     );
     this.templatePath = templatePath;
     const indexTsPath = path.resolve(this.projectPath, "index.ts");

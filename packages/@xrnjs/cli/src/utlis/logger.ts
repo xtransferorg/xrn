@@ -1,39 +1,35 @@
-import chalk from "chalk";
 import winston from "winston";
+import chalk from "chalk";
+import util from "node:util";
 
-/**
- * Color mapping for different log levels
- * Maps log levels to chalk colors for console output
- */
 const colors = {
   error: "red",
   warn: "yellow",
   info: "green",
 };
 
-/**
- * Custom log format function
- * Formats log messages with colored level indicators and additional arguments
- * 
- * @param level - Log level (error, warn, info, etc.)
- * @param message - Main log message
- * @param args - Additional arguments to include in the log
- * @returns Formatted log string
- */
-const customFormat = winston.format.printf(({ level, message, ...args }) => {
-  const color = colors[level] || "white";
-  return `${chalk[color](`[${level.toUpperCase()}]`)} ${message} ${
-    Object.keys(args).length ? JSON.stringify(args) : ""
-  }`;
-});
+const customFormat = winston.format.printf(
+  ({ level, message, [Symbol.for("splat")]: splat }) => {
+    const color = colors[level] || "white";
+    const baseMessage =
+      typeof message === "string"
+        ? message
+        : util.inspect(message, { depth: null, colors: false });
+    const extra = Array.isArray(splat)
+      ? splat
+          .map((item) =>
+            typeof item === "string"
+              ? item
+              : util.inspect(item, { depth: null, colors: false })
+          )
+          .join(" ")
+      : "";
+    return `${chalk[color](`[${level.toUpperCase()}]`)} ${baseMessage} ${extra}`;
+  }
+);
 
-/**
- * Winston logger instance with custom configuration
- * Provides structured logging with colored output and console transport
- * Log level is set to 'debug' in development and 'info' in production
- */
 const logger = winston.createLogger({
-  level: process.env.NODE_ENV === "development" ? "debug" : "info",
+  level: "debug",
   format: winston.format.combine(customFormat),
   transports: [
     new winston.transports.Console({

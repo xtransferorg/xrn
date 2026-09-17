@@ -13,7 +13,7 @@ const ExtraListScreens: ScreenConfig[] = [
     showName: '热更新',
     description: '热更新功能',
     group: '基础功能',
-    packageName: 'xrn-code-push',
+    packageName: '@xrnjs/code-push',
     options: {
       title: '热更新',
     },
@@ -29,7 +29,7 @@ const ExtraListScreens: ScreenConfig[] = [
     showName: '多 Bundle 管理',
     description: '支持多 Bundle 加载与管理，优化应用资源使用',
     group: '资源管理',
-    packageName: 'xrn-multi-bundle',
+    packageName: '@xrnjs/multi-bundle',
     sdkPath: 'undefined',
     onClick: () => {
       return XRNGoDemoModule.jumpMultiBundleDemo();

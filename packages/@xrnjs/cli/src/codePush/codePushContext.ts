@@ -1,3 +1,5 @@
-export const codePushContext = {
-  verbose: true,
-};
+import { BaselineManager } from "../build/BaselineManager";
+
+export const codePushContext: {verbose: boolean, baselineManager?: BaselineManager, latestVersion?: string} = {
+    verbose: true,
+}

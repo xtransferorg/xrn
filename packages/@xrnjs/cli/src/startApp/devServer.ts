@@ -1,91 +1,113 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import detect from "detect-port";
 import inquirer from "inquirer";
-
+import { getLocalIP, killProcessOnPort } from "./utils";
+import { TerminalManager } from "./TerminalManager";
+import { printQRCode, printUsage } from "./commandsTable";
 import { SpawnManager } from "./SpawnManager";
-import { startAppContext } from "./StartAppContext";
-import { printQRCode } from "./commandsTable";
-import { XrnStartArgs } from "./types";
-import { execAsync, getLocalIP, killProcessOnPort } from "./utils";
 import { checkIfRNProjectRoot } from "./utils/check";
-import { startBusinessBundle } from "../build/bundle/startBusinessBundle";
+import { XrnStartArgs } from "./types";
+import { bundleInfo } from "./config";
 import logger from "../utlis/logger";
 import { readAppJsonFile } from "../utlis/readAppJsonFile";
+import { startBusinessBundle, MetroReporter } from "../build/bundle/startBusinessBundle";
+import { startAppContext } from "./StartAppContext";
 
-const delay = (t: number) => new Promise((resolve) => setTimeout(resolve, t));
-
-/**
- * Development server manager for React Native applications
- * Handles server startup, QR code generation, and process management
- */
 export class DevServer {
   port: number;
+  terminalManager: TerminalManager;
   rnSpawnManager: SpawnManager;
+  inNewTerminal: boolean;
+  reporter: MetroReporter | null = null;
 
-  constructor({ port }: { port: number }) {
+  constructor({
+    port,
+    inNewTerminal,
+  }: {
+    port: number;
+    inNewTerminal: boolean;
+  }) {
+    this.inNewTerminal = inNewTerminal;
+    this.terminalManager = new TerminalManager();
     this.rnSpawnManager = new SpawnManager("React Native Server");
     this.port = port;
   }
 
-  /**
-   * Start the development server with the given arguments
-   * @param args - Server configuration arguments
-   */
-  async start(args: XrnStartArgs) {
+  async start(args: XrnStartArgs, onReady?: () => void) {
     process.env.XRN_DEBUG_MODE = "true";
     const { appJsonConfig } = startAppContext || {};
     const { name } = appJsonConfig || {};
     logger.info(`启动 ${name} 服务, 端口号: ${this.port}`);
-    await startBusinessBundle({
+    this.reporter = await startBusinessBundle({
       ...args,
       port: this.port,
+      onInitializeDone: (reporter) => {
+        this.reporter = reporter;
+        this.showQRCode();
+        printUsage(true);
+        onReady?.();
+      },
     });
   }
 
-  /**
-   * Reload the development server
-   */
-  reload = async () => {
-    await execAsync(`curl -X POST http://localhost:${this.port}/reload`);
-  };
-
-  /**
-   * Stop the development server and cleanup resources
-   */
-  async stop() {
-    try {
-      await this.rnSpawnManager.stop();
-    } catch (error) {
-      logger.error((error as Error).message);
+  reload() {
+    if (this.reporter) {
+      this.reporter.update({ type: "unstable_server_log", level: "info", data: "Reloading connected app(s)..." });
+      this.reporter.broadcast("reload", null);
     }
   }
 
-  /**
-   * Display QR code for connecting to the development server
-   * Generates a QR code with the local server address for easy device connection
-   */
+  openDevMenu() {
+    if (this.reporter) {
+      this.reporter.update({ type: "unstable_server_log", level: "info", data: "Opening Dev Menu..." });
+      this.reporter.broadcast("devMenu", null);
+    }
+  }
+
+  openDevTools() {
+    if (this.reporter) {
+      this.reporter.update({ type: "unstable_server_log", level: "info", data: "Opening DevTools..." });
+      this.reporter.openDevTools();
+    }
+  }
+
+  async stop() {
+    try {
+      if (this.inNewTerminal) {
+        await this.terminalManager.closeTerminal();
+      } else {
+        await this.rnSpawnManager.stop();
+      }
+    } catch (error) {
+      console.error((error as Error).message);
+    }
+  }
+
   showQRCode() {
+    const { appJsonConfig } = startAppContext || {};
+    const { name } = appJsonConfig || {};
     const serverAddress = `xrn://${getLocalIP()}:${this.port}`;
     const json = {
       action: "action_set_bundle_host",
       content: serverAddress,
+      bundle_name: name,
     };
     printQRCode(JSON.stringify(json));
-    logger.info(`本地服务地址: ${serverAddress}`);
+    const msg = `本地服务地址: ${serverAddress}`;
+    if (this.reporter) {
+      this.reporter.update({ type: "unstable_server_log", level: "info", data: msg });
+    } else {
+      logger.info(msg);
+    }
   }
 }
 
-/**
- * Start the development server with port detection and conflict resolution
- * This function handles the complete server startup process including:
- * - Port availability checking
- * - Port conflict resolution
- * - Server initialization
- * - QR code display
- * 
- * @param args - Server configuration arguments
- * @returns DevServer instance or null if server cannot be started
- */
-async function startServer(args: XrnStartArgs): Promise<DevServer | null> {
+// 启动开发服务器
+async function startServer(
+  args: XrnStartArgs,
+  onReady?: () => void
+): Promise<DevServer | null> {
   if (!checkIfRNProjectRoot()) {
     console.error("当前目录不是 React Native 项目的根目录，不启用开发服务器");
     return null;
@@ -94,10 +116,9 @@ async function startServer(args: XrnStartArgs): Promise<DevServer | null> {
   let shouldStartServer = false;
   let inputPort = args?.port?.toString();
 
-  // Determine port number from arguments or configuration
   if (!inputPort) {
-    const { port } = await readAppJsonFile(process.cwd());
-    const bundlePort = port;
+    const { name, port } = await readAppJsonFile(process.cwd());
+    const bundlePort = port || bundleInfo.find((it) => it.name === name)?.port;
     if (bundlePort) {
       inputPort = bundlePort.toString();
     } else {
@@ -107,7 +128,7 @@ async function startServer(args: XrnStartArgs): Promise<DevServer | null> {
         message: "请输入设备端口号",
         default: "8081",
         validate: (value) => {
-          const port = parseInt(value as string, 10);
+          const port = parseInt(value as string);
           if (isNaN(port) || port < 0 || port > 65535) {
             return "请输入有效的端口号（0-65535）";
           }
@@ -118,9 +139,8 @@ async function startServer(args: XrnStartArgs): Promise<DevServer | null> {
     }
   }
 
-  const port = parseInt(inputPort, 10);
+  const port = parseInt(inputPort);
 
-  // Check port availability and handle conflicts
   const _port = await detect(port);
   if (_port === port) {
     logger.info(`Port ${port} is available.`);
@@ -136,20 +156,15 @@ async function startServer(args: XrnStartArgs): Promise<DevServer | null> {
       await killProcessOnPort(port);
     }
   }
-  
   if (!shouldStartServer) {
     return null;
   }
-  
   const devServerManager = new DevServer({
     port,
+    inNewTerminal: args.newTab ?? true,
   });
 
-  await devServerManager.start(args);
-
-  // Wait for server to fully start before showing QR code
-  await delay(4000);
-  devServerManager.showQRCode();
+  await devServerManager.start(args, onReady);
 
   return devServerManager;
 }

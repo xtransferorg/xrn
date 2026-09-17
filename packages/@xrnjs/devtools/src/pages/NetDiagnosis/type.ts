@@ -11,8 +11,6 @@ export interface NetDiagnosisInfo {
 export interface PingInfo {
   baiduPing: PingItem;
   aliyunPing: PingItem;
-  // xtPing: PingItem;
-  // codepushPing: PingItem;
 };
 
 export interface PingItem {

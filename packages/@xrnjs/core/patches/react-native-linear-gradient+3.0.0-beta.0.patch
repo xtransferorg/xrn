@@ -1,0 +1,31 @@
+diff --git a/node_modules/react-native-linear-gradient/index.ios.js b/node_modules/react-native-linear-gradient/index.ios.js
+index 7480d80..e598698 100644
+--- a/node_modules/react-native-linear-gradient/index.ios.js
++++ b/node_modules/react-native-linear-gradient/index.ios.js
+@@ -7,7 +7,7 @@ import { processColor } from 'react-native';
+ 
+ import NativeLinearGradient, { type Props } from './src';
+ 
+-const isNewArch = () => global.nativeFabricUIManager != null;
++const isBridgeless = () => global.RN$Bridgeless === true;
+ 
+ const convertColors = colors => {
+   if (!Array.isArray(colors)) {
+@@ -27,12 +27,14 @@ const convertColors = colors => {
+     );
+   }
+ 
+-  // New Architecture (Fabric) handles color conversion automatically in the C++ layer
+-  if (isNewArch()) {
++  // In bridgeless mode, the NativeComponentRegistry uses the static (codegen) view config
++  // which includes processColorArray, so colors are handled automatically
++  if (isBridgeless()) {
+     return colors;
+   }
+ 
+-  // Old architecture (Paper) needs pre-processed colors (processColor)
++  // In bridge mode (both Paper and Fabric+Bridge), the native view config is used
++  // which does not include color processing, so we must process colors in JS
+   return colors.map(processColor);
+ };
+ 

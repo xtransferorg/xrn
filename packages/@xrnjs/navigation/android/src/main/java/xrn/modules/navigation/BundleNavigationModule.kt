@@ -1,41 +1,45 @@
 package xrn.modules.navigation
 
 import com.facebook.react.bridge.ReactApplicationContext
-import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReactMethod
-import xrn.modules.multibundle.bundle.RNHostManager
+import com.facebook.react.module.annotations.ReactModule
+import xrn.modules.multibundle.ReactHostManager
 import xrn.modules.navigation.kotlin.NavHelper
 
-
+@ReactModule(name = BundleNavigationModule.NAME)
 class BundleNavigationModule(val reactContext: ReactApplicationContext) :
-    ReactContextBaseJavaModule(reactContext) {
+    NativeBundleNavigationModuleSpec(reactContext) {
 
     override fun getName(): String {
-        return "BundleNavigation"
+        return NAME
     }
 
     @ReactMethod
-    fun navPushBundleProject(bundleName: String, moduleName: String?, params: String?) {
+    override fun navPushBundleProject(bundleName: String, moduleName: String?, params: String?): Boolean {
         NavHelper.jump2Module(currentActivity, bundleName, moduleName, params)
+        return true
     }
 
     @ReactMethod
-    fun publishSingleBundleEvent(eventName: String, params: String?) {
+    override fun publishSingleBundleEvent(eventName: String, params: String?): Boolean {
         reactContext.emitDeviceEvent(eventName, params)
+        return true
     }
 
     @ReactMethod
-    fun publishAllBundleEvent(eventName: String, params: String?) {
-        RNHostManager.getAllRNHostWrapper().forEach {
-            it.rnHost.reactInstanceManager.currentReactContext?.let { context ->
-                context.emitDeviceEvent(eventName, params)
+    override fun publishAllBundleEvent(eventName: String, params: String?): Boolean {
+        ReactHostManager.all().forEach {
+            if ( it.currentReactContext?.hasReactInstance() == true) {
+                it.currentReactContext?.emitDeviceEvent(eventName, params)
             }
         }
+        return true
     }
 
     @ReactMethod
-    fun goBack() {
+    override fun goBack(): Boolean {
         currentActivity?.finish()
+        return true
     }
 
     @ReactMethod
@@ -44,19 +48,15 @@ class BundleNavigationModule(val reactContext: ReactApplicationContext) :
     }
 
     @ReactMethod
-    fun navReplaceBundleProject(bundleName: String, moduleName: String?, params: String?) {
+    override fun navReplaceBundleProject(bundleName: String, moduleName: String?, params: String?): Boolean {
         if (NavHelper.jump2Module(currentActivity, bundleName, moduleName, params)) {
             currentActivity?.finish()
         }
+        return true
     }
 
-    // Required for rn built in EventEmitter Calls.
-    @ReactMethod
-    fun addListener(eventName: String?) {
-    }
-
-    @ReactMethod
-    fun removeListeners(count: Int?) {
+    companion object {
+        const val NAME = "BundleNavigation"
     }
 
 }

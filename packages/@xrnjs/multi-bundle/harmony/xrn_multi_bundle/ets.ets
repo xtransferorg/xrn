@@ -1,4 +1,5 @@
 export * from './ts'
+export * from './src/main/ets/bundle/remoteBundle/ts'
 export * from './src/main/ets/view/RNContainer'
 export * from './src/main/ets/view/RNContainerOptions'
 export * from './src/main/ets/view/RNContainerHelper'

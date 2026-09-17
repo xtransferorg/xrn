@@ -1,0 +1,176 @@
+diff --git a/node_modules/react-native-permissions/dist/commonjs/permissions.android.js b/node_modules/react-native-permissions/dist/commonjs/permissions.android.js
+index 0a552df..0b6d8dc 100644
+--- a/node_modules/react-native-permissions/dist/commonjs/permissions.android.js
++++ b/node_modules/react-native-permissions/dist/commonjs/permissions.android.js
+@@ -49,6 +49,7 @@ const ANDROID = Object.freeze({
+ const PERMISSIONS = exports.PERMISSIONS = Object.freeze({
+   ANDROID,
+   IOS: {},
++  HARMONY: {},
+   WINDOWS: {}
+ });
+ //# sourceMappingURL=permissions.android.js.map
+\ No newline at end of file
+diff --git a/node_modules/react-native-permissions/dist/commonjs/permissions.ios.js b/node_modules/react-native-permissions/dist/commonjs/permissions.ios.js
+index 6af994f..ddee3b0 100644
+--- a/node_modules/react-native-permissions/dist/commonjs/permissions.ios.js
++++ b/node_modules/react-native-permissions/dist/commonjs/permissions.ios.js
+@@ -27,6 +27,7 @@ const IOS = Object.freeze({
+ const PERMISSIONS = exports.PERMISSIONS = Object.freeze({
+   ANDROID: {},
+   IOS,
++  HARMONY: {},
+   WINDOWS: {}
+ });
+ //# sourceMappingURL=permissions.ios.js.map
+\ No newline at end of file
+diff --git a/node_modules/react-native-permissions/dist/commonjs/permissions.js b/node_modules/react-native-permissions/dist/commonjs/permissions.js
+index e674abf..02969df 100644
+--- a/node_modules/react-native-permissions/dist/commonjs/permissions.js
++++ b/node_modules/react-native-permissions/dist/commonjs/permissions.js
+@@ -7,6 +7,7 @@ exports.PERMISSIONS = void 0;
+ const PERMISSIONS = exports.PERMISSIONS = Object.freeze({
+   ANDROID: {},
+   IOS: {},
++  HARMONY: {},
+   WINDOWS: {}
+ });
+ //# sourceMappingURL=permissions.js.map
+\ No newline at end of file
+diff --git a/node_modules/react-native-permissions/dist/module/permissions.android.js b/node_modules/react-native-permissions/dist/module/permissions.android.js
+index c91e92c..5ee0f3b 100644
+--- a/node_modules/react-native-permissions/dist/module/permissions.android.js
++++ b/node_modules/react-native-permissions/dist/module/permissions.android.js
+@@ -45,6 +45,7 @@ const ANDROID = Object.freeze({
+ export const PERMISSIONS = Object.freeze({
+   ANDROID,
+   IOS: {},
++  HARMONY: {},
+   WINDOWS: {}
+ });
+ //# sourceMappingURL=permissions.android.js.map
+\ No newline at end of file
+diff --git a/node_modules/react-native-permissions/dist/module/permissions.ios.js b/node_modules/react-native-permissions/dist/module/permissions.ios.js
+index a4681b9..4f7d9dd 100644
+--- a/node_modules/react-native-permissions/dist/module/permissions.ios.js
++++ b/node_modules/react-native-permissions/dist/module/permissions.ios.js
+@@ -23,6 +23,7 @@ const IOS = Object.freeze({
+ export const PERMISSIONS = Object.freeze({
+   ANDROID: {},
+   IOS,
++  HARMONY: {},
+   WINDOWS: {}
+ });
+ //# sourceMappingURL=permissions.ios.js.map
+\ No newline at end of file
+diff --git a/node_modules/react-native-permissions/dist/module/permissions.js b/node_modules/react-native-permissions/dist/module/permissions.js
+index d13f924..de9e0c3 100644
+--- a/node_modules/react-native-permissions/dist/module/permissions.js
++++ b/node_modules/react-native-permissions/dist/module/permissions.js
+@@ -3,6 +3,7 @@
+ export const PERMISSIONS = Object.freeze({
+   ANDROID: {},
+   IOS: {},
++  HARMONY: {},
+   WINDOWS: {}
+ });
+ //# sourceMappingURL=permissions.js.map
+\ No newline at end of file
+diff --git a/node_modules/react-native-permissions/src/methods.android.ts b/node_modules/react-native-permissions/src/methods.android.ts
+index e9f781c..99a2457 100644
+--- a/node_modules/react-native-permissions/src/methods.android.ts
++++ b/node_modules/react-native-permissions/src/methods.android.ts
+@@ -1,4 +1,5 @@
+ import {Alert, Platform} from 'react-native';
++import { Portal, Notification } from "@xrnjs/ui";
+ import NativeModule from './NativeRNPermissions';
+ import type {Contract} from './contract';
+ import type {NotificationsResponse, Permission, PermissionStatus, Rationale} from './types';
+@@ -51,13 +52,48 @@ const check: Contract['check'] = async (permission) => {
+   return status;
+ };
+ 
+-const request: Contract['request'] = async (permission, rationale) => {
+-  const fn = (await shouldRequestPermission(permission, rationale))
+-    ? NativeModule.request
+-    : NativeModule.check;
++const requestInternal: Contract['request'] = async (permission, rationale) => {
++  const doRequest = async () => {
++    const status = (await NativeModule.request(permission)) as PermissionStatus;
++    return status;
++  }
+ 
+-  const status = (await fn(permission)) as PermissionStatus;
+-  return status;
++  return new Promise((resolve) => {
++    if (typeof rationale === "object") {
++      let nKey: number | null = null;
++
++      nKey = Notification.Instance({
++        status: "info",
++        title: rationale.title,
++        description: rationale.message,
++        icon: rationale.icon,
++        duration: 0,
++        closeable: false,
++        onVisibleAnimateEnd: async () => {
++          const result = await doRequest();
++
++          if (nKey) {
++            Portal.remove(nKey);
++            nKey = null;
++          }
++
++          resolve(result);
++        },
++      });
++    } else {
++      resolve(doRequest());
++    }
++  });
++};
++
++const request: Contract['request'] = async (permission, rationale) => {
++  const shouldRequest = await shouldRequestPermission(permission, undefined)
++  if (shouldRequest) {
++    return await requestInternal(permission, rationale);
++  } else {
++    const status = (await NativeModule.check(permission)) as PermissionStatus;
++    return status;
++  }
+ };
+ 
+ const checkNotifications: Contract['checkNotifications'] = async () => {
+diff --git a/node_modules/react-native-permissions/src/permissions.android.ts b/node_modules/react-native-permissions/src/permissions.android.ts
+index 15f57e4..b5e7891 100644
+--- a/node_modules/react-native-permissions/src/permissions.android.ts
++++ b/node_modules/react-native-permissions/src/permissions.android.ts
+@@ -49,5 +49,6 @@ export type AndroidPermissionMap = typeof ANDROID;
+ export const PERMISSIONS = Object.freeze({
+   ANDROID,
+   IOS: {} as IOSPermissionMap,
++  HARMONY: {},
+   WINDOWS: {} as WindowsPermissionMap,
+ } as const);
+diff --git a/node_modules/react-native-permissions/src/permissions.ios.ts b/node_modules/react-native-permissions/src/permissions.ios.ts
+index 33082e0..88cafdf 100644
+--- a/node_modules/react-native-permissions/src/permissions.ios.ts
++++ b/node_modules/react-native-permissions/src/permissions.ios.ts
+@@ -27,5 +27,6 @@ export type IOSPermissionMap = typeof IOS;
+ export const PERMISSIONS = Object.freeze({
+   ANDROID: {} as AndroidPermissionMap,
+   IOS,
++  HARMONY: {},
+   WINDOWS: {} as WindowsPermissionMap,
+ } as const);
+diff --git a/node_modules/react-native-permissions/src/permissions.ts b/node_modules/react-native-permissions/src/permissions.ts
+index b850423..7ed8ccd 100644
+--- a/node_modules/react-native-permissions/src/permissions.ts
++++ b/node_modules/react-native-permissions/src/permissions.ts
+@@ -5,5 +5,6 @@ import type {WindowsPermissionMap} from './permissions.windows';
+ export const PERMISSIONS = Object.freeze({
+   ANDROID: {} as AndroidPermissionMap,
+   IOS: {} as IOSPermissionMap,
++  HARMONY: {},
+   WINDOWS: {} as WindowsPermissionMap,
+ } as const);

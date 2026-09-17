@@ -1,0 +1,36 @@
+diff --git a/node_modules/react-native-safe-area-context/ios/Fabric/RNCSafeAreaProviderComponentView.mm b/node_modules/react-native-safe-area-context/ios/Fabric/RNCSafeAreaProviderComponentView.mm
+index 35927d1..925717f 100644
+--- a/node_modules/react-native-safe-area-context/ios/Fabric/RNCSafeAreaProviderComponentView.mm
++++ b/node_modules/react-native-safe-area-context/ios/Fabric/RNCSafeAreaProviderComponentView.mm
+@@ -119,6 +119,31 @@ - (void)prepareForRecycle
+   _currentSafeAreaInsets = UIEdgeInsetsZero;
+   _currentFrame = CGRectZero;
+   _initialInsetsSent = NO;
++#if !TARGET_OS_TV
++  [NSNotificationCenter.defaultCenter removeObserver:self];
++#endif
++}
++
++- (void)updateEventEmitter:(const facebook::react::EventEmitter::Shared &)eventEmitter
++{
++  [super updateEventEmitter:eventEmitter];
++#if !TARGET_OS_TV
++  [NSNotificationCenter.defaultCenter removeObserver:self name:UIKeyboardDidShowNotification object:nil];
++  [NSNotificationCenter.defaultCenter removeObserver:self name:UIKeyboardDidHideNotification object:nil];
++  [NSNotificationCenter.defaultCenter removeObserver:self name:UIKeyboardDidChangeFrameNotification object:nil];
++  [NSNotificationCenter.defaultCenter addObserver:self
++                                         selector:@selector(invalidateSafeAreaInsets)
++                                             name:UIKeyboardDidShowNotification
++                                           object:nil];
++  [NSNotificationCenter.defaultCenter addObserver:self
++                                         selector:@selector(invalidateSafeAreaInsets)
++                                             name:UIKeyboardDidHideNotification
++                                           object:nil];
++  [NSNotificationCenter.defaultCenter addObserver:self
++                                         selector:@selector(invalidateSafeAreaInsets)
++                                             name:UIKeyboardDidChangeFrameNotification
++                                           object:nil];
++#endif
+ }
+ 
+ @end

@@ -1,0 +1,13 @@
+diff --git a/node_modules/react-native-confirmation-code-field/esm/CodeField.styles.js b/node_modules/react-native-confirmation-code-field/esm/CodeField.styles.js
+index 8453d8e..833e39f 100644
+--- a/node_modules/react-native-confirmation-code-field/esm/CodeField.styles.js
++++ b/node_modules/react-native-confirmation-code-field/esm/CodeField.styles.js
+@@ -8,7 +8,7 @@ const codeFieldStyles = StyleSheet.create({
+     // <TextInput/> will be rendered above Cells
+     ...StyleSheet.absoluteFillObject,
+     // Hide <TextInput/> to simulate that user will press into a cell
+-    opacity: 0.01,
++    opacity: 0.02,
+     // Each user press into <TextInput/> should always set the cursor on the end of a text value
+     fontSize: 1,
+     ...Platform.select({

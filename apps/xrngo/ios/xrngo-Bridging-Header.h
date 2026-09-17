@@ -24,7 +24,7 @@
 #import "XTPluginManage.h"
 #import <RNDeviceInfo/DeviceUID.h>
 #import "XRNToastView.h"
-#import "RCTBridge+XTExtension.h"
 #import "XTMultiBundleManager.h"
+#import <react-native-xrn-multi-bundle/XTJSRuntimeContext.h>
 
 #endif /* xrngo_Bridging_Header_h */

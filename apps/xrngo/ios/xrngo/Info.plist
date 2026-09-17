@@ -32,11 +32,11 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>20250813103649</string>
+	<string>20260916185149</string>
 	<key>CodePushDeploymentKey</key>
 	<string>$(MAIN_CODEPUSH_KEY)</string>
 	<key>CodePushServerURL</key>
-	<string>codepushurl</string>
+	<string>undefined</string>
 	<key>CommonBundleName</key>
 	<string>xt-app-common</string>
 	<key>LSRequiresIPhoneOS</key>
@@ -44,7 +44,7 @@
 	<key>MainBundleName</key>
 	<string>xrngo-main</string>
 	<key>MainBundlePort</key>
-	<string>8081</string>
+	<string>18081</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>

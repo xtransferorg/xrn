@@ -1,7 +1,6 @@
 {
   "appName": "xrngo",
-  "appVersion": "0.0.1",
-  "cliVersion": "1.5.1",
+  "appVersion": "0.1.0",
   "unpacking": false,
   "bundleConfig": {
     "defaultOptions": {
@@ -13,13 +12,19 @@
         "bundlePackageRelativePath": "../xrngo-main",
         "bundleType": "main",
         "checkNativeDep": false,
-        "port": 8081
+        "port": 18081
       },
       {
         "name": "xrngo-bare",
         "bundlePackageRelativePath": "../xrngo-bare",
         "checkNativeDep": false,
         "port": 18082
+      },
+      {
+        "name": "xrngo-components",
+        "bundlePackageRelativePath": "../xrngo-components",
+        "checkNativeDep": false,
+        "port": 18083
       },
       {
         "name": "xrngo-multi-bundle-1",
@@ -38,15 +43,12 @@
         "bundlePackageRelativePath": "../xrngo-multi-bundle-3",
         "checkNativeDep": false,
         "port": 7073
-      },
-      {
-        "name": "xt-package-xrn",
-        "gitUrl": "https://github.com/xtransferorg/xtd-rn.git",
-        "port": 8101,
-        "checkNativeDep": false,
-        "bundlePackageRelativePath": "example"
       }
     ]
+  },
+  "harmonyUpdateAppKey": {
+    "debug": "b93ef257-94f1-4cc8-b0e4-6b7186b99f27",
+    "release": "472b3e89-77c1-4d7d-a05d-105b757708ae"
   },
   "androidUpdateAppKey": {
     "debug": {
@@ -57,10 +59,6 @@
       "china": "xrngo-android-release-china-key",
       "default": "xrngo-android-release-default-key"
     }
-  },
-  "harmonyUpdateAppKey": {
-    "debug": "xrngo-harmony-debug-key",
-    "release": "xrngo-harmony-release-key"
   },
   "iosUpdateAppKey": {
     "debug": "xrngo-ios-debug-key",

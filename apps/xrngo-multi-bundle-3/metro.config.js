@@ -1,7 +1,7 @@
-const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
+const { getDefaultConfig, mergeConfig } = require("@react-native/metro-config");
 const {
   createHarmonyMetroConfig,
-} = require('@react-native-oh/react-native-harmony/metro.config');
+} = require("@react-native-oh/react-native-harmony/metro.config");
 /**
  * Metro configuration
  * https://facebook.github.io/metro/docs/configuration
@@ -15,7 +15,7 @@ const config = {
 module.exports = mergeConfig(
   getDefaultConfig(__dirname),
   createHarmonyMetroConfig({
-    reactNativeHarmonyPackageName: '@react-native-oh/react-native-harmony',
+    reactNativeHarmonyPackageName: "@react-native-oh/react-native-harmony",
   }),
-  config,
+  config
 );

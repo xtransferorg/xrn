@@ -47,7 +47,7 @@ export default function ImagePlaceholderScreen() {
       />
 
       <View style={styles.actionsContainer}>
-        <Text style={styles.text}>Integration with xrn-image-picker</Text>
+        <Text style={styles.text}>Integration with @xrnjs/image-picker</Text>
         <Button style={styles.actionButton} title="Launch image picker" onPress={pickImage} />
 
         <Text style={styles.text}>Integration with expo-media-library</Text>

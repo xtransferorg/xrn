@@ -2,7 +2,8 @@ import { CommonActions } from "@react-navigation/native";
 
 import { NavigationAction, NavigationState } from "../core";
 import { XRNNavigation } from "./XRNNavigation";
-import { safeStringifyNavigationAction } from "../utils";
+import { safeStringify } from "../utils";
+import { isNativeModuleMethodAvailable } from "@xrnjs/modules-core";
 
 const GO_BACK_ACTION = CommonActions.goBack().type;
 
@@ -13,7 +14,17 @@ const setNavigationKey = (key: string) => {
 };
 
 const setNavigationState = (state?: NavigationState) => {
-  // NativeNavigationModule.setNavigationState(JSON.stringify(state || {}));
+  const jsonState = safeStringify(state);
+
+  if (!jsonState) {
+    return;
+  }
+
+  if (!isNativeModuleMethodAvailable("XRNNavigation", "setNavigationState")) {
+    return;
+  }
+
+  XRNNavigation.setNavigationState(jsonState);
 };
 
 const dispatchAction = (rootKey: string, action: NavigationAction) => {
@@ -26,7 +37,7 @@ const dispatchAction = (rootKey: string, action: NavigationAction) => {
 
   const newAction = Object.assign({}, action, { source: rootKey });
 
-  const jsonAction = safeStringifyNavigationAction(newAction);
+  const jsonAction = safeStringify(newAction);
 
   XRNNavigation.dispatchAction(jsonAction);
 };

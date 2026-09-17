@@ -1,23 +1,14 @@
 import { exec } from "child_process";
 import findProcess from "find-process";
-import ora from "ora";
-import os from "os";
 import util from "util";
-
+import os from "os";
+import ora from "ora";
 import logger from "../../utlis/logger";
 import { startAppContext } from "../StartAppContext";
 
-// Convert exec method to return Promise-based async function
+// 将exec方法转换为返回Promise的异步函数
 export const execAsync = util.promisify(exec);
 
-/**
- * Execute a command with a loading spinner and error handling
- * Shows a spinner during command execution and handles various error conditions
- * 
- * @param name - Display name for the spinner
- * @param command - Command to execute
- * @returns Promise resolving to boolean indicating success/failure
- */
 export const execWithOra = async (name: string, command: string) => {
   const spinner = ora(name).start();
   try {
@@ -50,25 +41,14 @@ export const execWithOra = async (name: string, command: string) => {
   }
 };
 
-/**
- * Get the best local IP address for network communication
- * Prioritizes network interfaces based on their names and types
- * Prefers Ethernet/WiFi interfaces over virtual interfaces
- * 
- * @returns The best available local IP address
- */
 export function getLocalIP() {
   const interfaces = os.networkInterfaces();
   let bestIp = "0.0.0.0";
   let bestScore = -1;
 
-  // Assign different priorities based on interface names, higher score means higher priority
+  // 根据网卡名称赋予不同的优先级，分数越高优先级越高
   function getScore(ifaceName: string): number {
-    if (
-      ifaceName.startsWith("en") ||
-      ifaceName.startsWith("eth") ||
-      ifaceName.startsWith("wlan")
-    ) {
+    if (ifaceName.startsWith("en") || ifaceName.startsWith("eth") || ifaceName.startsWith("wlan")) {
       return 100;
     } else if (ifaceName.startsWith("ap")) {
       return 90;
@@ -85,9 +65,9 @@ export function getLocalIP() {
   for (const name of Object.keys(interfaces)) {
     const score = getScore(name);
     for (const iface of interfaces[name] || []) {
-      // Only consider IPv4 and non-internal interfaces
+      // 仅考虑IPv4且非内部接口
       if (iface.family === "IPv4" && !iface.internal) {
-        // If current interface has higher priority, update return value
+        // 如果当前接口的优先级更高，则更新返回值
         if (score > bestScore) {
           bestScore = score;
           bestIp = iface.address;
@@ -96,54 +76,48 @@ export function getLocalIP() {
     }
   }
   return bestIp;
-}
-
-/**
- * Check and kill processes occupying a specific port
- * Finds processes using the specified port and terminates them
- * 
- * @param port - The port number to check
+}/**
+ * 检查并杀掉占用指定端口的进程
+ * @param {number} port - 要检查的端口号
  */
 export async function killProcessOnPort(port: number): Promise<void> {
   try {
-    // Find processes occupying the specified port
+    // 查找占用指定端口的进程
     const list = await findProcess("port", port);
 
     if (list.length === 0) {
-      logger.info(`没有进程占用端口 ${port}`);
+      console.log(`没有进程占用端口 ${port}`);
       return;
     }
 
-    // Get process ID
+    // 获取进程ID
     const pid = list[0].pid;
-    logger.info(`端口 ${port} 被进程 ${pid} 占用`);
+    console.log(`端口 ${port} 被进程 ${pid} 占用`);
 
-    // Kill the process
+    // 杀掉进程
     process.kill(pid);
-    logger.info(`进程 ${pid} 已被杀掉`);
+    console.log(`进程 ${pid} 已被杀掉`);
   } catch (error) {
-    logger.error(`无法杀掉占用端口 ${port} 的进程:`, error);
+    console.error(`无法杀掉占用端口 ${port} 的进程:`, error);
   }
 }
 
-/**
- * Wrap an async function with error handling
- * Catches and logs errors without breaking the application flow
- * 
- * @param asyncFunc - The async function to wrap
- * @returns Wrapped function with error handling
- */
 export function handlePromiseErrors<T extends (...args: any[]) => Promise<any>>(
-  asyncFunc: T
+  asyncFunc: T,
+  {
+    name,
+  }: {
+    name?: string;
+  } = {}
 ): T {
   const fn = async (...args: any[]) => {
     try {
       const result = await asyncFunc(...args);
       return result;
     } catch (error) {
-      logger.error("An error occurred: ", error);
-      // Can choose to throw error or return a default value
-      return Promise.resolve(null as unknown as T); // Or handle to your desired default value
+      console.error("An error occurred: ", error);
+      // 可以选择抛出错误或返回一个默认值
+      return Promise.resolve(null as unknown as T); // 或者处理成你想要的默认值
     }
   };
   return fn as T;

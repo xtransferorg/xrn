@@ -12,7 +12,7 @@ const WidgetScreen = function WidgetScreen() {
           <List header={<Title style={{padding: 12}}>组件库</Title>}>
             <List.Item
               onPress={() => {
-                navigation.navigate('/xt-package-xrn/Main', {
+                navigation.navigate('/xrngo-components/Main', {
                   params: {
                     index: 'layout',
                   },
@@ -22,7 +22,7 @@ const WidgetScreen = function WidgetScreen() {
             </List.Item>
             <List.Item
               onPress={() => {
-                navigation.navigate('/xt-package-xrn/Main', {
+                navigation.navigate('/xrngo-components/Main', {
                   params: {
                     index: 'navigation',
                   },
@@ -32,7 +32,7 @@ const WidgetScreen = function WidgetScreen() {
             </List.Item>
             <List.Item
               onPress={() => {
-                navigation.navigate('/xt-package-xrn/Main', {
+                navigation.navigate('/xrngo-components/Main', {
                   params: {
                     index: 'data',
                   },
@@ -42,7 +42,7 @@ const WidgetScreen = function WidgetScreen() {
             </List.Item>
             <List.Item
               onPress={() => {
-                navigation.navigate('/xt-package-xrn/Main', {
+                navigation.navigate('/xrngo-components/Main', {
                   params: {
                     index: 'feedback',
                   },
@@ -52,7 +52,7 @@ const WidgetScreen = function WidgetScreen() {
             </List.Item>
             <List.Item
               onPress={() => {
-                navigation.navigate('/xt-package-xrn/Main', {
+                navigation.navigate('/xrngo-components/Main', {
                   params: {
                     index: 'general',
                   },
@@ -62,7 +62,7 @@ const WidgetScreen = function WidgetScreen() {
             </List.Item>
             <List.Item
               onPress={() => {
-                navigation.navigate('/xt-package-xrn/Main', {
+                navigation.navigate('/xrngo-components/Main', {
                   params: {
                     index: 'form',
                   },

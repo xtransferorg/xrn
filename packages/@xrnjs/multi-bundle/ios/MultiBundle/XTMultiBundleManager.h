@@ -6,19 +6,18 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <React/RCTBridgeDelegate.h>
 #import "XTMultiBundleProtocol.h"
 #import "XTJSBridgePool.h"
 
 NS_ASSUME_NONNULL_BEGIN
 @interface XTMultiBundleManager : NSObject
 
-@property (nonatomic, weak, readonly) XTJSBridgePool *pool;
-
 + (instancetype)shared;
-- (void)startUp;
 
+@property (nonatomic, weak, readonly) XTJSBridgePool *pool;
 @property (nonatomic, weak, nullable) id <XTMultiBundleDataSource> dataSource;
+
+- (void)startUp;
 
 @end
 NS_ASSUME_NONNULL_END

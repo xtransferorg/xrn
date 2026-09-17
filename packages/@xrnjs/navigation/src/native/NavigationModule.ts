@@ -14,7 +14,18 @@ const routerWithTitle = (routerConfigs: Array<any>) => {
   return {};
 };
 
-const completeParams = (params?: Params) => {
+const currentTime = () => new Date().getTime();
+
+const completeParams = (params: Params = {}) => {
+  const initialRouteParams = (params as any).initialRouteParams || {};
+  return Object.assign({}, params, {
+    initialRouteParams: Object.assign({}, initialRouteParams, {
+      _startTime: currentTime(),
+    }),
+  });
+};
+
+const completeEventParams = (params?: Params) => {
   return JSON.stringify(params || {});
 };
 
@@ -42,13 +53,19 @@ function navigateBundle(
   moduleName?: string,
   params?: Params
 ) {
+  console.warn("navigateBundle 已废弃，请使用 navigation.navigate()");
+
   if (!bundleName) {
     throw Error("bundleName不能为空");
   }
   XRNBundleNavigation.navPushBundleProject(
     bundleName,
     moduleName,
-    safeStringifyNavigationParams(bundleName, moduleName, params)
+    safeStringifyNavigationParams(
+      bundleName,
+      moduleName,
+      completeParams(params)
+    )
   );
 }
 
@@ -67,13 +84,19 @@ function replaceBundle(
   moduleName?: string,
   params?: Params
 ) {
+  console.warn("replaceBundle 已废弃，请使用 navigation.replace()");
+
   if (!bundleName) {
     throw Error("bundleName不能为空");
   }
   XRNBundleNavigation.navReplaceBundleProject(
     bundleName,
     moduleName,
-    safeStringifyNavigationParams(bundleName, moduleName, params)
+    safeStringifyNavigationParams(
+      bundleName,
+      moduleName,
+      completeParams(params)
+    )
   );
 }
 
@@ -90,7 +113,7 @@ function pushEvent(eventName: string, payload?: Params) {
   }
   XRNBundleNavigation.publishSingleBundleEvent(
     eventName,
-    completeParams(payload)
+    completeEventParams(payload)
   );
 }
 
@@ -105,7 +128,10 @@ function pushAllEvent(eventName: string, payload?: Params) {
   if (!eventName) {
     throw Error("eventName不能为空");
   }
-  XRNBundleNavigation.publishAllBundleEvent(eventName, completeParams(payload));
+  XRNBundleNavigation.publishAllBundleEvent(
+    eventName,
+    completeEventParams(payload)
+  );
 }
 
 /**
@@ -117,6 +143,17 @@ const getCurrentModuleInfo = async () => {
   return await XRNNavigation.getCurrentModuleInfo();
 };
 
+const setShouldInterceptSideSwipe = (
+  shouldIntercept: boolean,
+  routeKey: string
+) => {
+  XRNNavigation.setShouldInterceptSideSwipe(shouldIntercept, routeKey);
+};
+
+const confirmShouldSideSwipePop = () => {
+  XRNNavigation.confirmShouldSideSwipePop();
+};
+
 export {
   routerWithTitle,
   replaceBundle,
@@ -125,4 +162,6 @@ export {
   pushEvent,
   pushAllEvent,
   getCurrentModuleInfo,
+  setShouldInterceptSideSwipe,
+  confirmShouldSideSwipePop,
 };

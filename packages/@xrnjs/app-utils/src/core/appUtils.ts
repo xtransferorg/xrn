@@ -40,18 +40,15 @@ export const XRNAppUtils: AppUtilsStatic = {
     XRNAppUtilsModule.moveTaskToBack();
   },
   launchAppDetail(appPkgName: string, marketPkgName: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-      XRNAppUtilsModule?.launchAppDetail(appPkgName, marketPkgName)
-        .then(() => {
-          resolve();
-        })
-        .catch((e) => {
-          reject(e);
-        });
-    });
+    return XRNAppUtilsModule.launchAppDetail(appPkgName, marketPkgName);
   },
   checkSysIntegrity(nonce: string): Promise<CheckSysIntegrityResult> {
     return new Promise((resolve, reject) => {
+      if (Platform.OS !== "harmony") {
+        resolve({ result: "" });
+        return;
+      }
+
       XRNAppUtilsModule?.checkSysIntegrity(nonce)
         ?.then((result) => {
           resolve(result);

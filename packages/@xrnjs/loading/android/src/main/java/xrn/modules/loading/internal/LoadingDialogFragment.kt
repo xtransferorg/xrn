@@ -9,8 +9,8 @@ import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
-import com.XRNLoadingModule.R
 import com.blankj.utilcode.util.BarUtils
+import xrn.modules.loading.R
 
 class LoadingDialogFragment : DialogFragment() {
     private lateinit var mProgressBar: ProgressBar

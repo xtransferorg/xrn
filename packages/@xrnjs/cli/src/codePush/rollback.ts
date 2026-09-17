@@ -1,8 +1,6 @@
-import { exec } from "child_process";
-
-import { BuildEnv, Platform } from "../build/typing";
 import { execShellCommand } from "../build/utils/shell";
-import logger from "../utlis/logger";
+import { BuildEnv, Platform } from "../build/typing";
+import { exec } from "child_process";
 
 interface RollbackConfig {
   env: string;
@@ -54,8 +52,8 @@ export async function rollback({
         reject(error.message);
         return;
       }
-      logger.debug(stdout);
-      logger.debug(stderr);
+      console.log(stdout);
+      console.log(stderr);
     });
     codepush.on("exit", (code) => {
       if (code === 0) {
@@ -68,7 +66,7 @@ export async function rollback({
 export function rollbackByUuid(
   targetUuid?: string,
   rollbackUuid?: string,
-  previous = false,
+  previous = false
 ) {
   if (!targetUuid || !rollbackUuid) {
     throw new Error("targetUuid or rollbackUuid is required");
@@ -82,12 +80,12 @@ export function rollbackByUuid(
 
 export function rollbackByChannelReleaseId(
   channelReleaseId: string,
-  previous = true,
+  previous = true
 ) {
   return execShellCommand(
     `code-push batch rollback --channelReleaseId ${channelReleaseId} --previous ${previous} -y`,
     {
       cwd: process.cwd(),
-    },
+    }
   );
 }

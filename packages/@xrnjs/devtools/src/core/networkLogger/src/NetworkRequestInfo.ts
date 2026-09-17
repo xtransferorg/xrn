@@ -26,6 +26,7 @@ export default class NetworkRequestInfo {
   dataSent = '';
   updatedAt: number = 0;
 
+  // 初始化NetworkRequestInfo实例，并给初始化参数赋值
   constructor(id: string, type: string, method: RequestMethod, url: string) {
     this.id = id;
     this.type = type;
@@ -77,7 +78,7 @@ export default class NetworkRequestInfo {
       }
       return JSON.parse(data);
     } catch (e) {
-      return { data };
+      return data;
     }
   }
 
@@ -126,7 +127,7 @@ export default class NetworkRequestInfo {
     const body = await (this.responseType !== 'blob'
       ? this.response
       : this.parseResponseBlob());
-
-    return this.stringifyFormat(body);
+    const bodyStr = this.stringifyFormat(body);
+    return bodyStr;
   }
 }

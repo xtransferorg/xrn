@@ -1,5 +1,5 @@
 import { uiObserver } from '@kit.ArkUI';
-import { RN_INSTANCE_MANAGER } from 'xrn-multi-bundle';
+import { RN_INSTANCE_MANAGER } from '@xrnjs/multi-bundle';
 import NavDestinationMgr from '../NavDestinationMgr';
 import { GlobalNavPathStack, NavPath, ModuleRouteParams } from '../NavHelper';
 

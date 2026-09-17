@@ -6,7 +6,7 @@ import { warn } from './utils/logger';
 import debounce from './utils/debounce';
 import { LOGGER_REFRESH_RATE, LOGGER_MAX_REQUESTS } from './constant';
 
-
+// request请求的编号
 let nextXHRId = 0;
 
 type XHR = {
@@ -16,7 +16,7 @@ type XHR = {
 
 export default class Logger {
 
-
+  // 拦截所有网络请求的数据源
   private requests: NetworkRequestInfo[] = [];
   private pausedRequests: NetworkRequestInfo[] = [];
   private xhrIdMap: Map<number, () => number> = new Map();
@@ -51,6 +51,7 @@ export default class Logger {
   private getRequest = (xhrIndex?: number) => {
     if (xhrIndex === undefined) return undefined;
     if (!this.xhrIdMap.has(xhrIndex)) return undefined;
+    // 找到数组的下标
     const index = this.xhrIdMap.get(xhrIndex)!();
     return (this.paused ? this.pausedRequests : this.requests)[index];
   };
@@ -64,6 +65,7 @@ export default class Logger {
     networkInfo.update(update);
   };
 
+  // open前，拦截请求的 方法 & URL
   private openCallback = (method: RequestMethod, url: string, xhr: XHR) => {
     if (this.ignoredHosts) {
       const host = extractHost(url);
@@ -98,6 +100,7 @@ export default class Logger {
       return targetIndex;
     });
 
+    // 初始化NetworkRequestInfo实例
     const newRequest = new NetworkRequestInfo(
       `${xhr._index}`,
       'XMLHttpRequest',
@@ -120,6 +123,7 @@ export default class Logger {
     }
   };
 
+  // 设置请求头
   private requestHeadersCallback = (
     header: string,
     value: string,
@@ -130,6 +134,7 @@ export default class Logger {
     networkInfo.requestHeaders[header] = value;
   };
 
+  // send前，即将发送请求
   private sendCallback = (data: string, xhr: XHR) => {
     this.updateRequest(xhr._index, {
       startTime: Date.now(),
@@ -138,6 +143,7 @@ export default class Logger {
     this.debouncedCallback();
   };
 
+  // 当 readyState === HEADERS_RECEIVED 时触发（收到服务器返回的响应头）
   private headerReceivedCallback = (
     responseContentType: string,
     responseSize: number,
@@ -151,6 +157,7 @@ export default class Logger {
     });
   };
 
+  // 当 readyState === DONE 时触发（请求完全完成）
   private responseCallback = (
     status: number,
     timeout: number,
@@ -233,6 +240,7 @@ export default class Logger {
       this.ignoredUrls = new Set(options.ignoredUrls);
     }
 
+    // 设置拦截器回调函数
     XHRInterceptor.setOpenCallback(this.openCallback);
     XHRInterceptor.setRequestHeaderCallback(this.requestHeadersCallback);
     XHRInterceptor.setSendCallback(this.sendCallback);

@@ -2,7 +2,7 @@
   app: {
     bundleName: 'com.xrn.template.hw',
     vendor: 'XRN',
-    versionCode: 202506260,
+    versionCode: 260917154,
     versionName: '0.0.1',
     icon: '$media:app_icon',
     label: '$string:app_name',

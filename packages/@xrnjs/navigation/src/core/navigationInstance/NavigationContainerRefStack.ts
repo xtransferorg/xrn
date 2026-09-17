@@ -1,12 +1,11 @@
-import { findLastIndex } from "lodash";
 import EventEmitter from "react-native/Libraries/vendor/emitter/EventEmitter";
 import { NavigationContainerRef } from "../react-navigation";
 
 import * as helpers from "../../compatV4/helpers";
 
 export type NavigationContainerRefStack<ParamList extends {}> = EventEmitter & {
-  push: (ref: NavigationContainerRef<ParamList>) => void;
-  pop: (ref: NavigationContainerRef<ParamList>) => boolean;
+  push: (key: string, ref: NavigationContainerRef<ParamList>) => void;
+  pop: (key: string) => boolean;
   peek: () => NavigationContainerRef<ParamList> | undefined;
   all: () => NavigationContainerRef<ParamList>[];
 };
@@ -15,10 +14,20 @@ export class NavigationContainerRefStackImpl<ParamList extends {}>
   extends EventEmitter
   implements NavigationContainerRefStack<ParamList>
 {
-  private refs: NavigationContainerRef<ParamList>[] = [];
+  private refs = new Map<string, NavigationContainerRef<ParamList>>();
 
-  push(ref: NavigationContainerRef<ParamList>) {
-    this.refs.push({
+  // 缓存栈顶 key，使 peek 保持 O(1)
+  private topKey: string | undefined;
+
+  push(key: string, ref: NavigationContainerRef<ParamList>) {
+    if (!key) return;
+
+    // 重复 push 相同 key 时，移动到栈顶
+    if (this.refs.has(key)) {
+      this.refs.delete(key);
+    }
+
+    this.refs.set(key, {
       ...ref,
       ...Object.entries(helpers).reduce<{
         [key: string]: (...args: any[]) => void;
@@ -31,19 +40,19 @@ export class NavigationContainerRefStackImpl<ParamList extends {}>
       }, {}),
     });
 
+    this.topKey = key;
+
     this.emit("change", this.peek());
   }
 
-  pop(ref: NavigationContainerRef<ParamList>) {
-    if (!ref) return false;
+  pop(key: string) {
+    if (!key) return false;
 
-    const index = findLastIndex(
-      this.refs,
-      (val) => val && val.getRootState().key === ref.getRootState().key,
-    );
-
-    if (index !== -1) {
-      this.refs.splice(index, 1);
+    if (this.refs.delete(key)) {
+      // 仅当移除的是栈顶时才需要回溯新的栈顶
+      if (key === this.topKey) {
+        this.topKey = this.lastKey();
+      }
       this.emit("change", this.peek());
       return true;
     }
@@ -52,14 +61,18 @@ export class NavigationContainerRefStackImpl<ParamList extends {}>
   }
 
   peek() {
-    if (this.refs.length === 0) {
-      return undefined;
-    }
+    return this.topKey === undefined ? undefined : this.refs.get(this.topKey);
+  }
 
-    return this.refs[this.refs.length - 1];
+  private lastKey() {
+    let last: string | undefined;
+    for (const key of this.refs.keys()) {
+      last = key;
+    }
+    return last;
   }
 
   all() {
-    return this.refs;
+    return Array.from(this.refs.values());
   }
 }

@@ -1,26 +1,80 @@
 #import <React/RCTBridgeModule.h>
 
-@interface RCT_EXTERN_MODULE(XRNNativeStorageModule, NSObject)
+#if __has_include(<react_native_xrn_native_storage/react_native_xrn_native_storage-Swift.h>)
+#import <react_native_xrn_native_storage/react_native_xrn_native_storage-Swift.h>
+#else
+#import "react_native_xrn_native_storage-Swift.h"
+#endif
 
-+ (BOOL)requiresMainQueueSetup
-{
-  return YES;
+// 新架构需要的头文件
+#ifdef RCT_NEW_ARCH_ENABLED
+#import <XrnNativeStorageSpec/XrnNativeStorageSpec.h>
+#endif
+
+@interface XRNNativeStorageModule : NSObject <RCTBridgeModule>
+
+@property (nonatomic, strong) XRNNativeStorageModuleImpl *impl;
+@end
+
+// 新架构：额外遵循 TurboModule 协议
+#ifdef RCT_NEW_ARCH_ENABLED
+@interface XRNNativeStorageModule () <NativeXRNNativeStorageModuleSpec>
+@end
+#endif
+
+@implementation XRNNativeStorageModule
+
+RCT_EXPORT_MODULE(XRNNativeStorageModule)
+
+- (instancetype)init {
+	self = [super init];
+	if (self) {
+		_impl = [[XRNNativeStorageModuleImpl alloc] init];
+	}
+	return self;
 }
 
-RCT_EXTERN_METHOD(getItem:(NSString *)key
-                 withResolver:(RCTPromiseResolveBlock)resolve
-                 withRejecter:(RCTPromiseRejectBlock)reject)
++ (BOOL)requiresMainQueueSetup {
+	return YES;
+}
 
-RCT_EXTERN_METHOD(setItem:(NSString *)key value:(NSString *)value withResolver:(RCTPromiseResolveBlock)resolve
-                  withRejecter:(RCTPromiseRejectBlock)reject)
+// 新架构：getTurboModule 方法
+#ifdef RCT_NEW_ARCH_ENABLED
+- (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:(const facebook::react::ObjCTurboModule::InitParams &)params {
+	return std::make_shared<facebook::react::NativeXRNNativeStorageModuleSpecJSI>(params);
+}
+#endif
 
-RCT_EXTERN_METHOD(removeItem:(NSString *)key withResolver:(RCTPromiseResolveBlock)resolve
-                  withRejecter:(RCTPromiseRejectBlock)reject)
+// 保留原有的方法声明
+RCT_EXPORT_METHOD(getItem:(NSString *)key
+									resolve:(RCTPromiseResolveBlock)resolve
+									reject:(RCTPromiseRejectBlock)reject) {
+	[self.impl getItem:key resolve:resolve reject:reject];
+}
 
-RCT_EXTERN__BLOCKING_SYNCHRONOUS_METHOD(getItemSync:(NSString *)key)
+RCT_EXPORT_METHOD(setItem:(NSString *)key
+									value:(NSString *)value
+									resolve:(RCTPromiseResolveBlock)resolve
+									reject:(RCTPromiseRejectBlock)reject) {
+	[self.impl setItem:key value:value resolve:resolve reject:reject];
+}
 
-RCT_EXTERN__BLOCKING_SYNCHRONOUS_METHOD(setItemSync:(NSString *)key value:(NSString *)value)
+RCT_EXPORT_METHOD(removeItem:(NSString *)key
+									resolve:(RCTPromiseResolveBlock)resolve
+									reject:(RCTPromiseRejectBlock)reject) {
+	[self.impl removeItem:key resolve:resolve reject:reject];
+}
 
-RCT_EXTERN__BLOCKING_SYNCHRONOUS_METHOD(removeItemSync:(NSString *)key)
+RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(getItemSync:(NSString *)key) {
+	return [self.impl getItemSync:key];
+}
+
+RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(setItemSync:(NSString *)key value:(NSString *)value) {
+	return [self.impl setItemSync:key value:value];
+}
+
+RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(removeItemSync:(NSString *)key) {
+	return [self.impl removeItemSync:key];
+}
 
 @end

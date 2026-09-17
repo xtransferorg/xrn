@@ -10,7 +10,7 @@ open class BaseRNContainerActivity : RNContainerActivity(), NavigationStateHolde
 
     override fun initData(intent: Intent?) {
         super.initData(intent)
-        mNavigationStateHolder = NavigationStateHolder(mBundleName, mModuleName)
+        mNavigationStateHolder = NavigationStateHolder(getBundleName(), getModuleName())
     }
 
     override fun getNavigationStateHolder(): NavigationStateHolder {

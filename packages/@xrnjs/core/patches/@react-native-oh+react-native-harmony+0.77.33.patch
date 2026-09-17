@@ -1,0 +1,42 @@
+diff --git a/node_modules/@react-native-oh/react-native-harmony/Libraries/ReactNative/AppRegistry.js b/node_modules/@react-native-oh/react-native-harmony/Libraries/ReactNative/AppRegistry.js
+index 6c18c8d..1744699 100644
+--- a/node_modules/@react-native-oh/react-native-harmony/Libraries/ReactNative/AppRegistry.js
++++ b/node_modules/@react-native-oh/react-native-harmony/Libraries/ReactNative/AppRegistry.js
+@@ -200,6 +200,12 @@ const AppRegistry = {
+         () => msg,
+       );
+     }
++    if (!runnables[appKey] || typeof runnables[appKey] !== 'function') {
++      if (appParameters) {
++        appParameters.appKey = appKey;
++      }
++      appKey = 'xt-app-404';
++    }
+     invariant(
+       runnables[appKey],
+       `"${appKey}" has not been registered. This can happen if:\n` +
+diff --git a/node_modules/@react-native-oh/react-native-harmony/Libraries/Renderer/shims/ReactNativeViewConfigRegistry.js b/node_modules/@react-native-oh/react-native-harmony/Libraries/Renderer/shims/ReactNativeViewConfigRegistry.js
+index d1da444..0dc8a86 100644
+--- a/node_modules/@react-native-oh/react-native-harmony/Libraries/Renderer/shims/ReactNativeViewConfigRegistry.js
++++ b/node_modules/@react-native-oh/react-native-harmony/Libraries/Renderer/shims/ReactNativeViewConfigRegistry.js
+@@ -73,11 +73,15 @@ function processEventTypes(viewConfig: ViewConfig): void {
+  * The callback is deferred until the view is actually rendered.
+  */
+ export function register(name: string, callback: () => ViewConfig): string {
+-  invariant(
+-    !viewConfigCallbacks.has(name),
+-    'Tried to register two views with the same name %s',
+-    name,
+-  );
++  const shouldSkipDuplicateInvariant =
++    typeof name === 'string' && /xrn/i.test(name);
++  if (!shouldSkipDuplicateInvariant) {
++    invariant(
++      !viewConfigCallbacks.has(name),
++      'Tried to register two views with the same name %s',
++      name,
++    );
++  }
+   invariant(
+     typeof callback === 'function',
+     'View config getter callback for component `%s` must be a function (received `%s`)',

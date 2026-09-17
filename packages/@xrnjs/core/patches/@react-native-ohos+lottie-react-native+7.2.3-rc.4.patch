@@ -1,0 +1,34 @@
+diff --git a/node_modules/@react-native-ohos/lottie-react-native/harmony/lottie/src/main/ets/LottieAnimationView.ets b/node_modules/@react-native-ohos/lottie-react-native/harmony/lottie/src/main/ets/LottieAnimationView.ets
+index fd660e1..c8d564d 100644
+--- a/node_modules/@react-native-ohos/lottie-react-native/harmony/lottie/src/main/ets/LottieAnimationView.ets
++++ b/node_modules/@react-native-ohos/lottie-react-native/harmony/lottie/src/main/ets/LottieAnimationView.ets
+@@ -268,16 +268,20 @@ export struct LottieAnimationView {
+     const layersData: Array<layersItem> = this.jsonData?.layers ?? [];
+     const colorFiltersData: Array<colorFiltersItem> =
+       (this.descriptorWrapper.props.colorFilters ?? []) as Array<colorFiltersItem>;
++    const layersDataLen = layersData.length;
+     for (const item of colorFiltersData) {
+-      const index: number = layersData.findIndex((layersItem: layersItem) => layersItem?.nm === item?.keypath);
+-      const color: Array<number> = this.getColorByColorFilters(item);
+-      const isIndex: boolean = index !== (-1);
+-      const isColor: boolean = color.length === 3;
+-      if (isIndex && isColor) {
+-        this.animateItem?.changeColor(color, index + 1);
+-        this.logger.debug('colorFilters success:', item?.keypath);
+-      } else {
+-        this.logger.error('colorFilters fail:not find keyPath', item?.keypath);
++      for(let index = 0; index < layersDataLen; index++) {
++        const lItem = layersData[index];
++        if(lItem?.nm !== item?.keypath) return;
++
++        const color: Array<number> = this.getColorByColorFilters(item);
++        const isColor: boolean = color.length === 3;
++        if (isColor) {
++          this.animateItem?.changeColor(color, index + 1);
++          this.logger.debug('colorFilters success:' + item?.keypath);
++        } else {
++          this.logger.error('colorFilters fail:not find keyPath', item?.keypath);
++        }
+       }
+     }
+   }

@@ -1,5 +1,5 @@
 import path from "path";
-import { COMMON_BASE_KEY, baseRepoManage } from "../../codePush/diff";
+import { COMMON_BASE_KEY } from "../../codePush/diff";
 import { BuildEnv, BuildType, Platform } from "../typing";
 import { buildBusinessBundle } from "./buildBusinessBundle";
 import { buildCommonBundle } from "./buildCommonBundle";
@@ -7,6 +7,9 @@ import { getBundleName, getMetaJson, isExistDir } from "./utils";
 import os from "os";
 import fs from "fs/promises";
 import { execShellCommand } from "../utils/shell";
+import { readPackageJsonSync, PackageJson } from "../utils/package";
+import logger from "../../utlis/logger";
+import { BaselineManagerFactory } from "../BaselineManagerFactory";
 
 export async function buildBundle(options) {
   const {
@@ -26,7 +29,7 @@ export async function buildBundle(options) {
       temp: tempBase,
       version: appVersion,
       platform: platform,
-      project: "XTransfer",
+      project: "xrn",
       buildType: dev ? BuildType.DEBUG : BuildType.RELEASE,
       buildEnv: BuildEnv.dev,
     });
@@ -45,13 +48,55 @@ export async function buildBundle(options) {
   } else {
     const packagePath = process.cwd();
     const commonBundlePath = `${packagePath}/xt-app-common`;
-    const meta = await buildCommonBundle({
+    const baselineManager = BaselineManagerFactory.createOrGet({
       platform: platform,
-      verbose: true,
       buildEnv: BuildEnv.dev,
       buildType: dev ? BuildType.DEBUG : BuildType.RELEASE,
       version: appVersion,
-      project: "XTransfer",
+    })
+    
+    // 完善 localProjects 逻辑
+    const localProjects: Record<string, PackageJson> = {};
+    
+    try {
+      // 读取 packagePath 下的所有文件夹
+      const entries = await fs.readdir(packagePath, { withFileTypes: true });
+      
+      for (const entry of entries) {
+        if (entry.isDirectory()) {
+          const folderName = entry.name;
+          
+          // 过滤出 xt-app- 开头的文件夹，但排除 xt-app-common
+          if (folderName.startsWith('xt-app-') && folderName !== 'xt-app-common') {
+            const folderPath = path.join(packagePath, folderName);
+            const packageJsonPath = path.join(folderPath, 'package.json');
+            
+            try {
+              // 检查是否存在 package.json 文件
+              await fs.access(packageJsonPath);
+              
+              // 读取并解析 package.json
+              const packageJson = readPackageJsonSync(folderPath);
+              localProjects[folderName] = packageJson;
+              
+              logger.info(`发现本地项目: ${folderName}, 版本: ${packageJson.version}`);
+            } catch (error) {
+              logger.warn(`跳过文件夹 ${folderName}: 无法读取 package.json`);
+            }
+          }
+        }
+      }
+      
+      logger.info(`共发现 ${Object.keys(localProjects).length} 个本地 xt-app- 项目`);
+    } catch (error) {
+      logger.error(`扫描本地项目时出错: ${error.message}`);
+    }
+    
+    const meta = await buildCommonBundle({
+      platform: platform,
+      verbose: true,
+      buildType: dev ? BuildType.DEBUG : BuildType.RELEASE,
+      buildEnv: BuildEnv.dev,
     });
     const metaJson = {
       dependencies: require(path.join(packagePath, "package.json"))
@@ -66,14 +111,7 @@ export async function buildBundle(options) {
         "utf-8"
       );
     } else {
-      const { pkg, base } = baseRepoManage({
-        cwd: tempBase,
-        platform: platform,
-        project: "XTransfer",
-        version: appVersion,
-        buildEnv: BuildEnv.dev,
-        buildType: dev ? BuildType.DEBUG : BuildType.RELEASE,
-      });
+      const { pkg, base } = baselineManager.baseRepoManage();
       if (!isExistDir(base)) {
         await fs.mkdir(base, { recursive: true });
       }

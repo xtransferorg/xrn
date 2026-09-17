@@ -1,7 +1,7 @@
-import webSocket from '@ohos.net.webSocket';
-import { DevMenu } from '@rnoh/react-native-openharmony/src/main/ets/RNOH/DevMenu';
-import { DevToolsController } from '@rnoh/react-native-openharmony/src/main/ets/RNOH/DevToolsController';
 import { RNOHLogger } from '@rnoh/react-native-openharmony/src/main/ets/RNOH/RNOHLogger';
+import type { DevToolsController } from "@rnoh/react-native-openharmony/src/main/ets/RNOH/DevToolsController"
+import type { DevMenu } from "@rnoh/react-native-openharmony/src/main/ets/RNOH/DevMenu"
+import { ReconnectingWebSocket } from '@rnoh/react-native-openharmony/src/main/ets/RNOH/ReconnectingWebSocket';
 
 export interface XRNJSPackagerClientConfig {
   host: string,
@@ -9,50 +9,42 @@ export interface XRNJSPackagerClientConfig {
 }
 
 export class XRNJSPackagerClient {
-  private webSocket: webSocket.WebSocket;
+  private webSocket: ReconnectingWebSocket;
   private logger: RNOHLogger;
-  private connected: boolean
+  // private connected: boolean;
 
   constructor(logger: RNOHLogger, private onMessage: (message: any, config: XRNJSPackagerClientConfig) => void) {
     this.logger = logger.clone("XRNJSPackagerClient");
   }
 
   public connectToMetroMessages(config: XRNJSPackagerClientConfig) {
-    if (this.connected) {
-      return;
-    }
-    this.webSocket = webSocket.createWebSocket();
+    // if (this.connected) {
+    //   return;
+    // }
     const url = this.buildUrl(config);
-    this.webSocket.on("message", (err, data) => {
-      if (err) {
-        this.logger.error("Websocket error " + err.message);
-        return;
-      }
+
+    const onMessage = (data) => {
+
       if (typeof data === "string") {
         const message = JSON.parse(data);
         this.onMessage(message, config)
-      }
-    })
-
-    this.webSocket.on("close", () => {
-      this.connected = false
-    })
-
-    this.webSocket.connect(url, (err, _data) => {
-      if (!err) {
-        this.connected = true
-        this.logger.info("Websocket connected successfully");
       } else {
+        this.logger.warn(`Unsupported data: ${data}`)
+      }
+
+    }
+
+    const onDisconnected = (err) => {
+      if (err) {
         this.logger.error("Websocket connection failed, err: " + JSON.stringify(err));
       }
-    });
+    }
+
+    this.webSocket = new ReconnectingWebSocket(url, { onMessage, onDisconnected })
   }
 
   public async onDestroy() {
-    /**
-     * Closing this websocket creates prevents subsequent loading a bundle from Metro server and connecting this client, when connected using "localhost" url.
-     */
-    await this.webSocket?.close();
+    this.webSocket.close()
   }
 
   private buildUrl(config: XRNJSPackagerClientConfig): string {

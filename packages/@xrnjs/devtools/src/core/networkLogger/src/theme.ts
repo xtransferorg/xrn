@@ -25,6 +25,7 @@ export type Theme = {
   };
 };
 
+// 暗色主题
 const darkTheme: Theme = {
   colors: {
     background: '#2d2a28',
@@ -41,6 +42,7 @@ const darkTheme: Theme = {
   },
 };
 
+// 亮色主题
 const lightTheme: Theme = {
   colors: {
     background: '#ededed',

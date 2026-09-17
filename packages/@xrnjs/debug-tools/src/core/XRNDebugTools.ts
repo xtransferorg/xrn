@@ -1,7 +1,8 @@
 import { requireNativeModule } from "@xrnjs/modules-core";
 import { XRNDebugToolsType } from "./types";
+import { Spec } from "../NativeXRNDebugToolsModule";
 
-const XRNDebugModule = requireNativeModule("XRNDebugToolsModule");
+const XRNDebugModule = requireNativeModule<Spec>("XRNDebugToolsModule");
 
 export const XRNDebugTools: XRNDebugToolsType = {
 
@@ -104,6 +105,30 @@ export const XRNDebugTools: XRNDebugToolsType = {
   getPerfMonitorIsShown: () => {
     return new Promise<boolean>((resolve, reject) => {
       XRNDebugModule?.getPerfMonitorIsShown()
+        .then((res: boolean) => {
+          resolve(res)
+        })
+        .catch((err: any) => {
+          reject(err)
+        });
+    });
+  },
+
+  toggleMemoryLeak: () => {
+    return new Promise<boolean>((resolve, reject) => {
+      XRNDebugModule?.toggleMemoryLeak()
+        .then((res: boolean) => {
+          resolve(res)
+        })
+        .catch((err: any) => {
+          reject(err)
+        });
+    });
+  },
+
+  getMemoryLeakIsShown: () => {
+    return new Promise<boolean>((resolve, reject) => {
+      XRNDebugModule?.getMemoryLeakIsShown()
         .then((res: boolean) => {
           resolve(res)
         })

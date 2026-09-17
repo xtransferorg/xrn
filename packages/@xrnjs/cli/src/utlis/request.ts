@@ -3,12 +3,6 @@ import axios from "axios";
 import logger from "./logger";
 import { execShellCommand } from "../build/utils/shell";
 
-/**
- * Get CodePush authentication token
- * Executes 'code-push token' command to retrieve the current authentication token
- * 
- * @returns Promise resolving to the authentication token string
- */
 async function getCodePushToken(): Promise<string> {
   const token = await execShellCommand("code-push token", {
     cwd: process.cwd(),
@@ -17,13 +11,7 @@ async function getCodePushToken(): Promise<string> {
   return token.trim();
 }
 
-/**
- * Get CodePush API URL from whoami command
- * Parses the output of 'code-push whoami' to extract the API base URL
- * 
- * @returns Promise resolving to the API base URL string
- * @throws Error if API URL cannot be parsed from whoami output
- */
+// 通过 code-push whoami 获取 API URL
 async function getCodePushApiUrl(): Promise<string> {
   const whoami = await execShellCommand("code-push whoami", {
     cwd: process.cwd(),
@@ -36,16 +24,10 @@ async function getCodePushApiUrl(): Promise<string> {
   throw new Error("无法从 code-push whoami 结果中解析出 API URL");
 }
 
-/**
- * Axios instance for making HTTP requests to CodePush API
- * Configured with interceptors for dynamic authentication and error handling
- */
+// 创建 axios 实例（不传 baseURL）
 const request = axios.create();
 
-/**
- * Response interceptor for error handling and logging
- * Logs detailed error information for debugging purposes
- */
+// 响应拦截器：保留日志逻辑
 request.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -82,14 +64,10 @@ request.interceptors.response.use(
   },
 );
 
-/**
- * Request interceptor for dynamic configuration
- * Sets base URL and authentication token for each request
- * Dynamically retrieves CodePush API URL and token before making requests
- */
+// 请求拦截器：动态设置 baseURL 和 token
 request.interceptors.request.use(
   async (config) => {
-    // Dynamically get baseURL
+    // 动态获取 baseURL
     try {
       const baseURL = await getCodePushApiUrl();
       config.baseURL = baseURL;
@@ -97,7 +75,7 @@ request.interceptors.request.use(
       logger.error("获取 code-push API URL 失败", e?.message);
       throw e;
     }
-    // Dynamically get token
+    // 动态获取 token
     try {
       const token = await getCodePushToken();
       if (token) {

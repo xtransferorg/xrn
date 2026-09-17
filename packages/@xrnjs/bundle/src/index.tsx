@@ -1,13 +1,11 @@
-import { requireNativeModule } from "@xrnjs/modules-core";
-
-import { Spec as NativeXRNBundleModuleSpec } from "./NativeXRNBundleModule";
+import { Spec as NativeXRNBundleModuleSpec } from './spec/NativeXRNBundleModule';
 
 export {
   BundleInfoList,
   BundleInfo,
-  CodePushInfo,
-} from "./NativeXRNBundleModule";
+  CodePushInfo
+} from './spec/NativeXRNBundleModule';
+
 export { NativeXRNBundleModuleSpec };
 
-export const XRNBundle =
-  requireNativeModule<NativeXRNBundleModuleSpec>("XRNBundleModule");
+export { XRNBundle } from './XRNBundle';

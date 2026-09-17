@@ -8,8 +8,6 @@ import { XRNInstancesCoordinator } from "./XRNInstancesCoordinator"
 import AbilityConstant from '@ohos.app.ability.AbilityConstant';
 import AbilityConfiguration from '@ohos.app.ability.Configuration';
 import { HttpClient, DefaultHttpClient } from "@rnoh/react-native-openharmony/src/main/ets/HttpClient"
-import { EnvironmentCallback } from '@kit.AbilityKit';
-import { BusinessError } from '@kit.BasicServicesKit';
 
 /**
  Application developers are expected to extend this class. RNAbility aims to move much of the code to the RNOH side in order to improve stability.
@@ -80,30 +78,12 @@ export abstract class XRNAbility extends UIAbility {
 
   private unregisterWindowListenerCallback = () => {
   }
-
   protected  rnInstancesCoordinator!: XRNInstancesCoordinator
   protected  logger!: RNOHLogger
 
   onCreate(want: Want) {
-    let envCallback: EnvironmentCallback = {
-      onConfigurationUpdated(config) {
-        let fontSizeScale = config.fontSizeScale
-        AppStorage.setOrCreate('fontSizeScale', fontSizeScale)
-      },
-      onMemoryLevel(level) {
-        console.log('onMemoryLevel level: ${level}');
-      }
-    };
-    try {
-      let applicationContext = this.context.getApplicationContext();
-      let callbackId = applicationContext.on('environment', envCallback);
-      console.log(`callbackId: ${callbackId}`);
-    } catch (paramError) {
-      console.error(`error: ${(paramError as BusinessError).code}, ${(paramError as BusinessError).message}`);
-    }
-    this.logger = this.createLogger().clone("RNAbility")
+    this.logger = this.createLogger().clone("XRNAbility")
     this.rnInstancesCoordinator = XRNInstancesCoordinator.create({
-      fontSizeScale: this.context.config.fontSizeScale,
       logger: this.createLogger(),
       uiAbilityContext: this.context,
       defaultBackPressHandler: () => {
@@ -149,10 +129,14 @@ export abstract class XRNAbility extends UIAbility {
       const onWindowSizeChange = (windowSize: window.Size) => {
         this.rnInstancesCoordinator?.onWindowSizeChange(windowSize)
       }
+      const onWindowReactChange = (data: window.RectChangeOptions) => {
+        this.rnInstancesCoordinator?.onWindowRectChange(data)
+      }
       const onWindowStageChange = (windowStageEvent: window.WindowStageEventType) => {
         this.rnInstancesCoordinator?.onWindowStageChange(windowStageEvent)
       }
       mainWindow.on('windowSizeChange', onWindowSizeChange)
+      mainWindow.on('windowRectChange', onWindowReactChange)
       windowStage.on('windowStageEvent', onWindowStageChange)
       this.unregisterWindowListenerCallback()
       this.unregisterWindowListenerCallback = () => {

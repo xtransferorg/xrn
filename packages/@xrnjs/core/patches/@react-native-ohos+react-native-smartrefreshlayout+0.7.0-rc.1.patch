@@ -1,0 +1,113 @@
+diff --git a/node_modules/@react-native-ohos/react-native-smartrefreshlayout/harmony/smart_refresh_layout/src/main/cpp/SmartRefreshLayoutComponentInstance.h b/node_modules/@react-native-ohos/react-native-smartrefreshlayout/harmony/smart_refresh_layout/src/main/cpp/SmartRefreshLayoutComponentInstance.h
+index 17eef1b..dd1cc88 100644
+--- a/node_modules/@react-native-ohos/react-native-smartrefreshlayout/harmony/smart_refresh_layout/src/main/cpp/SmartRefreshLayoutComponentInstance.h
++++ b/node_modules/@react-native-ohos/react-native-smartrefreshlayout/harmony/smart_refresh_layout/src/main/cpp/SmartRefreshLayoutComponentInstance.h
+@@ -8,6 +8,7 @@
+ #include "ShadowNodes.h"
+ #include "SmartRefreshState.h"
+ #include "SmartStackNode.h"
++#include <atomic>
+ #include <arkui/native_gesture.h>
+ 
+ std::string globalHeaderType = "RNCDefaultHeader";
+@@ -43,6 +44,7 @@ private:
+     int32_t downY{0};   // first down touch on Y
+     int32_t offsetY{0}; // pan offset on Y
+     std::shared_ptr<Animation> animation{nullptr};
++    std::atomic<bool> m_isDestroyed{false};
+     void setOtherHeaderDelegate();
+ 
+ public:
+diff --git a/node_modules/@react-native-ohos/react-native-smartrefreshlayout/harmony/smart_refresh_layout/src/main/cpp/SmartRefreshLayoutComponentInstance.cpp b/node_modules/@react-native-ohos/react-native-smartrefreshlayout/harmony/smart_refresh_layout/src/main/cpp/SmartRefreshLayoutComponentInstance.cpp
+index c2cfcdc..c41d664 100644
+--- a/node_modules/@react-native-ohos/react-native-smartrefreshlayout/harmony/smart_refresh_layout/src/main/cpp/SmartRefreshLayoutComponentInstance.cpp
++++ b/node_modules/@react-native-ohos/react-native-smartrefreshlayout/harmony/smart_refresh_layout/src/main/cpp/SmartRefreshLayoutComponentInstance.cpp
+@@ -34,6 +34,7 @@ SmartRefreshLayoutComponentInstance::SmartRefreshLayoutComponentInstance(Context
+     
+ }
+ SmartRefreshLayoutComponentInstance::~SmartRefreshLayoutComponentInstance() {
++    m_isDestroyed.store(true);
+     removeGesture();
+     NativeNodeApi::getInstance()->unregisterNodeEvent(m_pullToRefreshNode.getArkUINodeHandle(), NODE_EVENT_ON_APPEAR);
+     NativeNodeApi::getInstance()->unregisterNodeEvent(m_pullToRefreshNode.getArkUINodeHandle(), NODE_EVENT_ON_DISAPPEAR);
+@@ -58,19 +59,26 @@ void SmartRefreshLayoutComponentInstance::onAppArea() {
+     if (this->autoRefresh.refresh) {
+         int32_t delayTime = (int32_t)autoRefresh.time;
+         if (delayTime > 0) {
++            auto weakSelf = this->weak_from_this();
+             TaskProcessor *taskProcessor = new TaskProcessor();
+-            taskProcessor->startDelayTask(static_cast<std::chrono::milliseconds>(delayTime), [this]() {
+-                auto instance = std::static_pointer_cast<RNInstanceInternal>(m_deps->rnInstance.lock());
++            taskProcessor->startDelayTask(static_cast<std::chrono::milliseconds>(delayTime), [weakSelf]() {
++                auto self = std::static_pointer_cast<SmartRefreshLayoutComponentInstance>(weakSelf.lock());
++                if (!self || self->m_isDestroyed.load()) {
++                    return;
++                }
++                auto instance = std::static_pointer_cast<RNInstanceInternal>(self->m_deps->rnInstance.lock());
+                 if (!instance) {
+                     return;
+                 }
+                 instance->getTaskExecutor()->runTask(
+-                    TaskThread::MAIN, [wptr = this->shared_from_this(), wInstance = instance->weak_from_this()] {
+-                        auto ptr = std::static_pointer_cast<SmartRefreshLayoutComponentInstance>(wptr);
+-                        if (ptr) {
+-                            ptr->trYTop = ptr->headerHeight * 2;
+-                            ptr->onActionEnd();
++                    TaskThread::MAIN, [weakSelf, wInstance = instance->weak_from_this()] {
++                        auto ptr = std::static_pointer_cast<SmartRefreshLayoutComponentInstance>(weakSelf.lock());
++                        auto safeInstance = wInstance.lock();
++                        if (!ptr || !safeInstance || ptr->m_isDestroyed.load()) {
++                            return;
+                         }
++                        ptr->trYTop = ptr->headerHeight * 2;
++                        ptr->onActionEnd();
+                     });
+             });
+         } else {
+@@ -263,25 +271,32 @@ void SmartRefreshLayoutComponentInstance::closeRefresh(float start, float target
+     if (animation == nullptr) {
+         animation = std::make_shared<Animation>();
+     }
++    auto weakSelf = this->weak_from_this();
+     animation->SetAnimationParams(
+-        static_cast<std::chrono::milliseconds>(duration), start, target, [this, &target](double value) {
+-            trYTop = value < 0 ? 0 : value;
+-            auto instance = std::static_pointer_cast<RNInstanceInternal>(m_deps->rnInstance.lock());
++        static_cast<std::chrono::milliseconds>(duration), start, target, [weakSelf](double value) {
++            auto self = std::static_pointer_cast<SmartRefreshLayoutComponentInstance>(weakSelf.lock());
++            if (!self || self->m_isDestroyed.load()) {
++                return;
++            }
++            self->trYTop = value < 0 ? 0 : value;
++            auto instance = std::static_pointer_cast<RNInstanceInternal>(self->m_deps->rnInstance.lock());
+             if (!instance) {
+                 return;
+             }
+             instance->getTaskExecutor()->runTask(
+-                TaskThread::MAIN, [wptr = this->shared_from_this(), wInstance = instance->weak_from_this()] {
+-                    auto ptr = std::static_pointer_cast<SmartRefreshLayoutComponentInstance>(wptr);
+-                    if (ptr) {
+-                        ptr->setPullHeaderHeight(ptr->trYTop);
+-                        if (ptr->trYTop == 0) {
+-                            ptr->state = IS_FREE;
+-                            ptr->m_pullToRefreshNode.markDirty();
+-                            ptr->changeStatus();
+-                            if (ptr->animation && ptr->animation->GetAnimationStatus() != ANIMATION_FREE) {
+-                                ptr->animation = nullptr;
+-                            }
++                TaskThread::MAIN, [weakSelf, wInstance = instance->weak_from_this()] {
++                    auto ptr = std::static_pointer_cast<SmartRefreshLayoutComponentInstance>(weakSelf.lock());
++                    auto safeInstance = wInstance.lock();
++                    if (!ptr || !safeInstance || ptr->m_isDestroyed.load()) {
++                        return;
++                    }
++                    ptr->setPullHeaderHeight(ptr->trYTop);
++                    if (ptr->trYTop == 0) {
++                        ptr->state = IS_FREE;
++                        ptr->m_pullToRefreshNode.markDirty();
++                        ptr->changeStatus();
++                        if (ptr->animation && ptr->animation->GetAnimationStatus() != ANIMATION_FREE) {
++                            ptr->animation = nullptr;
+                         }
+                     }
+                 });

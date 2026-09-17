@@ -1,0 +1,1 @@
+import '@xrnjs/core/common-bundle'

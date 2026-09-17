@@ -12,17 +12,23 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
-		696F98FA2E0C193E002C49B0 /* XTPluginManage.m in Sources */ = {isa = PBXBuildFile; fileRef = 696F98F22E0C193E002C49B0 /* XTPluginManage.m */; };
-		696F98FB2E0C193E002C49B0 /* XTSuspendBall.m in Sources */ = {isa = PBXBuildFile; fileRef = 696F98F72E0C193E002C49B0 /* XTSuspendBall.m */; };
-		696F98FC2E0C193E002C49B0 /* XTScanQRPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 696F98F52E0C193E002C49B0 /* XTScanQRPlugin.swift */; };
-		696F990D2E0CDBBA002C49B0 /* xtBundles.plist in Resources */ = {isa = PBXBuildFile; fileRef = 696F98FE2E0CDBB9002C49B0 /* xtBundles.plist */; };
-		696F99122E0CDBBA002C49B0 /* XTBundleProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 696F99072E0CDBB9002C49B0 /* XTBundleProvider.m */; };
-		696F99132E0CDBBA002C49B0 /* XTBundleViewControllerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 696F99092E0CDBB9002C49B0 /* XTBundleViewControllerFactory.m */; };
-		69C704232E0E7DE100ADBBDB /* XTLoadJSErrorTipPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69C704222E0E7DE100ADBBDB /* XTLoadJSErrorTipPanel.swift */; };
-		69C704262E0E847400ADBBDB /* XTBundleViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 69C704252E0E847400ADBBDB /* XTBundleViewController.m */; };
-		69C704292E0E84CC00ADBBDB /* XTMainBundleViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 69C704282E0E84CC00ADBBDB /* XTMainBundleViewController.m */; };
+		3C1075882F7E69B600904006 /* XRNCustomKeyborad+XTHooks.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3C1075872F7E69B600904006 /* XRNCustomKeyborad+XTHooks.mm */; };
+		44F374C0A0F321C9414079D4 /* XTXRNGoDemoModule.mm in Sources */ = {isa = PBXBuildFile; fileRef = DE09C10DAD09C8AF17EE9D17 /* XTXRNGoDemoModule.mm */; };
+		568D6B8C5D767DA2AC262A3E /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 798C5E1671420E0BA9B52190 /* PrivacyInfo.xcprivacy */; };
+		69B6EA192E827D8A00F16D60 /* xtBundles.plist in Resources */ = {isa = PBXBuildFile; fileRef = 69B6EA0E2E827D8A00F16D60 /* xtBundles.plist */; };
+		69B6EA1A2E827D8A00F16D60 /* XTBundleProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 69B6EA152E827D8A00F16D60 /* XTBundleProvider.m */; };
+		69B6EA1B2E827D8A00F16D60 /* XTMainBundleViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 69B6EA122E827D8A00F16D60 /* XTMainBundleViewController.mm */; settings = {COMPILER_FLAGS = "-x objective-c++"; }; };
+		69B6EA1C2E827D8A00F16D60 /* XTBundleViewControllerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 69B6EA172E827D8A00F16D60 /* XTBundleViewControllerFactory.m */; };
+		69B6EA1D2E827D8A00F16D60 /* XTBundleViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 69B6EA102E827D8A00F16D60 /* XTBundleViewController.mm */; settings = {COMPILER_FLAGS = "-x objective-c++"; }; };
+		69B6EA272E827D9A00F16D60 /* XTPluginManage.m in Sources */ = {isa = PBXBuildFile; fileRef = 69B6EA1F2E827D9A00F16D60 /* XTPluginManage.m */; };
+		69B6EA282E827D9A00F16D60 /* XTSuspendBall.m in Sources */ = {isa = PBXBuildFile; fileRef = 69B6EA242E827D9A00F16D60 /* XTSuspendBall.m */; };
+		69B6EA292E827D9A00F16D60 /* XTScanQRPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69B6EA222E827D9A00F16D60 /* XTScanQRPlugin.swift */; };
+		69B6EA2A2E827D9A00F16D60 /* XTLoadJSErrorTipPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69B6EA212E827D9A00F16D60 /* XTLoadJSErrorTipPanel.swift */; };
 		7699B88040F8A987B510C191 /* libPods-xrngo-xrngoTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19F6CBCC0A4E27FBF8BF4A61 /* libPods-xrngo-xrngoTests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		A1F2E3D42E84000300F16D60 /* XTIQKeyboardManagerBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = A1F2E3D42E84000200F16D60 /* XTIQKeyboardManagerBridge.m */; };
+		A1F2E3D72E8A110100F16D60 /* XTReloadCommandHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = A1F2E3D62E8A110100F16D60 /* XTReloadCommandHelper.mm */; };
+		A1F2E3DB2E8A220100F16D60 /* XTMetroAutoConnector.m in Sources */ = {isa = PBXBuildFile; fileRef = A1F2E3DA2E8A220100F16D60 /* XTMetroAutoConnector.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,29 +53,38 @@
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = xrngo/main.m; sourceTree = "<group>"; };
 		19F6CBCC0A4E27FBF8BF4A61 /* libPods-xrngo-xrngoTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-xrngo-xrngoTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B4392A12AC88292D35C810B /* Pods-xrngo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-xrngo.debug.xcconfig"; path = "Target Support Files/Pods-xrngo/Pods-xrngo.debug.xcconfig"; sourceTree = "<group>"; };
-		3C560FE83E3C131B3F9FFA7A /* Pods-xrngo-xrngoTests.staging.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-xrngo-xrngoTests.staging.xcconfig"; path = "Target Support Files/Pods-xrngo-xrngoTests/Pods-xrngo-xrngoTests.staging.xcconfig"; sourceTree = "<group>"; };
+		3C1075862F7E69B600904006 /* XRNCustomKeyborad+XTHooks.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "XRNCustomKeyborad+XTHooks.h"; sourceTree = "<group>"; };
+		3C1075872F7E69B600904006 /* XRNCustomKeyborad+XTHooks.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "XRNCustomKeyborad+XTHooks.mm"; sourceTree = "<group>"; };
 		5709B34CF0A7D63546082F79 /* Pods-xrngo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-xrngo.release.xcconfig"; path = "Target Support Files/Pods-xrngo/Pods-xrngo.release.xcconfig"; sourceTree = "<group>"; };
 		5B7EB9410499542E8C5724F5 /* Pods-xrngo-xrngoTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-xrngo-xrngoTests.debug.xcconfig"; path = "Target Support Files/Pods-xrngo-xrngoTests/Pods-xrngo-xrngoTests.debug.xcconfig"; sourceTree = "<group>"; };
 		5DCACB8F33CDC322A6C60F78 /* libPods-xrngo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-xrngo.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		69689FE72E0D33C1003A55EE /* xrngo-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "xrngo-Bridging-Header.h"; sourceTree = "<group>"; };
-		696F98F12E0C193E002C49B0 /* XTPluginManage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XTPluginManage.h; sourceTree = "<group>"; };
-		696F98F22E0C193E002C49B0 /* XTPluginManage.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XTPluginManage.m; sourceTree = "<group>"; };
-		696F98F52E0C193E002C49B0 /* XTScanQRPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XTScanQRPlugin.swift; sourceTree = "<group>"; };
-		696F98F62E0C193E002C49B0 /* XTSuspendBall.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XTSuspendBall.h; sourceTree = "<group>"; };
-		696F98F72E0C193E002C49B0 /* XTSuspendBall.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XTSuspendBall.m; sourceTree = "<group>"; };
-		696F98FE2E0CDBB9002C49B0 /* xtBundles.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = xtBundles.plist; sourceTree = "<group>"; };
-		696F99062E0CDBB9002C49B0 /* XTBundleProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XTBundleProvider.h; sourceTree = "<group>"; };
-		696F99072E0CDBB9002C49B0 /* XTBundleProvider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XTBundleProvider.m; sourceTree = "<group>"; };
-		696F99082E0CDBB9002C49B0 /* XTBundleViewControllerFactory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XTBundleViewControllerFactory.h; sourceTree = "<group>"; };
-		696F99092E0CDBB9002C49B0 /* XTBundleViewControllerFactory.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XTBundleViewControllerFactory.m; sourceTree = "<group>"; };
-		69C704222E0E7DE100ADBBDB /* XTLoadJSErrorTipPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XTLoadJSErrorTipPanel.swift; sourceTree = "<group>"; };
-		69C704242E0E847400ADBBDB /* XTBundleViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XTBundleViewController.h; sourceTree = "<group>"; };
-		69C704252E0E847400ADBBDB /* XTBundleViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XTBundleViewController.m; sourceTree = "<group>"; };
-		69C704272E0E84CC00ADBBDB /* XTMainBundleViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XTMainBundleViewController.h; sourceTree = "<group>"; };
-		69C704282E0E84CC00ADBBDB /* XTMainBundleViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XTMainBundleViewController.m; sourceTree = "<group>"; };
+		69B6EA0E2E827D8A00F16D60 /* xtBundles.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = xtBundles.plist; sourceTree = "<group>"; };
+		69B6EA0F2E827D8A00F16D60 /* XTBundleViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XTBundleViewController.h; sourceTree = "<group>"; };
+		69B6EA102E827D8A00F16D60 /* XTBundleViewController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = XTBundleViewController.mm; sourceTree = "<group>"; };
+		69B6EA112E827D8A00F16D60 /* XTMainBundleViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XTMainBundleViewController.h; sourceTree = "<group>"; };
+		69B6EA122E827D8A00F16D60 /* XTMainBundleViewController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = XTMainBundleViewController.mm; sourceTree = "<group>"; };
+		69B6EA142E827D8A00F16D60 /* XTBundleProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XTBundleProvider.h; sourceTree = "<group>"; };
+		69B6EA152E827D8A00F16D60 /* XTBundleProvider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XTBundleProvider.m; sourceTree = "<group>"; };
+		69B6EA162E827D8A00F16D60 /* XTBundleViewControllerFactory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XTBundleViewControllerFactory.h; sourceTree = "<group>"; };
+		69B6EA172E827D8A00F16D60 /* XTBundleViewControllerFactory.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XTBundleViewControllerFactory.m; sourceTree = "<group>"; };
+		69B6EA1E2E827D9A00F16D60 /* XTPluginManage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XTPluginManage.h; sourceTree = "<group>"; };
+		69B6EA1F2E827D9A00F16D60 /* XTPluginManage.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XTPluginManage.m; sourceTree = "<group>"; };
+		69B6EA212E827D9A00F16D60 /* XTLoadJSErrorTipPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XTLoadJSErrorTipPanel.swift; sourceTree = "<group>"; };
+		69B6EA222E827D9A00F16D60 /* XTScanQRPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XTScanQRPlugin.swift; sourceTree = "<group>"; };
+		69B6EA232E827D9A00F16D60 /* XTSuspendBall.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XTSuspendBall.h; sourceTree = "<group>"; };
+		69B6EA242E827D9A00F16D60 /* XTSuspendBall.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XTSuspendBall.m; sourceTree = "<group>"; };
+		69B6EA2E2E8280B300F16D60 /* xrngo-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "xrngo-Bridging-Header.h"; sourceTree = "<group>"; };
+		798C5E1671420E0BA9B52190 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = xrngo/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = xrngo/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		89C6BE57DB24E9ADA2F236DE /* Pods-xrngo-xrngoTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-xrngo-xrngoTests.release.xcconfig"; path = "Target Support Files/Pods-xrngo-xrngoTests/Pods-xrngo-xrngoTests.release.xcconfig"; sourceTree = "<group>"; };
-		AB1B3BFAC89A9035FC329511 /* Pods-xrngo.staging.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-xrngo.staging.xcconfig"; path = "Target Support Files/Pods-xrngo/Pods-xrngo.staging.xcconfig"; sourceTree = "<group>"; };
+		A1F2E3D42E84000100F16D60 /* XTIQKeyboardManagerBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XTIQKeyboardManagerBridge.h; sourceTree = "<group>"; };
+		A1F2E3D42E84000200F16D60 /* XTIQKeyboardManagerBridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XTIQKeyboardManagerBridge.m; sourceTree = "<group>"; };
+		A1F2E3D52E8A110100F16D60 /* XTReloadCommandHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XTReloadCommandHelper.h; sourceTree = "<group>"; };
+		A1F2E3D62E8A110100F16D60 /* XTReloadCommandHelper.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = XTReloadCommandHelper.mm; sourceTree = "<group>"; };
+		A1F2E3D92E8A220100F16D60 /* XTMetroAutoConnector.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XTMetroAutoConnector.h; sourceTree = "<group>"; };
+		A1F2E3DA2E8A220100F16D60 /* XTMetroAutoConnector.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XTMetroAutoConnector.m; sourceTree = "<group>"; };
+		AE10726886ABA1A8D2C90FD8 /* XTXRNGoDemoModule.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XTXRNGoDemoModule.h; sourceTree = "<group>"; };
+		DE09C10DAD09C8AF17EE9D17 /* XTXRNGoDemoModule.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = XTXRNGoDemoModule.mm; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -113,15 +128,16 @@
 		13B07FAE1A68108700A75B9A /* xrngo */ = {
 			isa = PBXGroup;
 			children = (
-				696F990C2E0CDBB9002C49B0 /* BundleEventCenter */,
-				696F98F92E0C193E002C49B0 /* RNDebug */,
+				69B6EA262E827D9A00F16D60 /* RNDebug */,
+				69B6EA182E827D8A00F16D60 /* BundleEventCenter */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
-				69689FE72E0D33C1003A55EE /* xrngo-Bridging-Header.h */,
+				69B6EA2E2E8280B300F16D60 /* xrngo-Bridging-Header.h */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
+				798C5E1671420E0BA9B52190 /* PrivacyInfo.xcprivacy */,
 			);
 			name = xrngo;
 			sourceTree = "<group>";
@@ -136,57 +152,72 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		696F98F32E0C193E002C49B0 /* DebugPlugin */ = {
+		3CC321BC2E83F34000E87258 /* Hooks */ = {
 			isa = PBXGroup;
 			children = (
-				696F98F12E0C193E002C49B0 /* XTPluginManage.h */,
-				696F98F22E0C193E002C49B0 /* XTPluginManage.m */,
+				A1F2E3D42E84000100F16D60 /* XTIQKeyboardManagerBridge.h */,
+				A1F2E3D42E84000200F16D60 /* XTIQKeyboardManagerBridge.m */,
+				3C1075862F7E69B600904006 /* XRNCustomKeyborad+XTHooks.h */,
+				3C1075872F7E69B600904006 /* XRNCustomKeyborad+XTHooks.mm */,
 			);
-			path = DebugPlugin;
+			path = Hooks;
 			sourceTree = "<group>";
 		};
-		696F98F82E0C193E002C49B0 /* Views */ = {
+		69B6EA132E827D8A00F16D60 /* bundleController */ = {
 			isa = PBXGroup;
 			children = (
-				696F98F52E0C193E002C49B0 /* XTScanQRPlugin.swift */,
-				69C704222E0E7DE100ADBBDB /* XTLoadJSErrorTipPanel.swift */,
-				696F98F62E0C193E002C49B0 /* XTSuspendBall.h */,
-				696F98F72E0C193E002C49B0 /* XTSuspendBall.m */,
-			);
-			path = Views;
-			sourceTree = "<group>";
-		};
-		696F98F92E0C193E002C49B0 /* RNDebug */ = {
-			isa = PBXGroup;
-			children = (
-				696F98F32E0C193E002C49B0 /* DebugPlugin */,
-				696F98F82E0C193E002C49B0 /* Views */,
-			);
-			path = RNDebug;
-			sourceTree = "<group>";
-		};
-		696F99032E0CDBB9002C49B0 /* bundleController */ = {
-			isa = PBXGroup;
-			children = (
-				696F98FE2E0CDBB9002C49B0 /* xtBundles.plist */,
-				69C704242E0E847400ADBBDB /* XTBundleViewController.h */,
-				69C704252E0E847400ADBBDB /* XTBundleViewController.m */,
-				69C704272E0E84CC00ADBBDB /* XTMainBundleViewController.h */,
-				69C704282E0E84CC00ADBBDB /* XTMainBundleViewController.m */,
+				69B6EA0E2E827D8A00F16D60 /* xtBundles.plist */,
+				69B6EA0F2E827D8A00F16D60 /* XTBundleViewController.h */,
+				69B6EA102E827D8A00F16D60 /* XTBundleViewController.mm */,
+				69B6EA112E827D8A00F16D60 /* XTMainBundleViewController.h */,
+				69B6EA122E827D8A00F16D60 /* XTMainBundleViewController.mm */,
 			);
 			path = bundleController;
 			sourceTree = "<group>";
 		};
-		696F990C2E0CDBB9002C49B0 /* BundleEventCenter */ = {
+		69B6EA182E827D8A00F16D60 /* BundleEventCenter */ = {
 			isa = PBXGroup;
 			children = (
-				696F99032E0CDBB9002C49B0 /* bundleController */,
-				696F99062E0CDBB9002C49B0 /* XTBundleProvider.h */,
-				696F99072E0CDBB9002C49B0 /* XTBundleProvider.m */,
-				696F99082E0CDBB9002C49B0 /* XTBundleViewControllerFactory.h */,
-				696F99092E0CDBB9002C49B0 /* XTBundleViewControllerFactory.m */,
+				3CC321BC2E83F34000E87258 /* Hooks */,
+				69B6EA132E827D8A00F16D60 /* bundleController */,
+				69B6EA142E827D8A00F16D60 /* XTBundleProvider.h */,
+				69B6EA152E827D8A00F16D60 /* XTBundleProvider.m */,
+				69B6EA162E827D8A00F16D60 /* XTBundleViewControllerFactory.h */,
+				69B6EA172E827D8A00F16D60 /* XTBundleViewControllerFactory.m */,
+				AE10726886ABA1A8D2C90FD8 /* XTXRNGoDemoModule.h */,
+				DE09C10DAD09C8AF17EE9D17 /* XTXRNGoDemoModule.mm */,
 			);
 			path = BundleEventCenter;
+			sourceTree = "<group>";
+		};
+		69B6EA202E827D9A00F16D60 /* DebugPlugin */ = {
+			isa = PBXGroup;
+			children = (
+				69B6EA1E2E827D9A00F16D60 /* XTPluginManage.h */,
+				69B6EA1F2E827D9A00F16D60 /* XTPluginManage.m */,
+			);
+			path = DebugPlugin;
+			sourceTree = "<group>";
+		};
+		69B6EA252E827D9A00F16D60 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				69B6EA212E827D9A00F16D60 /* XTLoadJSErrorTipPanel.swift */,
+				69B6EA222E827D9A00F16D60 /* XTScanQRPlugin.swift */,
+				69B6EA232E827D9A00F16D60 /* XTSuspendBall.h */,
+				69B6EA242E827D9A00F16D60 /* XTSuspendBall.m */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		69B6EA262E827D9A00F16D60 /* RNDebug */ = {
+			isa = PBXGroup;
+			children = (
+				A1F2E3D82E8A110100F16D60 /* MotroTools */,
+				69B6EA202E827D9A00F16D60 /* DebugPlugin */,
+				69B6EA252E827D9A00F16D60 /* Views */,
+			);
+			path = RNDebug;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -220,6 +251,17 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		A1F2E3D82E8A110100F16D60 /* MotroTools */ = {
+			isa = PBXGroup;
+			children = (
+				A1F2E3D92E8A220100F16D60 /* XTMetroAutoConnector.h */,
+				A1F2E3DA2E8A220100F16D60 /* XTMetroAutoConnector.m */,
+				A1F2E3D52E8A110100F16D60 /* XTReloadCommandHelper.h */,
+				A1F2E3D62E8A110100F16D60 /* XTReloadCommandHelper.mm */,
+			);
+			path = MotroTools;
+			sourceTree = "<group>";
+		};
 		BBD78D7AC51CEA395F1C20DB /* Pods */ = {
 			isa = PBXGroup;
 			children = (
@@ -227,8 +269,6 @@
 				5709B34CF0A7D63546082F79 /* Pods-xrngo.release.xcconfig */,
 				5B7EB9410499542E8C5724F5 /* Pods-xrngo-xrngoTests.debug.xcconfig */,
 				89C6BE57DB24E9ADA2F236DE /* Pods-xrngo-xrngoTests.release.xcconfig */,
-				AB1B3BFAC89A9035FC329511 /* Pods-xrngo.staging.xcconfig */,
-				3C560FE83E3C131B3F9FFA7A /* Pods-xrngo-xrngoTests.staging.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -244,8 +284,8 @@
 				00E356EA1AD99517003FC87E /* Sources */,
 				00E356EB1AD99517003FC87E /* Frameworks */,
 				00E356EC1AD99517003FC87E /* Resources */,
+				C59DA0FBD6956966B86A3779 /* [CP] Embed Pods Frameworks */,
 				F6A41C54EA430FDDC6A6ED99 /* [CP] Copy Pods Resources */,
-				540B8AD9278BF5E1BC229A87 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -266,11 +306,10 @@
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
-				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
+				00EEFC60759A1932668264C0 /* [CP] Embed Pods Frameworks */,
 				E235C05ADACE081382539298 /* [CP] Copy Pods Resources */,
-				69689FE82E0D342A003A55EE /* ShellScript */,
-				69689FE92E0D3471003A55EE /* XT Multi Bundle Copy */,
-				E2E8CB63F9C8F989270792B1 /* [CP] Embed Pods Frameworks */,
+				69B6EA2F2E82821F00F16D60 /* XT Multi Bundle Copy */,
+				69B6EA302E82824100F16D60 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -329,66 +368,34 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				696F990D2E0CDBBA002C49B0 /* xtBundles.plist in Resources */,
+				69B6EA192E827D8A00F16D60 /* xtBundles.plist in Resources */,
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
+				568D6B8C5D767DA2AC262A3E /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"$(SRCROOT)/.xcode.env.local",
-				"$(SRCROOT)/.xcode.env",
-			);
-			name = "Bundle React Native code and images";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "set -e\n\nWITH_ENVIRONMENT=\"../../../node_modules/react-native/scripts/xcode/with-environment.sh\"\nREACT_NATIVE_XCODE=\"../../../node_modules/react-native/scripts/react-native-xcode.sh\"\n\n/bin/sh -c \"$WITH_ENVIRONMENT $REACT_NATIVE_XCODE\"\n";
-		};
-		540B8AD9278BF5E1BC229A87 /* [CP] Embed Pods Frameworks */ = {
+		00EEFC60759A1932668264C0 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-xrngo-xrngoTests/Pods-xrngo-xrngoTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-xrngo/Pods-xrngo-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-xrngo-xrngoTests/Pods-xrngo-xrngoTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-xrngo/Pods-xrngo-frameworks-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-xrngo-xrngoTests/Pods-xrngo-xrngoTests-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-xrngo/Pods-xrngo-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		69689FE82E0D342A003A55EE /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nbuildNumber=$(date +%Y%m%d%H%M%S)\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildNumber\" \"$INFOPLIST_FILE\"\n";
-		};
-		69689FE92E0D3471003A55EE /* XT Multi Bundle Copy */ = {
+		69B6EA2F2E82821F00F16D60 /* XT Multi Bundle Copy */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -405,6 +412,23 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n../xrn-react-native-xcode.sh\n";
+		};
+		69B6EA302E82824100F16D60 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nbuildNumber=$(date +%Y%m%d%H%M%S)\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildNumber\" \"$INFOPLIST_FILE\"\n";
 		};
 		A55EABD7B0C7F3A422A6CC61 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -450,6 +474,23 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		C59DA0FBD6956966B86A3779 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-xrngo-xrngoTests/Pods-xrngo-xrngoTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-xrngo-xrngoTests/Pods-xrngo-xrngoTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-xrngo-xrngoTests/Pods-xrngo-xrngoTests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		E235C05ADACE081382539298 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -465,23 +506,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-xrngo/Pods-xrngo-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		E2E8CB63F9C8F989270792B1 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-xrngo/Pods-xrngo-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-xrngo/Pods-xrngo-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-xrngo/Pods-xrngo-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		F6A41C54EA430FDDC6A6ED99 /* [CP] Copy Pods Resources */ = {
@@ -535,16 +559,21 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				696F99122E0CDBBA002C49B0 /* XTBundleProvider.m in Sources */,
-				69C704262E0E847400ADBBDB /* XTBundleViewController.m in Sources */,
-				696F99132E0CDBBA002C49B0 /* XTBundleViewControllerFactory.m in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
-				696F98FA2E0C193E002C49B0 /* XTPluginManage.m in Sources */,
-				696F98FB2E0C193E002C49B0 /* XTSuspendBall.m in Sources */,
-				696F98FC2E0C193E002C49B0 /* XTScanQRPlugin.swift in Sources */,
-				69C704292E0E84CC00ADBBDB /* XTMainBundleViewController.m in Sources */,
-				69C704232E0E7DE100ADBBDB /* XTLoadJSErrorTipPanel.swift in Sources */,
+				44F374C0A0F321C9414079D4 /* XTXRNGoDemoModule.mm in Sources */,
+				69B6EA1A2E827D8A00F16D60 /* XTBundleProvider.m in Sources */,
+				69B6EA1B2E827D8A00F16D60 /* XTMainBundleViewController.mm in Sources */,
+				69B6EA1C2E827D8A00F16D60 /* XTBundleViewControllerFactory.m in Sources */,
+				3C1075882F7E69B600904006 /* XRNCustomKeyborad+XTHooks.mm in Sources */,
+				A1F2E3D42E84000300F16D60 /* XTIQKeyboardManagerBridge.m in Sources */,
+				69B6EA1D2E827D8A00F16D60 /* XTBundleViewController.mm in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
+				A1F2E3D72E8A110100F16D60 /* XTReloadCommandHelper.mm in Sources */,
+				A1F2E3DB2E8A220100F16D60 /* XTMetroAutoConnector.m in Sources */,
+				69B6EA272E827D9A00F16D60 /* XTPluginManage.m in Sources */,
+				69B6EA282E827D9A00F16D60 /* XTSuspendBall.m in Sources */,
+				69B6EA292E827D9A00F16D60 /* XTScanQRPlugin.swift in Sources */,
+				69B6EA2A2E827D9A00F16D60 /* XTLoadJSErrorTipPanel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -616,24 +645,21 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CURRENT_PROJECT_VERSION = 202508121122;
+				CURRENT_PROJECT_VERSION = 202609161847;
 				DEVELOPMENT_TEAM = 227UGFU7Z8;
-				DISPLAY_NAME = xrngo;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = xrngo/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MAIN_CODEPUSH_KEY = Wa768zPtAS76urjwlXixtMks3OmX4ksvOXqog;
-				MARKETING_VERSION = 0.0.1;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.xrngo;
+				PRODUCT_BUNDLE_IDENTIFIER = com.xdeal.ai.dev;
 				PRODUCT_NAME = xrngo;
 				REACT_NATIVE_PATH = "${PODS_ROOT}/node_modules/react-native";
 				SWIFT_OBJC_BRIDGING_HEADER = "xrngo-Bridging-Header.h";
@@ -649,23 +675,20 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CURRENT_PROJECT_VERSION = 202508121122;
+				CURRENT_PROJECT_VERSION = 202609161847;
 				DEVELOPMENT_TEAM = 227UGFU7Z8;
-				DISPLAY_NAME = xrngo;
 				INFOPLIST_FILE = xrngo/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MAIN_CODEPUSH_KEY = Wa768zPtAS76urjwlXixtMks3OmX4ksvOXqog;
-				MARKETING_VERSION = 0.0.1;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = cn.xtransfer.www.xtappapp;
+				PRODUCT_BUNDLE_IDENTIFIER = org.xrn.xrngo;
 				PRODUCT_NAME = xrngo;
 				REACT_NATIVE_PATH = "${PODS_ROOT}/node_modules/react-native";
 				SWIFT_OBJC_BRIDGING_HEADER = "xrngo-Bridging-Header.h";
@@ -674,161 +697,12 @@
 			};
 			name = Release;
 		};
-		69689FEA2E0D3957003A55EE /* Staging */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
-				CLANG_CXX_LIBRARY = "libc++";
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = YES;
-				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_COMMA = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INFINITE_RECURSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
-				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
-				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
-				CLANG_WARN_STRICT_PROTOTYPES = YES;
-				CLANG_WARN_SUSPICIOUS_MOVE = YES;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				COPY_PHASE_STRIP = YES;
-				ENABLE_NS_ASSERTIONS = NO;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = "";
-				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"$(inherited)",
-					_LIBCPP_ENABLE_CXX17_REMOVED_UNARY_BINARY_FUNCTION,
-				);
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
-				LD_RUNPATH_SEARCH_PATHS = (
-					/usr/lib/swift,
-					"$(inherited)",
-				);
-				LIBRARY_SEARCH_PATHS = (
-					"\"$(SDKROOT)/usr/lib/swift\"",
-					"\"$(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME)\"",
-					"\"$(inherited)\"",
-				);
-				MTL_ENABLE_DEBUG_INFO = NO;
-				OTHER_CFLAGS = "$(inherited)";
-				OTHER_CPLUSPLUSFLAGS = (
-					"$(OTHER_CFLAGS)",
-					"-DFOLLY_NO_CONFIG",
-					"-DFOLLY_MOBILE=1",
-					"-DFOLLY_USE_LIBCPP=1",
-				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl -ld_classic ",
-				);
-				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
-				SDKROOT = iphoneos;
-				VALIDATE_PRODUCT = YES;
-			};
-			name = Staging;
-		};
-		69689FEB2E0D3957003A55EE /* Staging */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = AB1B3BFAC89A9035FC329511 /* Pods-xrngo.staging.xcconfig */;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CLANG_ENABLE_MODULES = YES;
-				CURRENT_PROJECT_VERSION = 202508121122;
-				DEVELOPMENT_TEAM = 227UGFU7Z8;
-				DISPLAY_NAME = xrngo;
-				INFOPLIST_FILE = xrngo/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				MAIN_CODEPUSH_KEY = Wa768zPtAS76urjwlXixtMks3OmX4ksvOXqog;
-				MARKETING_VERSION = 0.0.1;
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					"-ObjC",
-					"-lc++",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = cn.xtransfer.www.xtappapp;
-				PRODUCT_NAME = xrngo;
-				REACT_NATIVE_PATH = "${PODS_ROOT}/node_modules/react-native";
-				SWIFT_OBJC_BRIDGING_HEADER = "xrngo-Bridging-Header.h";
-				SWIFT_VERSION = 5.0;
-				VERSIONING_SYSTEM = "apple-generic";
-			};
-			name = Staging;
-		};
-		69689FEC2E0D3957003A55EE /* Staging */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 3C560FE83E3C131B3F9FFA7A /* Pods-xrngo-xrngoTests.staging.xcconfig */;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				COPY_PHASE_STRIP = NO;
-				INFOPLIST_FILE = xrngoTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.4;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				OTHER_LDFLAGS = (
-					"-ObjC",
-					"-lc++",
-					"$(inherited)",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/xrngo.app/xrngo";
-			};
-			name = Staging;
-		};
 		83CBBA201A601CBA00E9B192 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -892,32 +766,11 @@
 					"-DFOLLY_MOBILE=1",
 					"-DFOLLY_USE_LIBCPP=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl -ld_classic ",
-				);
+				OTHER_LDFLAGS = "$(inherited)";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
+				USE_HERMES = true;
 			};
 			name = Debug;
 		};
@@ -926,7 +779,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -985,32 +838,10 @@
 					"-DFOLLY_MOBILE=1",
 					"-DFOLLY_USE_LIBCPP=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl -ld_classic ",
-				);
+				OTHER_LDFLAGS = "$(inherited)";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
+				USE_HERMES = true;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -1023,7 +854,6 @@
 			buildConfigurations = (
 				00E356F61AD99517003FC87E /* Debug */,
 				00E356F71AD99517003FC87E /* Release */,
-				69689FEC2E0D3957003A55EE /* Staging */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -1033,7 +863,6 @@
 			buildConfigurations = (
 				13B07F941A680F5B00A75B9A /* Debug */,
 				13B07F951A680F5B00A75B9A /* Release */,
-				69689FEB2E0D3957003A55EE /* Staging */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -1043,7 +872,6 @@
 			buildConfigurations = (
 				83CBBA201A601CBA00E9B192 /* Debug */,
 				83CBBA211A601CBA00E9B192 /* Release */,
-				69689FEA2E0D3957003A55EE /* Staging */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

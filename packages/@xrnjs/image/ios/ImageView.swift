@@ -1,6 +1,11 @@
 // Copyright 2022-present 650 Industries. All rights reserved.
 
 import SDWebImage
+import Foundation
+import UIKit
+import React
+import SDWebImageSVGCoder
+
 #if !os(tvOS)
 import VisionKit
 #endif
@@ -58,40 +63,41 @@ public final class ImageView: RCTView {
   var autoplay: Bool = true
 
   // MARK: - Objective-C View setter
-  @objc func setSources(_ newSources: [ImageSource]?) {
+	
+  @objc public func setSources(_ newSources: [ImageSource]?) {
     sources = newSources
     reload()
   }
   
-  @objc func setPlaceholderSources(_ newPlaceholderSources: [ImageSource]?) {
+  @objc public func setPlaceholderSources(_ newPlaceholderSources: [ImageSource]?) {
     placeholderSources = newPlaceholderSources ?? []
     reload()
   }
   
   // 这里 ExpoImageContentFit 无法设置为Optional，因为有`@objc`标记
   // ExpoImageContentFit枚举转换的 默认值就是 cover
-  @objc func setContentFit(_ newContentFit: ExpoImageContentFit) {
+  @objc public func setContentFit(_ newContentFit: ExpoImageContentFit) {
     contentFit = newContentFit
     reload()
   }
   
   #warning("这里 placeholderContentFit 要求默认值为 scaleDown， 但是这里ExpoImageContentFit统一的默认值为 cover，还需要处理")
-  @objc func setPlaceholderContentFit(_ newPlaceholderContentFit: ExpoImageContentFit) {
+  @objc public func setPlaceholderContentFit(_ newPlaceholderContentFit: ExpoImageContentFit) {
     placeholderContentFit = newPlaceholderContentFit
     reload()
   }
   
-  @objc func setContentPosition(_ newContentPosition: ContentPosition?) {
+  @objc public func setContentPosition(_ newContentPosition: ContentPosition?) {
     contentPosition = newContentPosition ?? .center()
     reload()
   }
   
-  @objc func setTransition(_ newTransition: ImageTransition?) {
+  @objc public func setTransition(_ newTransition: ImageTransition?) {
     transition = newTransition
     reload()
   }
   
-  @objc func setBlurRadius(_ newBlurRadius: CGFloat) {
+  @objc public func setBlurRadius(_ newBlurRadius: CGFloat) {
     let radius = newBlurRadius
     // the implementation uses Apple's CIGaussianBlur internally
     // we divide the radius to achieve more consistent cross-platform appearance
@@ -100,12 +106,12 @@ public final class ImageView: RCTView {
     reload()
   }
   
-  @objc func setImageTintColor(_ newImageTintColor: UIColor?) {
+  @objc public func setImageTintColor(_ newImageTintColor: UIColor?) {
     imageTintColor = newImageTintColor
     reload()
   }
   
-  @objc func setPriority(_ newPriority: ExpoImagePriority) {
+  @objc public func setPriority(_ newPriority: ExpoImagePriority) {
     loadingOptions.remove([.lowPriority, .highPriority])
 
     if let priority = newPriority.toSDWebImageOptions() {
@@ -114,52 +120,52 @@ public final class ImageView: RCTView {
     reload()
   }
   
-  @objc func setCachePolicy(_ newCachePolicy: ExpoImageCachePolicy) {
+  @objc public func setCachePolicy(_ newCachePolicy: ExpoImageCachePolicy) {
     cachePolicy = newCachePolicy
     reload()
   }
   
-  @objc func setEnableLiveTextInteraction(_ newEnableLiveTextInteraction: Bool) {
+  @objc public func setEnableLiveTextInteraction(_ newEnableLiveTextInteraction: Bool) {
     #if !os(tvOS)
     enableLiveTextInteraction = newEnableLiveTextInteraction
     #endif
     reload()
   }
   
-  @objc func setAccessible(_ newAccessible: Bool) {
+  @objc public func setAccessible(_ newAccessible: Bool) {
     sdImageView.isAccessibilityElement = newAccessible
     reload()
   }
   
-  @objc func setXtAccessibilityLabel(_ newXtAccessibilityLabel: String?) {
+  @objc public func setXtAccessibilityLabel(_ newXtAccessibilityLabel: String?) {
     sdImageView.accessibilityLabel = newXtAccessibilityLabel
     reload()
   }
   
-  @objc func setRecyclingKey(_ newRecyclingKey: String?) {
+  @objc public func setRecyclingKey(_ newRecyclingKey: String?) {
     recyclingKey = newRecyclingKey
     reload()
   }
   
   #warning("这里默认值是true，但是如果这里转换之后，默认值会变成false，这里还需要处理")
-  @objc func setAllowDownscaling(_ newAllowDownscaling: Bool) {
+  @objc public func setAllowDownscaling(_ newAllowDownscaling: Bool) {
     allowDownscaling = newAllowDownscaling
     reload()
   }
   
   #warning("这里默认值是true，但是如果这里转换之后，默认值会变成false，这里还需要处理")
-  @objc func setAutoplay(_ newAutoplay: Bool) {
+  @objc public func setAutoplay(_ newAutoplay: Bool) {
     autoplay = newAutoplay
     reload()
   }
   
   // MARK: - Events
 
-  @objc var onLoadStart: RCTDirectEventBlock?
-  @objc var onProgress: RCTDirectEventBlock?
-  @objc var onError: RCTDirectEventBlock?
-  @objc var onLoad: RCTDirectEventBlock?
-  @objc var onDisplay: RCTDirectEventBlock?
+  @objc public var onLoadStart: RCTDirectEventBlock?
+  @objc public var onProgress: RCTDirectEventBlock?
+  @objc public var onError: RCTDirectEventBlock?
+  @objc public var onLoad: RCTDirectEventBlock?
+  @objc public var onDisplay: RCTDirectEventBlock?
 
   // MARK: - View
 
@@ -196,6 +202,7 @@ public final class ImageView: RCTView {
     if window == nil {
       // Cancel pending requests when the view is unmounted.
       cancelPendingOperation()
+      sdImageView.image = nil
     } else if !bounds.isEmpty {
       // Reload the image after mounting the view with non-empty bounds.
       reload()

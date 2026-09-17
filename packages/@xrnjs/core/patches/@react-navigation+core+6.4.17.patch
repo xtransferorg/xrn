@@ -1,0 +1,84 @@
+diff --git a/node_modules/@react-navigation/core/src/useFocusEvents.tsx b/node_modules/@react-navigation/core/src/useFocusEvents.tsx
+index 39ea15e..19b7735 100644
+--- a/node_modules/@react-navigation/core/src/useFocusEvents.tsx
++++ b/node_modules/@react-navigation/core/src/useFocusEvents.tsx
+@@ -2,8 +2,14 @@ import type { NavigationState } from '@react-navigation/routers';
+ import * as React from 'react';
+ 
+ import NavigationContext from './NavigationContext';
++import NavigationContainerRefContext from './NavigationContainerRefContext';
+ import type { EventMapCore } from './types';
+ import type { NavigationEventEmitter } from './useEventEmitter';
++import {
++  NativeEventEmitter,
++  NativeModules,
++  TurboModuleRegistry,
++} from 'react-native';
+ 
+ type Options<State extends NavigationState> = {
+   state: State;
+@@ -18,6 +24,7 @@ export default function useFocusEvents<State extends NavigationState>({
+   emitter,
+ }: Options<State>) {
+   const navigation = React.useContext(NavigationContext);
++  const root = React.useContext(NavigationContainerRefContext);
+   const lastFocusedKeyRef = React.useRef<string | undefined>();
+ 
+   const currentFocusedKey = state.routes[state.index].key;
+@@ -70,4 +77,55 @@ export default function useFocusEvents<State extends NavigationState>({
+     emitter.emit({ type: 'blur', target: lastFocusedKey });
+     emitter.emit({ type: 'focus', target: currentFocusedKey });
+   }, [currentFocusedKey, emitter, navigation]);
++
++  /**
++   * Imports the native module registered with the given name. The same as `requireNativeModule`,
++   * but returns `null` when the module cannot be found instead of throwing an error.
++   *
++   * @param moduleName Name of the requested native module.
++   * @returns Object representing the native module or `null` when it cannot be found.
++   */
++  function requireOptionalNativeModule<ModuleType = any>(
++    moduleName: string
++  ): ModuleType | null {
++    const resolvedTurboModule = TurboModuleRegistry?.get(
++      moduleName
++    ) as ModuleType | null;
++    if (resolvedTurboModule) {
++      return resolvedTurboModule;
++    }
++    return NativeModules[moduleName] as ModuleType | null;
++  }
++
++  React.useEffect(() => {
++    const nativeModule = requireOptionalNativeModule('XRNNavigation');
++    const eventEmitter = new NativeEventEmitter(nativeModule)
++
++    const subscriptionAppear = eventEmitter?.addListener(
++      'XT_SCREEN_APPEAR',
++      (res) => {
++        const { rootKey } = res;
++        const rootState = root?.getRootState();
++        if (rootKey && rootKey === rootState?.key) {
++          emitter.emit({ type: 'focus', target: currentFocusedKey });
++        }
++      }
++    );
++
++    const subscriptionDisAppear = eventEmitter?.addListener(
++      'XT_SCREEN_DISAPPEAR',
++      (res) => {
++        const { rootKey } = res;
++        const rootState = root?.getRootState();
++        if (rootKey && rootKey === rootState?.key) {
++          emitter.emit({ type: 'blur', target: lastFocusedKeyRef.current });
++        }
++      }
++    );
++
++    return () => {
++      subscriptionAppear?.remove();
++      subscriptionDisAppear?.remove();
++    };
++  }, [currentFocusedKey, emitter, navigation]);
+ }
+\ No newline at end of file

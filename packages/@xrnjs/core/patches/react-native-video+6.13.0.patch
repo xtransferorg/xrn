@@ -1,0 +1,36 @@
+diff --git a/node_modules/react-native-video/ios/Video/RCTVideo.swift b/node_modules/react-native-video/ios/Video/RCTVideo.swift
+index 94f1e8f..88b16b1 100644
+--- a/node_modules/react-native-video/ios/Video/RCTVideo.swift
++++ b/node_modules/react-native-video/ios/Video/RCTVideo.swift
+@@ -19,7 +19,7 @@ class RCTVideo: UIView, RCTVideoPlayerViewControllerDelegate, RCTPlayerObserverH
+     private var _videoURL: NSURL?
+ 
+     /* Required to publish events */
+-    private var _eventDispatcher: RCTEventDispatcher?
++    private var _eventDispatcher: RCTEventDispatcherProtocol?
+     private var _videoLoadStarted = false
+ 
+     private var _pendingSeek = false
+@@ -196,7 +196,7 @@ class RCTVideo: UIView, RCTVideoPlayerViewControllerDelegate, RCTPlayerObserverH
+         #endif
+     }
+ 
+-    init(eventDispatcher: RCTEventDispatcher!) {
++    init(eventDispatcher: RCTEventDispatcherProtocol?) {
+         super.init(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+         ReactNativeVideoManager.shared.registerView(newInstance: self)
+         #if USE_GOOGLE_IMA
+diff --git a/node_modules/react-native-video/ios/Video/RCTVideoManager.swift b/node_modules/react-native-video/ios/Video/RCTVideoManager.swift
+index b408e96..468b9b7 100644
+--- a/node_modules/react-native-video/ios/Video/RCTVideoManager.swift
++++ b/node_modules/react-native-video/ios/Video/RCTVideoManager.swift
+@@ -4,7 +4,8 @@ import React
+ @objc(RCTVideoManager)
+ class RCTVideoManager: RCTViewManager {
+     override func view() -> UIView {
+-        return RCTVideo(eventDispatcher: (RCTBridge.current().eventDispatcher() as! RCTEventDispatcher))
++		let eventDispatcher = bridge?.eventDispatcher()
++        return RCTVideo(eventDispatcher: eventDispatcher)
+     }
+ 
+     func methodQueue() -> DispatchQueue {
