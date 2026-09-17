@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import XRNDebugTools
 
 #if DEBUG
 import swiftScan
@@ -56,7 +57,7 @@ extension XTScanQRPlugin: LBXScanViewControllerDelegate {
                 UserDefaults.standard.setValue(ipAddress, forKey: "RCT_jsLocation")
                 UserDefaults.standard.synchronize()
                 
-                let bundles = XTJSBundleTool.shared().getAllBundleInfo()
+                let bundles = XTJSBundleTool.shared().getBundleList()
                 var bundleName = ""
                 for bundle in bundles {
                     if let bundleDict = bundle as? [String: Any] {
@@ -69,11 +70,15 @@ extension XTScanQRPlugin: LBXScanViewControllerDelegate {
                     }
                 }
                 if !bundleName.isEmpty {
-                    UserDefaults.standard.set("1", forKey: "\(bundleName)-debug")
-                    UserDefaults.standard.synchronize()
+                    var debugInfo = XTDebugStatus.shared.getDebugInfo(bundleName)
+                    debugInfo["enableDebug"] = "1"
+                    XTDebugStatus.shared.saveDebugInfo(bundleName, debugInfo: debugInfo)
                 }
-                
+
                 XRNToastView.shared().showToast("ip地址绑定成功，重启APP生效！", duration: 3)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.8) {
+                    NotificationCenter.default.post(name: UIApplication.willTerminateNotification, object: nil)
+                }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
                     exit(0)
                 }

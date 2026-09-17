@@ -1,7 +1,7 @@
 import { AbilityStage } from "@kit.AbilityKit";
 import {
   APP_RNOH_RNOHCoreContext,
-  BundleInfo, BundleInfoManager, initRNContainerOptions, RNInstanceManager } from "xrn-multi-bundle";
+  BundleInfo, BundleInfoManager, initRNContainerOptions, RNInstanceManager } from "@xrnjs/multi-bundle";
 import { getRNContainerOptions, getRNInstanceOptions } from "./BundleHelper";
 import {
   AnyJSBundleProvider,
@@ -9,7 +9,7 @@ import {
   ResourceJSBundleProvider,
   RNOHCoreContext,
   TraceJSBundleProviderDecorator} from "@rnoh/react-native-openharmony";
-import { CodePushJSBundleProvider } from "xrn-code-push";
+import { CodePushJSBundleProvider } from "@xrnjs/react-native-code-push";
 
 export default class MainAbilityStage extends AbilityStage {
 
@@ -19,10 +19,15 @@ export default class MainAbilityStage extends AbilityStage {
 
   onCreate(): void {
     initRNContainerOptions(getRNContainerOptions())
-    BundleInfoManager.initWithRawFile(this.context, "bundle_config.json5", undefined)
+    BundleInfoManager.initWithRawFile(this.context, "bundle_config.json5", undefined, undefined)
     RNInstanceManager.init({
       getRNInstanceOptions: getRNInstanceOptions,
       createJSBundleProvider: createJSBundleProvider,
+      getSplitBundleOptions: () => ({
+        getCommonBundleName: () => "oh.xt-app-common.bundle",
+        isSplitMode: (_bundleInfo: BundleInfo) => false,
+      }),
+      isMemoryPressured: () => false,
     })
 
   }
@@ -43,7 +48,7 @@ function createJSBundleProvider(bundleInfo: BundleInfo): JSBundleProvider | unde
   //本地服务，TODO：Dev 环境
   jsBundleProviderArray.push(new MetroJSBundleProvider(bundleInfo.getLocalServerUrl(), bundleInfo.getModuleNames()))
   // //热更新
-  jsBundleProviderArray.push(CodePushJSBundleProvider.loadCodePushBundle(rnohCoreContext?.uiAbilityContext, bundleInfo.getJSBundleName(), bundleInfo.getCodePushKey()))
+  jsBundleProviderArray.push(CodePushJSBundleProvider.loadCodePushBundle(rnohCoreContext?.uiAbilityContext, bundleInfo, bundleInfo.getCodePushKey(), "", "", false))
   // NOTE: to load the bundle from file, place it in
   // `/data/app/el2/100/base/com.rnoh.tester/files/bundle.harmony.js`
   // on your device. The path mismatch is due to app sandboxing on HarmonyOS

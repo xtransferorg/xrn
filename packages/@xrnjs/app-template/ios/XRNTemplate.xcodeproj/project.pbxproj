@@ -12,17 +12,22 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
-		69C704442E13D35200ADBBDB /* XTBundleViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 69C7042F2E13D35200ADBBDB /* XTBundleViewController.m */; };
+		3C1075882F7E69B600904006 /* XRNCustomKeyborad+XTHooks.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3C1075872F7E69B600904006 /* XRNCustomKeyborad+XTHooks.mm */; };
+		69C704442E13D35200ADBBDB /* XTBundleViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 69C7042F2E13D35200ADBBDB /* XTBundleViewController.mm */; settings = {COMPILER_FLAGS = "-x objective-c++"; }; };
 		69C704452E13D35200ADBBDB /* XTScanQRPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69C7043E2E13D35200ADBBDB /* XTScanQRPlugin.swift */; };
 		69C704462E13D35200ADBBDB /* XTSuspendBall.m in Sources */ = {isa = PBXBuildFile; fileRef = 69C704402E13D35200ADBBDB /* XTSuspendBall.m */; };
-		69C704482E13D35200ADBBDB /* XTMainBundleViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 69C704312E13D35200ADBBDB /* XTMainBundleViewController.m */; };
+		69C704482E13D35200ADBBDB /* XTMainBundleViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 69C704312E13D35200ADBBDB /* XTMainBundleViewController.mm */; settings = {COMPILER_FLAGS = "-x objective-c++"; }; };
 		69C704492E13D35200ADBBDB /* XTPluginManage.m in Sources */ = {isa = PBXBuildFile; fileRef = 69C7043B2E13D35200ADBBDB /* XTPluginManage.m */; };
 		69C7044A2E13D35200ADBBDB /* XTLoadJSErrorTipPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69C7043D2E13D35200ADBBDB /* XTLoadJSErrorTipPanel.swift */; };
 		69C7044B2E13D35200ADBBDB /* XTBundleViewControllerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 69C704382E13D35200ADBBDB /* XTBundleViewControllerFactory.m */; };
 		69C7044C2E13D35200ADBBDB /* xtBundles.plist in Resources */ = {isa = PBXBuildFile; fileRef = 69C7042D2E13D35200ADBBDB /* xtBundles.plist */; };
 		69E6DB042E4B1E35007F02A4 /* XTBundleProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 69E6DB032E4B1E35007F02A4 /* XTBundleProvider.m */; };
+		701440A31193EFD481073816 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 20D5894F90E0467C41AFD3DC /* PrivacyInfo.xcprivacy */; };
 		7699B88040F8A987B510C191 /* libPods-XRNTemplate-XRNTemplateTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19F6CBCC0A4E27FBF8BF4A61 /* libPods-XRNTemplate-XRNTemplateTests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		A1F2E3D42E84000300F16D60 /* XTIQKeyboardManagerBridge.m in Sources */ = {isa = PBXBuildFile; fileRef = A1F2E3D42E84000200F16D60 /* XTIQKeyboardManagerBridge.m */; };
+		A1F2E3D72E8A110100F16D60 /* XTReloadCommandHelper.mm in Sources */ = {isa = PBXBuildFile; fileRef = A1F2E3D62E8A110100F16D60 /* XTReloadCommandHelper.mm */; settings = {COMPILER_FLAGS = "-x objective-c++"; }; };
+		A1F2E3DB2E8A220100F16D60 /* XTMetroAutoConnector.m in Sources */ = {isa = PBXBuildFile; fileRef = A1F2E3DA2E8A220100F16D60 /* XTMetroAutoConnector.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -46,16 +51,19 @@
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = XRNTemplate/Info.plist; sourceTree = "<group>"; };
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = XRNTemplate/main.m; sourceTree = "<group>"; };
 		19F6CBCC0A4E27FBF8BF4A61 /* libPods-XRNTemplate-XRNTemplateTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-XRNTemplate-XRNTemplateTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		20D5894F90E0467C41AFD3DC /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = XRNTemplate/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		29593CFF2BA7796694DDE3DC /* Pods-XRNTemplate-XRNTemplateTests.staging.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-XRNTemplate-XRNTemplateTests.staging.xcconfig"; path = "Target Support Files/Pods-XRNTemplate-XRNTemplateTests/Pods-XRNTemplate-XRNTemplateTests.staging.xcconfig"; sourceTree = "<group>"; };
 		3B4392A12AC88292D35C810B /* Pods-XRNTemplate.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-XRNTemplate.debug.xcconfig"; path = "Target Support Files/Pods-XRNTemplate/Pods-XRNTemplate.debug.xcconfig"; sourceTree = "<group>"; };
+		3C1075862F7E69B600904006 /* XRNCustomKeyborad+XTHooks.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "XRNCustomKeyborad+XTHooks.h"; sourceTree = "<group>"; };
+		3C1075872F7E69B600904006 /* XRNCustomKeyborad+XTHooks.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "XRNCustomKeyborad+XTHooks.mm"; sourceTree = "<group>"; };
 		5709B34CF0A7D63546082F79 /* Pods-XRNTemplate.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-XRNTemplate.release.xcconfig"; path = "Target Support Files/Pods-XRNTemplate/Pods-XRNTemplate.release.xcconfig"; sourceTree = "<group>"; };
 		5B7EB9410499542E8C5724F5 /* Pods-XRNTemplate-XRNTemplateTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-XRNTemplate-XRNTemplateTests.debug.xcconfig"; path = "Target Support Files/Pods-XRNTemplate-XRNTemplateTests/Pods-XRNTemplate-XRNTemplateTests.debug.xcconfig"; sourceTree = "<group>"; };
 		5DCACB8F33CDC322A6C60F78 /* libPods-XRNTemplate.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-XRNTemplate.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		69C7042D2E13D35200ADBBDB /* xtBundles.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = xtBundles.plist; sourceTree = "<group>"; };
 		69C7042E2E13D35200ADBBDB /* XTBundleViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XTBundleViewController.h; sourceTree = "<group>"; };
-		69C7042F2E13D35200ADBBDB /* XTBundleViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XTBundleViewController.m; sourceTree = "<group>"; };
+		69C7042F2E13D35200ADBBDB /* XTBundleViewController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = XTBundleViewController.mm; sourceTree = "<group>"; };
 		69C704302E13D35200ADBBDB /* XTMainBundleViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XTMainBundleViewController.h; sourceTree = "<group>"; };
-		69C704312E13D35200ADBBDB /* XTMainBundleViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XTMainBundleViewController.m; sourceTree = "<group>"; };
+		69C704312E13D35200ADBBDB /* XTMainBundleViewController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = XTMainBundleViewController.mm; sourceTree = "<group>"; };
 		69C704372E13D35200ADBBDB /* XTBundleViewControllerFactory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XTBundleViewControllerFactory.h; sourceTree = "<group>"; };
 		69C704382E13D35200ADBBDB /* XTBundleViewControllerFactory.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XTBundleViewControllerFactory.m; sourceTree = "<group>"; };
 		69C7043A2E13D35200ADBBDB /* XTPluginManage.h */ = {isa = PBXFileReference; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = XTPluginManage.h; sourceTree = "<group>"; tabWidth = 4; };
@@ -69,6 +77,12 @@
 		69E6DB032E4B1E35007F02A4 /* XTBundleProvider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XTBundleProvider.m; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = XRNTemplate/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		89C6BE57DB24E9ADA2F236DE /* Pods-XRNTemplate-XRNTemplateTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-XRNTemplate-XRNTemplateTests.release.xcconfig"; path = "Target Support Files/Pods-XRNTemplate-XRNTemplateTests/Pods-XRNTemplate-XRNTemplateTests.release.xcconfig"; sourceTree = "<group>"; };
+		A1F2E3D42E84000100F16D60 /* XTIQKeyboardManagerBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XTIQKeyboardManagerBridge.h; sourceTree = "<group>"; };
+		A1F2E3D42E84000200F16D60 /* XTIQKeyboardManagerBridge.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XTIQKeyboardManagerBridge.m; sourceTree = "<group>"; };
+		A1F2E3D52E8A110100F16D60 /* XTReloadCommandHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XTReloadCommandHelper.h; sourceTree = "<group>"; };
+		A1F2E3D62E8A110100F16D60 /* XTReloadCommandHelper.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = XTReloadCommandHelper.mm; sourceTree = "<group>"; };
+		A1F2E3D92E8A220100F16D60 /* XTMetroAutoConnector.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XTMetroAutoConnector.h; sourceTree = "<group>"; };
+		A1F2E3DA2E8A220100F16D60 /* XTMetroAutoConnector.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XTMetroAutoConnector.m; sourceTree = "<group>"; };
 		AEC8BF6D3233DB54DD408BD1 /* Pods-XRNTemplate.staging.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-XRNTemplate.staging.xcconfig"; path = "Target Support Files/Pods-XRNTemplate/Pods-XRNTemplate.staging.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
@@ -122,6 +136,7 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
+				20D5894F90E0467C41AFD3DC /* PrivacyInfo.xcprivacy */,
 			);
 			name = XRNTemplate;
 			sourceTree = "<group>";
@@ -136,14 +151,25 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		3CC321BC2E83F34000E87258 /* Hooks */ = {
+			isa = PBXGroup;
+			children = (
+				A1F2E3D42E84000100F16D60 /* XTIQKeyboardManagerBridge.h */,
+				A1F2E3D42E84000200F16D60 /* XTIQKeyboardManagerBridge.m */,
+				3C1075862F7E69B600904006 /* XRNCustomKeyborad+XTHooks.h */,
+				3C1075872F7E69B600904006 /* XRNCustomKeyborad+XTHooks.mm */,
+			);
+			path = Hooks;
+			sourceTree = "<group>";
+		};
 		69C704322E13D35200ADBBDB /* bundleController */ = {
 			isa = PBXGroup;
 			children = (
 				69C7042D2E13D35200ADBBDB /* xtBundles.plist */,
 				69C7042E2E13D35200ADBBDB /* XTBundleViewController.h */,
-				69C7042F2E13D35200ADBBDB /* XTBundleViewController.m */,
+				69C7042F2E13D35200ADBBDB /* XTBundleViewController.mm */,
 				69C704302E13D35200ADBBDB /* XTMainBundleViewController.h */,
-				69C704312E13D35200ADBBDB /* XTMainBundleViewController.m */,
+				69C704312E13D35200ADBBDB /* XTMainBundleViewController.mm */,
 			);
 			path = bundleController;
 			sourceTree = "<group>";
@@ -152,6 +178,7 @@
 			isa = PBXGroup;
 			children = (
 				69C704322E13D35200ADBBDB /* bundleController */,
+				3CC321BC2E83F34000E87258 /* Hooks */,
 				69E6DB022E4B1E35007F02A4 /* XTBundleProvider.h */,
 				69E6DB032E4B1E35007F02A4 /* XTBundleProvider.m */,
 				69C704372E13D35200ADBBDB /* XTBundleViewControllerFactory.h */,
@@ -185,6 +212,7 @@
 			children = (
 				69C7043C2E13D35200ADBBDB /* DebugPlugin */,
 				69C704412E13D35200ADBBDB /* Views */,
+				A1F2E3D82E8A110100F16D60 /* MotroTools */,
 			);
 			path = RNDebug;
 			sourceTree = "<group>";
@@ -218,6 +246,17 @@
 				00E356EE1AD99517003FC87E /* XRNTemplateTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		A1F2E3D82E8A110100F16D60 /* MotroTools */ = {
+			isa = PBXGroup;
+			children = (
+				A1F2E3D92E8A220100F16D60 /* XTMetroAutoConnector.h */,
+				A1F2E3DA2E8A220100F16D60 /* XTMetroAutoConnector.m */,
+				A1F2E3D52E8A110100F16D60 /* XTReloadCommandHelper.h */,
+				A1F2E3D62E8A110100F16D60 /* XTReloadCommandHelper.mm */,
+			);
+			path = MotroTools;
 			sourceTree = "<group>";
 		};
 		BBD78D7AC51CEA395F1C20DB /* Pods */ = {
@@ -331,6 +370,7 @@
 				69C7044C2E13D35200ADBBDB /* xtBundles.plist in Resources */,
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
+				701440A31193EFD481073816 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -520,14 +560,18 @@
 			files = (
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
-				69C704442E13D35200ADBBDB /* XTBundleViewController.m in Sources */,
+				69C704442E13D35200ADBBDB /* XTBundleViewController.mm in Sources */,
 				69C704452E13D35200ADBBDB /* XTScanQRPlugin.swift in Sources */,
 				69C704462E13D35200ADBBDB /* XTSuspendBall.m in Sources */,
 				69E6DB042E4B1E35007F02A4 /* XTBundleProvider.m in Sources */,
-				69C704482E13D35200ADBBDB /* XTMainBundleViewController.m in Sources */,
+				69C704482E13D35200ADBBDB /* XTMainBundleViewController.mm in Sources */,
 				69C704492E13D35200ADBBDB /* XTPluginManage.m in Sources */,
 				69C7044A2E13D35200ADBBDB /* XTLoadJSErrorTipPanel.swift in Sources */,
 				69C7044B2E13D35200ADBBDB /* XTBundleViewControllerFactory.m in Sources */,
+				3C1075882F7E69B600904006 /* XRNCustomKeyborad+XTHooks.mm in Sources */,
+				A1F2E3D42E84000300F16D60 /* XTIQKeyboardManagerBridge.m in Sources */,
+				A1F2E3D72E8A110100F16D60 /* XTReloadCommandHelper.mm in Sources */,
+				A1F2E3DB2E8A220100F16D60 /* XTMetroAutoConnector.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -599,12 +643,12 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CURRENT_PROJECT_VERSION = 202507161400;
+				CURRENT_PROJECT_VERSION = 202609151640;
 				DEVELOPMENT_TEAM = 227UGFU7Z8;
 				DISPLAY_NAME = XRNTemplate;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = XRNTemplate/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -631,11 +675,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CURRENT_PROJECT_VERSION = 202507161400;
+				CURRENT_PROJECT_VERSION = 202609151640;
 				DEVELOPMENT_TEAM = 227UGFU7Z8;
 				DISPLAY_NAME = XRNTemplate;
 				INFOPLIST_FILE = XRNTemplate/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -660,7 +704,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -719,28 +763,10 @@
 					"-DFOLLY_MOBILE=1",
 					"-DFOLLY_USE_LIBCPP=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl -ld_classic ",
-				);
+				OTHER_LDFLAGS = "$(inherited)";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
+				USE_HERMES = true;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Staging;
@@ -751,11 +777,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CURRENT_PROJECT_VERSION = 202507161400;
+				CURRENT_PROJECT_VERSION = 202609151640;
 				DEVELOPMENT_TEAM = 227UGFU7Z8;
 				DISPLAY_NAME = XRNTemplate;
 				INFOPLIST_FILE = XRNTemplate/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -804,7 +830,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -868,28 +894,11 @@
 					"-DFOLLY_MOBILE=1",
 					"-DFOLLY_USE_LIBCPP=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl -ld_classic ",
-				);
+				OTHER_LDFLAGS = "$(inherited)";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
+				USE_HERMES = true;
 			};
 			name = Debug;
 		};
@@ -898,7 +907,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -957,28 +966,10 @@
 					"-DFOLLY_MOBILE=1",
 					"-DFOLLY_USE_LIBCPP=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl",
-					"-ld_classic",
-					"-Wl -ld_classic ",
-				);
+				OTHER_LDFLAGS = "$(inherited)";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
+				USE_HERMES = true;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
