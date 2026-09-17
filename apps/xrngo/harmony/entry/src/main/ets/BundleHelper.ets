@@ -33,11 +33,11 @@ import { RTNPdfView, PDF_VIEW_TYPE } from '@react-native-ohos/react-native-pdf';
 import { WebView, WEB_VIEW } from "@react-native-ohos/react-native-webview"
 import  BuildProfile from "BuildProfile"
 import { XrnPerformance } from './performance'
-// import { XRNLoadingPackage } from "xrn-loading"
+// import { XRNLoadingPackage } from "@xrnjs/loading"
 import { RNCVideo, RNC_VIDEO_TYPE } from "@react-native-ohos/react-native-video"
 import { VisionCameraView } from "@react-native-ohos/react-native-vision-camera";
-import {XRNKeyboardPackage} from 'xrn-keyboard'
-import { XRNImageViewPackage } from 'xrn-image'
+import {XRNKeyboardPackage} from '@xrnjs/keyboard'
+import { XRNImageViewPackage } from '@xrnjs/image'
 
 import {
   AnyJSBundleProvider,
@@ -53,15 +53,15 @@ import {
   WrappedCustomRNComponentBuilder } from "@rnoh/react-native-openharmony/src/main/ets/RNOH";
 import { RNInstance, RNInstanceOptions } from "@rnoh/react-native-openharmony/src/main/ets/RNOH/RNInstance";
 import { APP_RNOH_RNOHCoreContext, BundleInfo, RNContainerOptions, RN_INSTANCE_MANAGER,
-  XRNMultiBundlePackage } from "xrn-multi-bundle";
-import { XRNNativeStoragePackage } from "xrn-native-storage";
-import { XRNLoadingPackage } from "xrn-loading";
+  XRNMultiBundlePackage } from "@xrnjs/multi-bundle";
+import { XRNNativeStoragePackage } from "@xrnjs/native-storage";
+import { XRNLoadingPackage } from "@xrnjs/loading";
 import { SmartRefreshPackage } from "@react-native-ohos/react-native-smartrefreshlayout";
-import { XRNBundlePackage } from "xrn-bundle";
-import { XRNNavigationPackage } from "xrn-navigation";
-import { XRNAppUtilsPackage } from "xrn-app-utils";
+import { XRNBundlePackage } from "@xrnjs/bundle";
+import { XRNNavigationPackage } from "@xrnjs/navigation";
+import { XRNAppUtilsPackage } from "@xrnjs/app-utils";
 import { XRNGoDemoPackage } from "./demo/XRNGoDemoPackage";
-import { XRNDebugToolsPackage } from "xrn-debug-tools"
+import { XRNDebugToolsPackage } from "@xrnjs/debug-tools"
 
 export function getRNContainerOptions(): RNContainerOptions {
 	return {

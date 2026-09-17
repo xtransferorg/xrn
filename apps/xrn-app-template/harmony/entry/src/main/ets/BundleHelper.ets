@@ -1,37 +1,36 @@
-import { AsyncStoragePackage } from "@react-native-oh-tpl/async-storage";
-import { ClipboardPackage } from "@react-native-oh-tpl/clipboard";
-import { CookiesPackage } from "@react-native-oh-tpl/cookies";
-import { LottieAnimationView, LOTTIE_TYPE } from "@react-native-oh-tpl/lottie-react-native";
-import { RNConfigPackage } from "@react-native-oh-tpl/react-native-config";
-import { RNDeviceInfoPackage } from "@react-native-oh-tpl/react-native-device-info";
-import { RNGetRandomValuesPackage } from "@react-native-oh-tpl/react-native-get-random-values";
-import { RNLocalizePackage } from "@react-native-oh-tpl/react-native-localize";
-import { PermissionsPackage } from "@react-native-oh-tpl/react-native-permissions";
-import { SafeAreaViewPackage } from "@react-native-oh-tpl/react-native-safe-area-context";
-import { SvgPackage } from "@react-native-oh-tpl/react-native-svg";
-import { TouchIdPackage } from "@react-native-oh-tpl/react-native-touch-id";
-import { CameraRollPackage } from "@react-native-oh-tpl/camera-roll"
-import { LottieAnimationViewPackage } from "@react-native-oh-tpl/lottie-react-native/ts"
-import { NetInfoPackage } from "@react-native-oh-tpl/netinfo/ts"
-import { BlobUtilPackage } from "@react-native-oh-tpl/react-native-blob-util"
-import { DocumentPickerPackage } from "@react-native-oh-tpl/react-native-document-picker/ts"
-import { FastImagePackage } from "@react-native-oh-tpl/react-native-fast-image"
-import { GestureHandlerPackage } from "@react-native-oh-tpl/react-native-gesture-handler"
-import { ImagePickerViewPackage } from "@react-native-oh-tpl/react-native-image-picker"
-import { ImageResizerPackage } from "@react-native-oh-tpl/react-native-image-resizer"
-import { RNOrientationLockerPackage } from "@react-native-oh-tpl/react-native-orientation-locker"
-import { ReanimatedPackage } from "@react-native-oh-tpl/react-native-reanimated/ts"
-import { RNCVideoPackage } from "@react-native-oh-tpl/react-native-video/ts"
+import { AsyncStoragePackage } from "@react-native-ohos/async-storage";
+import { ClipboardPackage } from "@react-native-ohos/clipboard";
+import { CookiesPackage } from "@react-native-ohos/cookies";
+import { LottieAnimationView, LOTTIE_TYPE } from "@react-native-ohos/lottie-react-native";
+import { RNConfigPackage } from "@react-native-ohos/react-native-config";
+import { RNDeviceInfoPackage } from "@react-native-ohos/react-native-device-info";
+import { RNGetRandomValuesPackage } from "@react-native-ohos/react-native-get-random-values";
+import { RNLocalizePackage } from "@react-native-ohos/react-native-localize";
+import { PermissionsPackage } from "@react-native-ohos/react-native-permissions";
+import { SafeAreaViewPackage } from "@react-native-ohos/react-native-safe-area-context";
+import { SvgPackage } from "@react-native-ohos/react-native-svg";
+import { CameraRollPackage } from "@react-native-ohos/camera-roll"
+import { LottieAnimationViewPackage } from "@react-native-ohos/lottie-react-native/ts"
+import { NetInfoPackage } from "@react-native-ohos/netinfo/ts"
+import { BlobUtilPackage } from "@react-native-ohos/react-native-blob-util"
+import { DocumentPickerPackage } from "@react-native-ohos/react-native-document-picker/ts"
+import { FastImagePackage } from "@react-native-ohos/react-native-fast-image"
+import { GestureHandlerPackage } from "@react-native-ohos/react-native-gesture-handler"
+import { ImagePickerViewPackage } from "@react-native-ohos/react-native-image-picker"
+import { ImageResizerPackage } from "@react-native-ohos/react-native-image-resizer"
+import { RNOrientationLockerPackage } from "@react-native-ohos/react-native-orientation-locker"
+import { ReanimatedPackage } from "@react-native-ohos/react-native-reanimated/ts"
+import { RNCVideoPackage } from "@react-native-ohos/react-native-video/ts"
 
-import { VisionCameraModulePackage } from "@react-native-oh-tpl/react-native-vision-camera"
+import { VisionCameraModulePackage } from "@react-native-ohos/react-native-vision-camera"
 import { PushNotificationPackage } from "@react-native-ohos/push-notification-ios"
 import { FsPackage } from "@react-native-ohos/react-native-fs"
-import { WebViewPackage} from '@react-native-oh-tpl/react-native-webview/ts'
-import { CodePushPackage } from 'xrn-code-push'
-import { RTNPdfView, PDF_VIEW_TYPE } from '@react-native-oh-tpl/react-native-pdf';
-import { WebView, WEB_VIEW } from "@react-native-oh-tpl/react-native-webview"
-import { RNCVideo, RNC_VIDEO_TYPE } from "@react-native-oh-tpl/react-native-video"
-import { VisionCameraView } from "@react-native-oh-tpl/react-native-vision-camera";
+import { WebViewPackage} from '@react-native-ohos/react-native-webview/ts'
+import { CodePushPackage } from '@xrnjs/react-native-code-push'
+import { RTNPdfView, PDF_VIEW_TYPE } from '@react-native-ohos/react-native-pdf';
+import { WebView, WEB_VIEW } from "@react-native-ohos/react-native-webview"
+import { RNCVideo, RNC_VIDEO_TYPE } from "@react-native-ohos/react-native-video"
+import { VisionCameraView } from "@react-native-ohos/react-native-vision-camera";
 import { XRNNativeStoragePackage } from '@xrnjs/native-storage'
 
 
@@ -43,10 +42,10 @@ import {
 import { RNInstance, RNInstanceOptions } from "@rnoh/react-native-openharmony/src/main/ets/RNOH/RNInstance";
 import { BundleInfo, RNContainerOptions, XRNMultiBundlePackage } from "@xrnjs/multi-bundle";
 import { XRNLoadingPackage } from "@xrnjs/loading";
-import { SmartRefreshPackage } from "@react-native-oh-tpl/react-native-smartrefreshlayout";
+import { SmartRefreshPackage } from "@react-native-ohos/react-native-smartrefreshlayout";
 import { XRNBundlePackage } from "@xrnjs/bundle";
 import { XRNNavigationPackage } from "@xrnjs/navigation";
-import { XRNAppUtilsPackage, XRNFilePackage, XRNToastPackage } from "@xrnjs/app-utils";
+import { XRNAppUtilsPackage } from "@xrnjs/app-utils";
 import  { XRNDebugToolsPackage } from  '@xrnjs/debug-tools';
 
 export function getRNContainerOptions(): RNContainerOptions {
@@ -91,7 +90,6 @@ export function createRNPackages(ctx: RNPackageContext, bundleInfo: BundleInfo):
     new GestureHandlerPackage(ctx),
     new SvgPackage(ctx),
     new WebViewPackage(ctx),
-    new TouchIdPackage(ctx),
     new PermissionsPackage(ctx),
     new CookiesPackage(ctx),
     new LottieAnimationViewPackage(ctx),
@@ -112,16 +110,14 @@ export function createRNPackages(ctx: RNPackageContext, bundleInfo: BundleInfo):
     new ReanimatedPackage(ctx),
     new RNCVideoPackage(ctx),
     new VisionCameraModulePackage(ctx),
-    new CodePushPackage(ctx, bundleInfo, ""),
+    new CodePushPackage(ctx, bundleInfo, "", ""),
     new XRNLoadingPackage(ctx),
     new SmartRefreshPackage(ctx),
     new XRNMultiBundlePackage(ctx),
-    new XRNBundlePackage(ctx, bundleInfo.bundleName),
+    new XRNBundlePackage(ctx, bundleInfo.bundleName, "", ""),
     new XRNAppUtilsPackage(ctx),
-    new XRNFilePackage(ctx),
     new XRNNavigationPackage(ctx),
     new XRNNativeStoragePackage(ctx),
-    new XRNToastPackage(ctx),
     new XRNDebugToolsPackage(ctx, bundleInfo.bundleName),
   ]
 }

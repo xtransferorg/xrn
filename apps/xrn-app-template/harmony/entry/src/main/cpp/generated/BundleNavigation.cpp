@@ -19,6 +19,9 @@ BundleNavigation::BundleNavigation(const ArkTSTurboModule::Context ctx, const st
         ARK_METHOD_METADATA(publishSingleBundleEvent, 2),
         ARK_METHOD_METADATA(publishAllBundleEvent, 2),
         ARK_METHOD_METADATA(goBack, 0),
+        ARK_METHOD_METADATA(gestureEnabled, 1),
+        ARK_METHOD_METADATA(addListener, 1),
+        ARK_METHOD_METADATA(removeListeners, 1),
     };
 }
 

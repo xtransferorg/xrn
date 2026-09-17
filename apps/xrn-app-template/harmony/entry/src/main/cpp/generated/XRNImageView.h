@@ -13,9 +13,9 @@
 
 namespace rnoh {
 
-class JSI_EXPORT OreitationLockerNativeModule : public ArkTSTurboModule {
+class JSI_EXPORT XRNImageView : public ArkTSTurboModule {
   public:
-    OreitationLockerNativeModule(const ArkTSTurboModule::Context ctx, const std::string name);
+    XRNImageView(const ArkTSTurboModule::Context ctx, const std::string name);
 };
 
 } // namespace rnoh

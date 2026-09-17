@@ -12,7 +12,6 @@
 #include "RNOH/Package.h"
 #include "RNOH/ArkTSTurboModule.h"
 #include "generated/XRNGODemoModule.h"
-#include "generated/RTNCodePush.h"
 #include "generated/XRNAppUtilsModule.h"
 #include "generated/XRNToastModule.h"
 #include "generated/XRNBundleModule.h"
@@ -25,6 +24,7 @@
 #include "generated/BundleNavigation.h"
 #include "generated/XRNNavigation.h"
 #include "generated/XRNNetworkModule.h"
+#include "generated/RTNCodePush.h"
 #include "generated/XRNImageViewComponentDescriptor.h"
 #include "generated/XRNImageViewJSIBinder.h"
 
@@ -35,9 +35,6 @@ class RNOHGeneratedPackageTurboModuleFactoryDelegate : public TurboModuleFactory
     SharedTurboModule createTurboModule(Context ctx, const std::string &name) const override {
         if (name == "XRNGODemoModule") {
             return std::make_shared<XRNGODemoModule>(ctx, name);
-        }
-        if (name == "RTNCodePush") {
-            return std::make_shared<RTNCodePush>(ctx, name);
         }
         if (name == "XRNAppUtilsModule") {
             return std::make_shared<XRNAppUtilsModule>(ctx, name);
@@ -74,6 +71,9 @@ class RNOHGeneratedPackageTurboModuleFactoryDelegate : public TurboModuleFactory
         }
         if (name == "XRNNetworkModule") {
             return std::make_shared<XRNNetworkModule>(ctx, name);
+        }
+        if (name == "RTNCodePush") {
+            return std::make_shared<RTNCodePush>(ctx, name);
         }
         return nullptr;
     };

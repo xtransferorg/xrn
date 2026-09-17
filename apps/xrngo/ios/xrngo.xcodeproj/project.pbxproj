@@ -13,6 +13,7 @@
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		3C1075882F7E69B600904006 /* XRNCustomKeyborad+XTHooks.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3C1075872F7E69B600904006 /* XRNCustomKeyborad+XTHooks.mm */; };
+		44F374C0A0F321C9414079D4 /* XTXRNGoDemoModule.mm in Sources */ = {isa = PBXBuildFile; fileRef = DE09C10DAD09C8AF17EE9D17 /* XTXRNGoDemoModule.mm */; };
 		568D6B8C5D767DA2AC262A3E /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 798C5E1671420E0BA9B52190 /* PrivacyInfo.xcprivacy */; };
 		69B6EA192E827D8A00F16D60 /* xtBundles.plist in Resources */ = {isa = PBXBuildFile; fileRef = 69B6EA0E2E827D8A00F16D60 /* xtBundles.plist */; };
 		69B6EA1A2E827D8A00F16D60 /* XTBundleProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 69B6EA152E827D8A00F16D60 /* XTBundleProvider.m */; };
@@ -82,6 +83,8 @@
 		A1F2E3D62E8A110100F16D60 /* XTReloadCommandHelper.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = XTReloadCommandHelper.mm; sourceTree = "<group>"; };
 		A1F2E3D92E8A220100F16D60 /* XTMetroAutoConnector.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XTMetroAutoConnector.h; sourceTree = "<group>"; };
 		A1F2E3DA2E8A220100F16D60 /* XTMetroAutoConnector.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XTMetroAutoConnector.m; sourceTree = "<group>"; };
+		AE10726886ABA1A8D2C90FD8 /* XTXRNGoDemoModule.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XTXRNGoDemoModule.h; sourceTree = "<group>"; };
+		DE09C10DAD09C8AF17EE9D17 /* XTXRNGoDemoModule.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = XTXRNGoDemoModule.mm; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -181,6 +184,8 @@
 				69B6EA152E827D8A00F16D60 /* XTBundleProvider.m */,
 				69B6EA162E827D8A00F16D60 /* XTBundleViewControllerFactory.h */,
 				69B6EA172E827D8A00F16D60 /* XTBundleViewControllerFactory.m */,
+				AE10726886ABA1A8D2C90FD8 /* XTXRNGoDemoModule.h */,
+				DE09C10DAD09C8AF17EE9D17 /* XTXRNGoDemoModule.mm */,
 			);
 			path = BundleEventCenter;
 			sourceTree = "<group>";
@@ -555,6 +560,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
+				44F374C0A0F321C9414079D4 /* XTXRNGoDemoModule.mm in Sources */,
 				69B6EA1A2E827D8A00F16D60 /* XTBundleProvider.m in Sources */,
 				69B6EA1B2E827D8A00F16D60 /* XTMainBundleViewController.mm in Sources */,
 				69B6EA1C2E827D8A00F16D60 /* XTBundleViewControllerFactory.m in Sources */,
@@ -639,7 +645,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CURRENT_PROJECT_VERSION = 202609141537;
+				CURRENT_PROJECT_VERSION = 202609161847;
 				DEVELOPMENT_TEAM = 227UGFU7Z8;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = xrngo/Info.plist;
@@ -669,7 +675,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CURRENT_PROJECT_VERSION = 202609141537;
+				CURRENT_PROJECT_VERSION = 202609161847;
 				DEVELOPMENT_TEAM = 227UGFU7Z8;
 				INFOPLIST_FILE = xrngo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;

@@ -13,9 +13,9 @@
 
 namespace rnoh {
 
-class JSI_EXPORT RNCWebViewModule : public ArkTSTurboModule {
+class JSI_EXPORT XRNNetworkModule : public ArkTSTurboModule {
   public:
-    RNCWebViewModule(const ArkTSTurboModule::Context ctx, const std::string name);
+    XRNNetworkModule(const ArkTSTurboModule::Context ctx, const std::string name);
 };
 
 } // namespace rnoh

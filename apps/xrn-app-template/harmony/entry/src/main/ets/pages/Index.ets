@@ -7,7 +7,7 @@ import { BizModuleContainer } from '../navDestination/BizModuleContainer';
 import { RN_INSTANCE_MANAGER } from '@xrnjs/multi-bundle';
 import { FloatBall } from '../module/devtools/components/FloatBall'
 import { RNInstance } from '@rnoh/react-native-openharmony';
-import { BuildConfig } from '@react-native-oh-tpl/react-native-config/BuildConfig'
+import { BuildConfig } from '@react-native-ohos/react-native-config/BuildConfig'
 // const DEV_ENV_NAME = "DEV_ENV_NAME"
 const DEV_ENV_NAME = "dev"
 const PROD = 'prod';

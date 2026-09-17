@@ -1,5 +1,5 @@
 import { Splash } from '../navDestination/Splash';
-import { NavigationContainer } from 'xrn-navigation'
+import { NavigationContainer } from '@xrnjs/navigation'
 import webview from '@ohos.web.webview';
 import { preferences } from "@kit.ArkData";
 import { MainModuleContainer } from '../navDestination/MainModuleContainer';

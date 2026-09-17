@@ -19,8 +19,17 @@ XRNBundleModule::XRNBundleModule(const ArkTSTurboModule::Context ctx, const std:
         ARK_ASYNC_METHOD_METADATA(getAllBundleInfos, 0),
         ARK_ASYNC_METHOD_METADATA(getBundleList, 0),
         ARK_METHOD_METADATA(preLoadBundle, 1),
+        ARK_METHOD_METADATA(releaseBundle, 1),
+        ARK_METHOD_METADATA(releaseBundleForce, 1),
+        ARK_METHOD_METADATA(releaseAllBundle, 1),
+        ARK_METHOD_METADATA(reloadBundleByName, 1),
+        ARK_METHOD_METADATA(reloadBundleForceByName, 1),
+        ARK_METHOD_METADATA(preloadCommonEnabled, 1),
+        ARK_METHOD_METADATA(preloadBundleEnabled, 1),
         ARK_METHOD_METADATA(reloadBundle, 0),
         ARK_METHOD_METADATA(switchModule, 2),
+        ARK_ASYNC_METHOD_METADATA(preDownloadCodePush, 1),
+        ARK_ASYNC_METHOD_METADATA(reportCodePushProgressShown, 0),
     };
 }
 

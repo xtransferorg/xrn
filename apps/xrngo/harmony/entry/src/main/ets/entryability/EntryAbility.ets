@@ -1,5 +1,5 @@
 // import { RNAbility } from '@rnoh/react-native-openharmony';
-import { XRNAbility } from 'xrn-multi-bundle';
+import { XRNAbility } from '@xrnjs/multi-bundle';
 import { window } from '@kit.ArkUI';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { APP_SYS_NAVIGATION_HEIGHT, APP_SYS_SYSTEM_BAR_HEIGHT } from '../Constants';

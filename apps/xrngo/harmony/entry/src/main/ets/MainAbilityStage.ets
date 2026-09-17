@@ -3,7 +3,7 @@ import { preInit, InternalPlugin, setLogEnabled, init } from '@umeng/analytics';
 import { ApmPlugin } from '@umeng/apm';
 import {
   APP_RNOH_RNOHCoreContext,
-  BundleInfo, BundleInfoManager, initRNContainerOptions, RNInstanceManager, PreferencesStore } from "xrn-multi-bundle";
+  BundleInfo, BundleInfoManager, initRNContainerOptions, RNInstanceManager, PreferencesStore } from "@xrnjs/multi-bundle";
 import { getRNContainerOptions, getRNInstanceOptions } from "./BundleHelper";
 import { XrnPerformance } from './performance'
 import {
@@ -35,13 +35,13 @@ export default class MainAbilityStage extends AbilityStage {
         return PreferencesUtil.getSync(key, "", name) as string
       }
     }
-    BundleInfoManager.initWithRawFile(this.context, "xrngo_bundle_config.json5", preferenceStore, undefined)
+    BundleInfoManager.initWithRawFile(this.context, "bundle_config.json5", preferenceStore, undefined)
     RNInstanceManager.init({
       getRNInstanceOptions: getRNInstanceOptions,
       createJSBundleProvider: createJSBundleProvider,
       getSplitBundleOptions: () => ({
         getCommonBundleName: () => "oh.xt-app-common.bundle",
-        isSplitMode: (_bundleInfo: BundleInfo) => true,
+        isSplitMode: (_bundleInfo: BundleInfo) => false,
       }),
       isMemoryPressured: () => false,
     })

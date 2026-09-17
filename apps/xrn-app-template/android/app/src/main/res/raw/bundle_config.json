@@ -4,12 +4,14 @@
       "bundleName": "main-bundle",
       "bundlePackageRelativePath": "./main-bundle",
       "bundleType": "main",
+      "checkNativeDep": false,
       "codePushKey": "0NzkdHaOp6RhCDWjD1G3KogLieV54ksvOXqog",
       "port": 8081
     },
     {
       "bundleName": "sub-bundle",
       "bundlePackageRelativePath": "./sub-bundle",
+      "checkNativeDep": false,
       "codePushKey": "KpWDtkf7lssWGGhFVlubzRq9gAg74ksvOXqog",
       "port": 6061
     }

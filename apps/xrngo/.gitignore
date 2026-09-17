@@ -6,6 +6,8 @@ harmony/entry/src/main/resources/rawfile/packages/
 harmony/*.cer
 harmony/*.p12
 harmony/*.p7b
+harmony/sign_tmp/
+
 .baseline
 iOS_Out_*/
 android/app/src/main/res/raw/*.svg
@@ -20,3 +22,5 @@ android/app/src/main/assets/xrn-manifest.json
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+

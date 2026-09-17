@@ -4074,9 +4074,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@xrnjs/cli@npm:0.1.0":
+"@xrnjs/cli@0.1.0::locator=main-bundle%40workspace%3A.":
   version: 0.1.0
-  resolution: "@xrnjs/cli@npm:0.1.0"
+  resolution: "@xrnjs/cli@0.1.0#.yalc/@xrnjs/cli::hash=7967f6&locator=main-bundle%40workspace%3A."
   dependencies:
     "@react-native-community/cli": 15.0.0
     "@react-native-oh/react-native-harmony-cli": 0.77.33-1
@@ -4130,7 +4130,7 @@ __metadata:
   bin:
     xrn: lib/init.js
     xt-rn-cli: lib/init.js
-  checksum: 001136c0d90ed99f5810e3a13a4e22f4adaf59300cade9d96e34cccaa79a7175f95e9a65cabd844a2336f4246314448b57b4ba5e38b5476273bb5bab9cab8ac8
+  checksum: 43bcbb3b02508c8596186bffd303ab083222cccf5f78d3fa288074259313dc0fd3348e8f9d84311677c6d5d0be28fdb2b9c16106da8943fb7615fbf462b3eb9f
   languageName: node
   linkType: hard
 
@@ -9689,7 +9689,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "main-bundle@workspace:."
   dependencies:
-    "@xrnjs/cli": 0.1.0
+    "@xrnjs/cli": "0.1.0"
     "@xrnjs/core": 0.1.0
     "@xrnjs/ui": 0.1.0
   languageName: unknown

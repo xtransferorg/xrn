@@ -1,5 +1,6 @@
 import React from 'react';
-import {StyleSheet, Text, View, Image} from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import { Image } from "@xrnjs/ui"
 
 export default function HeadInfo() {
   return (
@@ -10,6 +11,12 @@ export default function HeadInfo() {
         width={100}
         height={100}
       />
+      {/* <Image
+        source={require('../../images/logo.png')}
+        style={styles.image}
+        width={100}
+        height={100}
+      /> */}
       <Text style={styles.title}>XRN GO</Text>
       <Text style={styles.description}>
         这是一个 Demo 演示 App，提供相关 API 和组件的功能和用法。

@@ -17,25 +17,26 @@
 namespace facebook {
 namespace react {
 
-constexpr char RNCWebViewComponentName[] = "RNCWebView";
+// RNOH patch
+constexpr char XRNImageViewComponentName[] = "XRNImageView";
 
-class RNCWebViewProps : public ViewProps {
+class XRNImageViewProps : public ViewProps {
   public:
-    RNCWebViewProps() = default;
+    XRNImageViewProps() = default;
 
-    RNCWebViewProps(const PropsParserContext &context, const RNCWebViewProps &sourceProps, const RawProps &rawProps)
+    XRNImageViewProps(const PropsParserContext &context, const XRNImageViewProps &sourceProps, const RawProps &rawProps)
         : ViewProps(context, sourceProps, rawProps) {}
 };
 
-using RNCWebViewShadowNode = ConcreteViewShadowNode<
-    RNCWebViewComponentName,
-    RNCWebViewProps,
+using XRNImageViewShadowNode = ConcreteViewShadowNode<
+    XRNImageViewComponentName,
+    XRNImageViewProps,
     ViewEventEmitter>;
 
-class RNCWebViewComponentDescriptor final
-    : public ConcreteComponentDescriptor<RNCWebViewShadowNode> {
+class XRNImageViewComponentDescriptor final
+    : public ConcreteComponentDescriptor<XRNImageViewShadowNode> {
   public:
-    RNCWebViewComponentDescriptor(ComponentDescriptorParameters const &parameters)
+    XRNImageViewComponentDescriptor(ComponentDescriptorParameters const &parameters)
         : ConcreteComponentDescriptor(parameters) {}
 };
 

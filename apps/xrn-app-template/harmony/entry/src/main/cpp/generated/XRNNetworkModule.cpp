@@ -7,15 +7,14 @@
  * @generatorVersion: 1
  */
 
-#pragma once
-
-#include "RNOH/ArkTSTurboModule.h"
+#include "XRNNetworkModule.h"
 
 namespace rnoh {
+using namespace facebook;
 
-class JSI_EXPORT RNGestureHandlerModule : public ArkTSTurboModule {
-  public:
-    RNGestureHandlerModule(const ArkTSTurboModule::Context ctx, const std::string name);
-};
+XRNNetworkModule::XRNNetworkModule(const ArkTSTurboModule::Context ctx, const std::string name) : ArkTSTurboModule(ctx, name) {
+    methodMap_ = {
+    };
+}
 
 } // namespace rnoh

@@ -1,4 +1,4 @@
-import { NavPath, replaceToMain } from "xrn-navigation"
+import { NavPath, replaceToMain } from "@xrnjs/navigation"
 
 @Component
 export struct Splash {

@@ -1,15 +1,15 @@
 {
-  "name": "xrngo",
+  "name": "XRNTemplate",
   "version": "0.0.1",
   "private": true,
   "main": "index.ts",
   "scripts": {
     "bundle:common": "xrn build-common-bundle ios",
-    "build:harmony": "xrn build xrngo harmony --type debug --appFormat hap",
-    "build:android": "xrn build xrngo android --type debug --appFormat apk",
-    "build:android:release": "xrn build xrngo android --type release --appFormat apk",
-    "build:ios": "xrn build xrngo ios --type debug --appFormat ipa",
-    "build:ios:sim": "xrn build xrngo ios --type debug --appFormat app",
+    "build:harmony": "xrn build XRNTemplate harmony --type debug --appFormat hap",
+    "build:android": "xrn build XRNTemplate android --type debug --appFormat apk",
+    "build:android:release": "xrn build XRNTemplate android --type release --appFormat apk",
+    "build:ios": "xrn build XRNTemplate ios --type debug --appFormat ipa",
+    "build:ios:sim": "xrn build XRNTemplate ios --type debug --appFormat app",
     "postinstall": "npx xrn postinstall android ios harmony"
   },
   "dependencies": {
@@ -22,11 +22,7 @@
   },
   "resolutions": {
     "react-native": "0.77.1",
-    "react-native-view-shot": "4.0.3",
-    "@xrnjs/bundle": "0.1.0",
-    "@xrnjs/debug-tools": "0.1.0",
-    "@xrnjs/image": "0.1.0",
-    "@xrnjs/navigation": "0.1.0"
+    "react-native-view-shot": "4.0.3"
   },
   "harmony": {
     "codegenConfig": {

@@ -4700,7 +4700,7 @@ __metadata:
     "@xrnjs/modules-core": "*"
     react: "*"
     react-native: "*"
-  checksum: f4292cde19720c489289f3a1b2860440096d14e27d0ffe6e2ae1f6c3729fbd275d5909c44fc34f2de742a772de594d3ab411ba750b8418bbcd66ff20caa9b0ce
+  checksum: 85d71e15a310bbe713e73e5f899a66be66e20e82222dd0a68aab5edaa8d944cd336dc9ef0ead57238f59e715f10f603ebdd4d55d269476f1041dc44d56c54cf9
   languageName: node
   linkType: hard
 
@@ -4713,7 +4713,7 @@ __metadata:
     react: "*"
     react-native: "*"
     react-native-code-push: "*"
-  checksum: 2de8fcb8e87c11f653e7c5b145e9f9317f54d8029d9924f24686bf898c908534bb36341ce032dc7cc0a6f18ce4b20e20b7e09c8aa78e37980114e548b4dfe604
+  checksum: 3194832c48297539e27b39bb270f01d0e54a9405893861c5ffcf0350309e4e4e7a98da47743241c79aafebd7e99f0f877b4341ec946916e762f10c154cdfc499
   languageName: node
   linkType: hard
 
@@ -4729,7 +4729,7 @@ __metadata:
   peerDependencies:
     "@react-native-oh/react-native-harmony": "*"
     "@react-native/metro-config": "*"
-  checksum: 41c55d51e007939e6842e0088c9645ca503ec540937831e7408139386eab732f82ed4045d3aefb74aed4e2f102a699e7c02be87df3aea4131433fd3dffaf494b
+  checksum: ffff1ac617217ba070cfa1678da71c04f5a646d2a95d8afd222f1247dc336c9f4288d33824031b399a571ef13d4b2fca35752fc9f10ce2e32082971413e5b03d
   languageName: node
   linkType: hard
 
@@ -4742,7 +4742,7 @@ __metadata:
     "@xrnjs/modules-core": "*"
     react: "*"
     react-native: "*"
-  checksum: 289c35e4b517a67e407955fb08b760248481e022ff7219d53cff274a3c64e3d7abf02fe68e8833d399376ccb184d21830bccdd10a47da71d68e3b29f289e418e
+  checksum: 3651d2930dca5e10d5cfbde6ba22ad1111de09bb8059b0e2721d16c27ac159ae5b280ec307e2dc0203260747700a2e9377142c3638fcf7ccceaa4c1b8fba00a5
   languageName: node
   linkType: hard
 
@@ -4802,7 +4802,7 @@ __metadata:
   bin:
     xrn: lib/init.js
     xt-rn-cli: lib/init.js
-  checksum: 9254b5c5f43072386b63b58619c249722cd721da674cba28dd5d144180da103c76a7b36ccda621758075bdd0df6dc49cf153e48e13559f1972d80f0f37f811bc
+  checksum: 89e8624df0855d1e3c601779895584155dc0a668024fcd1bd6c755b412ddaaed41b29260e913dd555ea53510001471d122a4ae5f849e119efa0f47459b2438b3
   languageName: node
   linkType: hard
 
@@ -4952,7 +4952,7 @@ __metadata:
     react-native-vision-camera: 4.7.0
     react-native-webview: 13.15.0
     semver: 7.6.2
-  checksum: 3ae99afc360d043ce0468826726a492ce04427ad7f07864c66fe243f6db6d4666394ad8b285658f54f56d05b5a30510f2de81e09544dc3dea95881333a395ee6
+  checksum: 3e467ba0dfc8f847017163efb416bd4dceffbadb815f47533a4aa1284f4625192f633180091d80a132c6b6bc204c60e9e8bc29678373c852f6ce16bd653c94d5
   languageName: node
   linkType: hard
 
@@ -4965,7 +4965,7 @@ __metadata:
     "@xrnjs/modules-core": "*"
     react: "*"
     react-native: "*"
-  checksum: fa52b577e504c09e83edb64e2979e4fc8f7aad40fedc28fbdc1a1fb9c20b0de2561a5b336aa1ccf14c0387795cc587a36d2c2a79bd8df4d402951c4030a79672
+  checksum: da1049193a880776009de3c521bf9283ea929d25c431b54bc3382931f595257aba6624d972533f3a832d50a6c228602f5f35aa53cf0b2aa44f216ca722d3f007
   languageName: node
   linkType: hard
 
@@ -4997,7 +4997,7 @@ __metadata:
     react-native-svg: "*"
     react-native-vision-camera: "*"
     react-native-webview: "*"
-  checksum: 4e880ececb26990411e38b1641c937d0c82acf68af63788defa9cb3dcd2fbdf7b639acbc9d2f2cfa24df480f446b36f71fad140256e7ac350f725cc9508a8f1d
+  checksum: 6539430f7674629fa3f0a75173d5f3c897517029eb124c13f443753e77f0c90b908c1f456c0ad9deeec372409b47971651599f988a1617a18acd658577d401f1
   languageName: node
   linkType: hard
 
@@ -5010,7 +5010,7 @@ __metadata:
     react: "*"
     react-native: "*"
     react-native-fast-image: "*"
-  checksum: a58b2ce2517c54eec9ff446fb88393546c28294546c6ecb89915f685dd2aa6a0d8c1707e8fff84493c1152afae82b14eae67d464724a843e1e4f182bdf10d43f
+  checksum: 3ff79badea7032c8e2e33666c073a3f21aa3945dfe8bbccce35c7ea36e3298724a5d28c6484658e928a9cf5214cb41b08ed0690a02e01d5f66da6bcdc61cf3e5
   languageName: node
   linkType: hard
 
@@ -5022,7 +5022,7 @@ __metadata:
     react: "*"
     react-native: "*"
     react-native-keyboard-manager: "*"
-  checksum: a87f3e46c09ea6024b0e6b9a94b7b2a9e2319b28e8bf7cd4c648f02bc64847d7148107d25b0752cb67aa1fb16c955884d2b9d9a40a476d73680a037ef8a10387
+  checksum: c4b368541f731cea51e78ae4af9047b4f1b9486d5f94464174b3b134c99e1dce6042e01ce02f7916de8ebfee056cb5bd1dbd8fd864477361ce6f9c2ef4d0b782
   languageName: node
   linkType: hard
 
@@ -5033,7 +5033,7 @@ __metadata:
     "@xrnjs/modules-core": "*"
     react: "*"
     react-native: "*"
-  checksum: 8837ff845e4987a14d7a913b0a0a7207032c9ee79df8561a1fde359769e07fed44c044f9d84ceaa73c9ba15602aede39fddd5cf7d8e3f3bbc8d55b9d5c4c2951
+  checksum: 8436308c7d61f4889dbd3db16bb56e602a5d872b47fe315488343a4bb24568bb5c5a3c30e0999fad745473357534ed2edd01ba2c467caf171e3fd5ef5031b4be
   languageName: node
   linkType: hard
 
@@ -5043,7 +5043,7 @@ __metadata:
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 738c852835c7567662c64cc6107acd6980276e7642dedff7f92a911603b5971b5cd75a0b7f4942e8bface676f5d35e1bf619df3fdea14b0c32b9ce8f5c2b7e20
+  checksum: cb6a6f21f857f6612815881aed9589c34c98b7d9ccd11fb4052a7d71c441a0cc7e877dc2479fe9f3c032e36d231ff7ef837b7cee5714b6d1056f39e55026ac09
   languageName: node
   linkType: hard
 
@@ -5053,7 +5053,7 @@ __metadata:
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: a00dea6ff68791e97b3823c8643fd7acfc8c6704d831a52f78e308a1c7d56b3584b33e0de3be682222f55706310fb362d75792c0ba494f9449067836b3f48ad3
+  checksum: f70e4a14b0f841cd3191f01821a971cb8015d45f2c9ae2919034e17660c92b386f2bfc1e3c4d866f2453a7379aed2d2aa22d1725abfbcc5ab5f637a143a1da51
   languageName: node
   linkType: hard
 
@@ -5064,7 +5064,7 @@ __metadata:
     "@xrnjs/modules-core": "*"
     react: "*"
     react-native: "*"
-  checksum: 15010075177f972f3e92503b1b7de93c36608a586717d44dcec32c62fbf372bee11cb90f6623d9aabf020600d5e31a726bf78784f1add6308490b7c4eb262fd4
+  checksum: f433f6c36cb32a75a682501ffe88920106e191c532e9d804ce29f008ad639e77ed4c3a562983bf0a4f24f51a4ad2c9576e45602ef84d37c38670e037d5fb758e
   languageName: node
   linkType: hard
 
@@ -5080,7 +5080,6 @@ __metadata:
     react-native-tab-view: 3.5.2
     url-parse: 1.5.10
     warn-once: 0.1.1
-    xt-web-core: 0.1.1-beta.15
   peerDependencies:
     "@xrnjs/modules-core": "*"
     react: "*"
@@ -5089,7 +5088,7 @@ __metadata:
     react-native-reanimated: "*"
     react-native-safe-area-context: "*"
     react-native-screens: "*"
-  checksum: ffb010feab285cf9048b69e8e6e4d7394f976c1bb075dbcd47a78a8c0906e5409c7b5c36d9020b6f1cb2b8a2f1b45e2da8571b3ed170afd65ee1a123805c85a2
+  checksum: 63353ffeaf1e75957ee6feab3d65a19afa25bafd02c8175d3abc1f0b3bda0bc41be3d44809a84434a80a10046cb2f5bc3d30274080fd8e974fd9cd3332b08d85
   languageName: node
   linkType: hard
 
@@ -5102,7 +5101,7 @@ __metadata:
     "@xrnjs/navigation": "*"
     react: "*"
     react-native: "*"
-  checksum: 9b7065681f27649b05e81e288cad3e8e8d79cb310cf196442a22fac10366077b350fb5bf0395ccd808956cedd129caa2170a3707d7c777f84fd18445358b9763
+  checksum: 86998a45877c3eb9d1c6d24a8aa1b57b7e6146f784317256c3423f865976a7ccba4da83f5ebabf9b52fee072cd026fe45b392703f43427da420e272db4dff82d
   languageName: node
   linkType: hard
 
@@ -5119,7 +5118,7 @@ __metadata:
     xcode: 1.0.0
   peerDependencies:
     xrn-multi-bundle: "*"
-  checksum: ef9b9da8494ac725720804bfaae1013f4a0171003c5659af308c2217f8d4543f1e1fa4f3c171affde5a33f6c04e18a1b5b1df6437baa7bac0552eac688298ac9
+  checksum: 9a4590d7dd40a5d7f4f7574eb588faa24b3f49a22561d65ad5a2d2489a0e8d776822bf5f03139b74cbdae7f292241f43ff21a9892ec148b4d1433443413a1bc8
   languageName: node
   linkType: hard
 
@@ -15046,7 +15045,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"url-parse@npm:1.5.10, url-parse@npm:^1.5.10":
+"url-parse@npm:1.5.10":
   version: 1.5.10
   resolution: "url-parse@npm:1.5.10"
   dependencies:
@@ -15544,17 +15543,6 @@ __metadata:
     react-native-smartrefreshlayout: ^0.6.7
   languageName: unknown
   linkType: soft
-
-"xt-web-core@npm:0.1.1-beta.15":
-  version: 0.1.1-beta.15
-  resolution: "xt-web-core@npm:0.1.1-beta.15"
-  dependencies:
-    url-parse: ^1.5.10
-  peerDependencies:
-    react: ">=17"
-  checksum: 1cab11a1225e11c7085803c046db6ccdd020a81c99222010f645e522c9cfeeb81d635145c5711dcdd6457489e69cefef4fb6bcb6974ecd1ae2eb09bd4ee641f6
-  languageName: node
-  linkType: hard
 
 "xtend@npm:^4.0.0":
   version: 4.0.2

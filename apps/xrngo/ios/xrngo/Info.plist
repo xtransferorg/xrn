@@ -32,7 +32,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>20260914154734</string>
+	<string>20260916185149</string>
 	<key>CodePushDeploymentKey</key>
 	<string>$(MAIN_CODEPUSH_KEY)</string>
 	<key>CodePushServerURL</key>

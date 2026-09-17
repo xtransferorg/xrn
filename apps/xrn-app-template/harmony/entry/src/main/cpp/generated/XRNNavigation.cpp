@@ -15,8 +15,13 @@ using namespace facebook;
 XRNNavigation::XRNNavigation(const ArkTSTurboModule::Context ctx, const std::string name) : ArkTSTurboModule(ctx, name) {
     methodMap_ = {
         ARK_METHOD_METADATA(setNavigationKey, 1),
+        ARK_METHOD_METADATA(setNavigationState, 1),
         ARK_ASYNC_METHOD_METADATA(dispatchAction, 1),
         ARK_ASYNC_METHOD_METADATA(getCurrentModuleInfo, 0),
+        ARK_METHOD_METADATA(setShouldInterceptSideSwipe, 2),
+        ARK_METHOD_METADATA(confirmShouldSideSwipePop, 0),
+        ARK_METHOD_METADATA(addListener, 1),
+        ARK_METHOD_METADATA(removeListeners, 1),
     };
 }
 

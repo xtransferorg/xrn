@@ -5,8 +5,8 @@ import {
   HttpResponse,
   RequestOptions,
 } from '@rnoh/react-native-openharmony/src/main/ets/HttpClient/types'
-import { getModuleRouteParams, ModuleRouteParams } from 'xrn-navigation'
-import { RN_INSTANCE_MANAGER } from 'xrn-multi-bundle';
+import { getModuleRouteParams, ModuleRouteParams } from '@xrnjs/navigation'
+import { RN_INSTANCE_MANAGER } from '@xrnjs/multi-bundle';
 import { RNInstance, RNOHLogger } from '@rnoh/react-native-openharmony';
 import {
   mergeObjects,

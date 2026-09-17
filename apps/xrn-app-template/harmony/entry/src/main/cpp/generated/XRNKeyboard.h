@@ -13,9 +13,9 @@
 
 namespace rnoh {
 
-class JSI_EXPORT RNCCameraRollPermission : public ArkTSTurboModule {
+class JSI_EXPORT XRNKeyboard : public ArkTSTurboModule {
   public:
-    RNCCameraRollPermission(const ArkTSTurboModule::Context ctx, const std::string name);
+    XRNKeyboard(const ArkTSTurboModule::Context ctx, const std::string name);
 };
 
 } // namespace rnoh
