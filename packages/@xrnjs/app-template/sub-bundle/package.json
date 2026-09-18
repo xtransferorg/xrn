@@ -13,7 +13,7 @@
   "dependencies": {
     "@xrnjs/cli": "0.1.0",
     "@xrnjs/core": "0.1.0",
-    "@xrnjs/ui": "0.1.0"
+    "@xrnjs/ui": "0.1.1"
   },
   "resolutions": {
     "react-native-view-shot": "4.0.3",

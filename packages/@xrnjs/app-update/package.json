@@ -55,7 +55,7 @@
   "devDependencies": {
     "@react-native-oh/react-native-harmony": "0.77.33",
     "@types/react": "^18.2.6",
-    "@xrnjs/ui": "0.1.0",
+    "@xrnjs/ui": "0.1.1",
     "nodemon": "^3.1.1",
     "xrn-module-scripts": "*",
     "xrn-tools": "*"
