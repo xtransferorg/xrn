@@ -55,12 +55,14 @@
   "devDependencies": {
     "xrn-module-scripts": "*"
   },
+  "dependencies": {
+    "@react-native-ohos/react-native-fast-image": "8.7.0-rc.2",
+    "react-native-fast-image": "8.6.3"
+  },
   "peerDependencies": {
-    "@react-native-ohos/react-native-fast-image": "*",
     "@xrnjs/modules-core": "*",
     "react": "*",
-    "react-native": "*",
-    "react-native-fast-image": "*"
+    "react-native": "*"
   },
   "harmony": {
     "codegenConfig": {

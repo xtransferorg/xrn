@@ -9,11 +9,11 @@ echo "APP_NAME: $APP_NAME"
 
 nvm install v20.16.0 && nvm use v20.16.0 
 
+npm i -g yarn
+
 yarn install --no-immutable
 
 # yarn config set registry https://registry.npmjs.org
-
-npm view @xrnjs/core
 
 yarn publish:from-package
 
