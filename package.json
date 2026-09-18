@@ -28,11 +28,7 @@
   "workspaces": {
     "packages": [
       "packages/*",
-      "packages/@xrnjs/*",
-      "!packages/@xrnjs/cli",
-      "!packages/@xrnjs/app-update",
-      "!packages/@xrnjs/core",
-      "!packages/@xrnjs/devtools"
+      "packages/@xrnjs/*"
     ]
   },
   "dependencies": {
