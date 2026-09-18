@@ -58,6 +58,9 @@
     "xrn-module-scripts": "*",
     "xrn-tools": "*"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "react-native-keyboard-manager": "6.5.16-0"
   },
