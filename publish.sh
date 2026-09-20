@@ -15,8 +15,6 @@ yarn cache clean
 
 yarn install --no-immutable
 
-# yarn config set registry https://registry.npmjs.org
-
 yarn publish:from-package
 
 # 将逗号分隔的包名转换为空格分隔
