@@ -11,6 +11,8 @@ nvm install v20.16.0 && nvm use v20.16.0
 
 npm i -g yarn
 
+yarn cache clean
+
 yarn install --no-immutable
 
 # yarn config set registry https://registry.npmjs.org
