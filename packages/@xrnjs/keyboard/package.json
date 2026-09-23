@@ -58,11 +58,16 @@
     "xrn-module-scripts": "*",
     "xrn-tools": "*"
   },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "react-native-keyboard-manager": "6.5.16-0"
+  },
   "peerDependencies": {
     "@xrnjs/modules-core": "*",
     "react": "*",
-    "react-native": "*",
-    "react-native-keyboard-manager": "*"
+    "react-native": "*"
   },
   "harmony": {
     "codegenConfig": {

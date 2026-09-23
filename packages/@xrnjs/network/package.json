@@ -41,6 +41,9 @@
     "xrn-network",
     "XRNNetwork"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "repository": "https://github.com/xtransferorg/xrn",
   "bugs": {
     "url": "https://github.com/xtransferorg/xrn/issues"

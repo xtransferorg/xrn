@@ -18,7 +18,7 @@
     "@xrnjs/cli": "0.1.0",
     "@xrnjs/core": "0.1.0",
     "@xrnjs/react-native-code-push": "0.1.0",
-    "@xrnjs/ui": "0.1.0",
+    "@xrnjs/ui": "0.1.1",
     "react-native-image-zoom-viewer": "^3.0.1"
   }
 }
