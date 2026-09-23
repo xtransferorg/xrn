@@ -1,7 +1,7 @@
 {
   "appName": "XRNTemplate",
   "unpacking": false,
-  "appVersion": "0.0.1",
+  "appVersion": "0.1.0",
   "bundleConfig": {
     "project": {
       "name": "XRNTemplate"
