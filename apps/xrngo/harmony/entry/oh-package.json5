@@ -42,7 +42,7 @@
     '@xrnjs/loading': '../../node_modules/@xrnjs/loading/harmony/xrn_loading',
     '@xrnjs/native-storage': '../../node_modules/@xrnjs/native-storage/harmony/xrn_native_storage',
     '@xrnjs/navigation': '../../node_modules/@xrnjs/navigation/harmony/xrn_navigation',
-    '@xrnjs/react-native-code-push': '../../node_modules/@xrnjs/react-native-code-push/harmony/codePush',
+    'react-native-code-push': '../../node_modules/@xrnjs/react-native-code-push/harmony/codePush',
     '@xrnjs/multi-bundle': '../../node_modules/@xrnjs/multi-bundle/harmony/xrn_multi_bundle',
     '@xrnjs/bundle': '../../node_modules/@xrnjs/bundle/harmony/xrn_bundle',
     '@xrnjs/app-utils': '../../node_modules/@xrnjs/app-utils/harmony/xrn_app_utils',

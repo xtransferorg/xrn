@@ -12,7 +12,7 @@ import {
   ResourceJSBundleProvider,
   RNOHCoreContext,
   TraceJSBundleProviderDecorator} from "@rnoh/react-native-openharmony";
-import { CodePushJSBundleProvider } from "@xrnjs/react-native-code-push";
+import { CodePushJSBundleProvider } from "react-native-code-push";
 import BuildProfile from "BuildProfile";
 import { PreferencesUtil } from "@pura/harmony-utils";
 
