@@ -13,7 +13,6 @@ config/.env.prt.local
 config/.env.online.local
 ./node_modules
 xt-app-*/
-xtapp/
 release_*/
 index.xt-app-*/
 .idea
@@ -33,6 +32,21 @@ iOS_Out_release_simulator/
 iOS_Out_debug/
 iOS_Out_release/
 *.app
+
+android/app/src/main/res/raw/*.svg
+# 只忽略 cli 从 node_modules 拷贝过来的 drawable 资源(node_modules_ 前缀)，
+# 保留 app 自有图标(如 drawable-xxhdpi/ic_logo_bg.png)
+android/app/src/main/res/drawable-*/node_modules_*
+android/app/src/main/assets/*.bundle
+android/app/src/main/assets/xrn-manifest.json
+
+# Android 构建产物 / 本地配置
+android/.gradle/
+android/.kotlin/
+android/app/.cxx/
+android/buildSrc/.gradle/
+android/local.properties
+
 
 harmony/entry/src/main/resources/rawfile/*.bundle
 harmony/entry/src/main/resources/rawfile/assets/
