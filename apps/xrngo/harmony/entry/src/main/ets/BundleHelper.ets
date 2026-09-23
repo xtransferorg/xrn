@@ -28,7 +28,7 @@ import { PushNotificationPackage } from "@react-native-ohos/push-notification-io
 import { FsPackage } from "@react-native-ohos/react-native-fs"
 // import {} from "@react-native-ohos/react-native-linear-gradient"
 import { WebViewPackage} from '@react-native-ohos/react-native-webview/ts'
-import { CodePushJSBundleProvider, CodePushPackage } from '@xrnjs/react-native-code-push'
+import { CodePushJSBundleProvider, CodePushPackage } from 'react-native-code-push'
 import { RTNPdfView, PDF_VIEW_TYPE } from '@react-native-ohos/react-native-pdf';
 import { WebView, WEB_VIEW } from "@react-native-ohos/react-native-webview"
 import  BuildProfile from "BuildProfile"

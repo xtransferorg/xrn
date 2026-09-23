@@ -9,9 +9,9 @@
   },
   "overrides": {
 //    "@rnoh/react-native-openharmony": "0.72.38",
-    "@rnoh/react-native-openharmony": "libs/react_native_openharmony_0.77.33_1.har",
+    "@rnoh/react-native-openharmony": "../node_modules/@react-native-oh/react-native-harmony/react_native_openharmony.har",
     "@xrnjs/multi-bundle": "../node_modules/@xrnjs/multi-bundle/harmony/xrn_multi_bundle",
-    "@xrnjs/react-native-code-push": "../node_modules/@xrnjs/react-native-code-push/harmony/codePush",
+    "react-native-code-push": "../node_modules/@xrnjs/react-native-code-push/harmony/codePush",
     "@xrnjs/navigation": "../node_modules/@xrnjs/navigation/harmony/xrn_navigation",
     "@xrnjs/bundle": "../node_modules/@xrnjs/bundle/harmony/xrn_bundle",
     "@xrnjs/app-utils": "../node_modules/@xrnjs/app-utils/harmony/xrn_app_utils",
